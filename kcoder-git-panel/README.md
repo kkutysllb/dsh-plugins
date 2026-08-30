@@ -36,7 +36,8 @@ dsh client-modules 按 `exports["./client"]` 读入、`/plugins` combo 路由
   ahead/behind（`rev-list --left-right --count`）、origin remote URL 与默认分支、
   worktree 清单、仓库根（realpath）。
 - 写操作 RPC（v0.5.0）：`branches`（当前 + 本地分支清单）、`checkout`、
-  `create-branch`（`checkout -b`）、`commit`（无暂存时先 `add -A` 全量暂存；
+  `create-branch`（`checkout -b`）、`delete-branch`（`branch -d` 安全删；
+  未合并拒绝并带 `merged` 标记，`force` 走 `-D`；当前分支拒绝）、`commit`（无暂存时先 `add -A` 全量暂存；
   信息非空 ≤2000 字；无任何变更拒绝）、
   `push`（按已配置上游）、`open-compare`（派生 GitHub 风格
   `compare/<default>...<branch>` URL 系统浏览器打开）。分支名过
@@ -54,7 +55,8 @@ dsh client-modules 按 `exports["./client"]` 读入、`/plugins` combo 路由
 - **本地 ▾**：flyout「工作位置」——worktree 清单（主工作区标「本地」，
   当前项✓）；选中切换面板目标 cwd（只读视图切换；会话 cwd 不被改写）。
 - **<branch> ▾**：flyout 分支选择器——搜索框（`搜索 <ws> 分支`）、本地分支
-  列表（当前✓）、底部「创建并检出新分支…」内联输入流。
+  列表（当前✓）、底部「创建并检出新分支…」内联输入流；非当前分支行
+  hover 显删除按钮，行内二次确认，未合并时升级为「强制删除」确认。
 - **提交或推送**：有待提交变更（staged/changed/untracked 任一）或 ahead>0
   时可用；内联提交盒（信息 textarea + 提交/推送按钮，按条件禁用）；
   提交在无暂存时自动暂存全部变更；ahead>0 时标签带「N 待推送」。

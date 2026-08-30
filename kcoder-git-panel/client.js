@@ -82,6 +82,7 @@ window.__ModuleLoader__.load({
       const SVG = {
         branch: '<svg viewBox="0 0 16 16" fill="none"><path d="M9.5 3.25a2.25 2.25 0 1 1 3 2.122V6A2.5 2.5 0 0 1 10 8.5H6a1 1 0 0 0-1 1v1.128a2.251 2.251 0 1 1-1.5 0V5.372a2.25 2.25 0 1 1 1.5 0v1.836A2.493 2.493 0 0 1 6 7h4a1 1 0 0 0 1-1v-.628A2.25 2.25 0 0 1 9.5 3.25Z" fill="currentColor"/></svg>',
         folder: '<svg viewBox="0 0 16 16" fill="none"><path d="M1.8 3.5c0-.6.4-1 1-1h3l1.4 1.6h6c.6 0 1 .4 1 1v7c0 .6-.4 1-1 1H2.8c-.6 0-1-.4-1-1v-8.6Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>',
+        x: '<svg viewBox="0 0 16 16" fill="none"><path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>',
         refresh: '<svg viewBox="0 0 16 16" fill="none"><path d="M13 8a5 5 0 1 1-1.5-3.5M13 2v3h-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
         close: '<svg viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
         plan: '<svg viewBox="0 0 16 16" fill="none"><path d="M3 2.2h10c.6 0 1 .4 1 1v9.6c0 .6-.4 1-1 1H3c-.6 0-1-.4-1-1V3.2c0-.6.4-1 1-1Z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><path d="M4.5 5.5h7M4.5 8h7M4.5 10.5h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
@@ -192,6 +193,14 @@ window.__ModuleLoader__.load({
         '#' + FLY_ID + ' .fly-row .ck svg{width:14px;height:14px;display:block}',
         '#' + FLY_ID + ' .fly-div{height:1px;background:var(--gt-border);margin:6px 10px}',
         '#' + FLY_ID + ' .fly-none{padding:8px 12px;font-size:11px;color:var(--gt-muted)}',
+        '#' + FLY_ID + ' .fly-zone{display:inline-flex;align-items:center;gap:4px;flex:none}',
+        '#' + FLY_ID + ' .fly-del{cursor:pointer;user-select:none;font-size:11px;line-height:1;color:var(--gt-muted);padding:3px 5px;border-radius:5px;opacity:0;transition:opacity .12s}',
+        '#' + FLY_ID + ' .fly-del svg{width:12px;height:12px;display:block}',
+        '#' + FLY_ID + ' .fly-del:hover{color:var(--gt-fg);background:var(--gt-hover)}',
+        '#' + FLY_ID + ' .fly-row:hover .fly-del{opacity:1}',
+        '#' + FLY_ID + ' .fly-zone.confirm .fly-del{opacity:1}',
+        '#' + FLY_ID + ' .fly-del.danger{color:#e5534b}',
+        '#' + FLY_ID + ' .fly-ctag{font-size:11px;color:var(--gt-muted);white-space:nowrap}',
         '#' + FLY_ID + ' .fly-foot{display:flex;justify-content:flex-end;padding:0 10px 10px}',
       ].join('')
 
@@ -509,12 +518,62 @@ window.__ModuleLoader__.load({
         const div = el('div', 'fly-div')
         const createRow = flyRow(SVG.plus, '创建并检出新分支…', () => { openCreateFly(anchor) })
         fly.append(search, cap, list, div, createRow)
+        /** 删除当前 flyout 行内局部状态：idle（×）→ confirm → force。 */
+        const mkZone = (b, doDelete) => {
+          const zone = el('span', 'fly-zone')
+          const setConfirm = (force) => {
+            zone.className = 'fly-zone confirm'
+            zone.replaceChildren()
+            const tag = el('span', 'fly-ctag', force ? '未合并，仍删除？' : '删除分支？')
+            const yes = el('span', 'fly-del danger', force ? '强制删除' : '删除')
+            yes.onclick = (ev) => { ev.stopPropagation(); void doDelete(b, force, () => setConfirm(true)) }
+            const no = el('span', 'fly-del', '取消')
+            no.onclick = (ev) => { ev.stopPropagation(); setIdle() }
+            zone.append(tag, yes, no)
+          }
+          const setIdle = () => {
+            zone.className = 'fly-zone'
+            zone.replaceChildren()
+            const del = el('span', 'fly-del')
+            del.innerHTML = SVG.x
+            del.title = '删除分支'
+            del.onclick = (ev) => { ev.stopPropagation(); setConfirm(false) }
+            zone.append(del)
+          }
+          setIdle()
+          return zone
+        }
+        /** delete-branch：成功后刷新分支缓存并重填列表；
+         *  未合并（merged 标记）时回调升级为强制确认。 */
+        const doDelete = async (b, force, onMerged) => {
+          if (busyAction) return
+          busyAction = true
+          let done = false
+          try {
+            const res = await api('delete-branch', { cwd: effectiveCwd(), name: b, force: force === true })
+            if (res.ok) { done = true; actionHint('已删除 ' + b) }
+            else if (res.merged === true && !force) { busyAction = false; onMerged(); return }
+            else actionHint(res.error ?? '删除失败')
+          } catch { actionHint('网络异常') }
+          busyAction = false
+          if (done) {
+            const cwd = effectiveCwd()
+            if (cwd !== null && cwd !== '') {
+              try { branchCache = await api('branches', { cwd }) } catch { /* 保留旧缓存 */ }
+            }
+            if (flyMode === 'branch') fill(search.value.trim())
+          }
+          void refresh()
+        }
         const fill = (filter) => {
           list.replaceChildren()
           const bs = (branchCache?.branches ?? []).filter(b => filter === '' || b.toLowerCase().includes(filter.toLowerCase()))
           if (bs.length === 0) list.append(el('div', 'fly-none', '无匹配分支'))
           for (const b of bs) {
-            list.append(flyRow(SVG.branch, b, () => { void doCheckout(b) }, b === branchCache?.current))
+            const isCur = b === branchCache?.current
+            const row = flyRow(SVG.branch, b, () => { void doCheckout(b) }, isCur)
+            if (!isCur) row.append(mkZone(b, doDelete)) // 当前分支不可删
+            list.append(row)
           }
         }
         search.oninput = () => { fill(search.value.trim()) }

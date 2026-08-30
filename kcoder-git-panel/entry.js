@@ -567,6 +567,21 @@ export async function handleCreateBranch(body) {
   return r.ok ? { ok: true } : { ok: false, error: firstLine(r.err) ?? 'create branch failed' }
 }
 
+/** delete-branch：删除本地分支。默认安全删（`branch -d`，未合并拒绝并
+ *  带 merged 标记供 UI 升级强制确认）；`force` 走 `branch -D`；
+ *  当前检出分支拒绝。 */
+export async function handleDeleteBranch(body) {
+  const cwd = absCwd(body)
+  if (cwd === '') return { ok: false, error: 'bad cwd' }
+  const name = typeof body?.name === 'string' ? body.name.trim() : ''
+  if (!isValidBranchName(name)) return { ok: false, error: 'invalid branch name' }
+  const cur = await runGit(['symbolic-ref', '--short', 'HEAD'], cwd, GIT_TIMEOUT_MS)
+  if (cur.ok && cur.out.trim() === name) return { ok: false, error: 'cannot delete current branch' }
+  const r = await runGit(['branch', body?.force === true ? '-D' : '-d', name], cwd, WRITE_TIMEOUT_MS)
+  if (r.ok) return { ok: true }
+  return { ok: false, error: firstLine(r.err) ?? 'delete failed', merged: /not fully merged/i.test(r.err ?? '') }
+}
+
 /** commit：提交待提交变更（已有暂存仅提暂存；无暂存但有
  *  changed/untracked 时先 add -A 全量暂存——对齐 Codex 提交或推送语义；
  *  无任何变更拒绝；信息非空且 ≤2000 字）。 */
@@ -681,6 +696,10 @@ export function apply(ctx) {
             }
             if (method === 'create-branch') {
               writeJson(res, 200, await handleCreateBranch(body))
+              return
+            }
+            if (method === 'delete-branch') {
+              writeJson(res, 200, await handleDeleteBranch(body))
               return
             }
             if (method === 'commit') {

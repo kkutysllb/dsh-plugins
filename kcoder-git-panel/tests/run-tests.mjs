@@ -22,7 +22,7 @@ import {
   countUntrackedLines, scanPlans,
   probeWorkspace, emptySnapshot,
   handleSnapshot, handleOpenPlan,
-  handleBranches, handleCheckout, handleCreateBranch,
+  handleBranches, handleCheckout, handleCreateBranch, handleDeleteBranch,
   handleCommit, handlePush, handleOpenCompare,
   RPC_PREFIX,
 } from '../entry.js'
@@ -405,6 +405,21 @@ if (await gitAvailable()) {
     assert.equal((await handlePush({ cwd: src })).ok, true)
     // 无任何变更拒绝提交
     assert.equal((await handleCommit({ cwd: src, message: 'noop' })).ok, false)
+    // 删除分支：非法名/当前分支拒绝；已合并安全删（-d）
+    assert.equal((await handleDeleteBranch({ cwd: src, name: '-x' })).ok, false)
+    assert.equal((await handleDeleteBranch({ cwd: src, name: 'main' })).ok, false)
+    assert.equal((await handleDeleteBranch({ cwd: src, name: 'feature/x' })).ok, true)
+    assert.deepEqual((await handleBranches({ cwd: src })).branches, ['main'])
+    // 未合并分支：-d 拒绝并带 merged 标记，force 走 -D
+    await handleCreateBranch({ cwd: src, name: 'wip' })
+    await writeFile(join(src, 'w.txt'), 'w\n')
+    assert.equal((await handleCommit({ cwd: src, message: 'wip' })).ok, true)
+    assert.equal((await handleCheckout({ cwd: src, branch: 'main' })).ok, true)
+    const dw = await handleDeleteBranch({ cwd: src, name: 'wip' })
+    assert.equal(dw.ok, false)
+    assert.equal(dw.merged, true)
+    assert.equal((await handleDeleteBranch({ cwd: src, name: 'wip', force: true })).ok, true)
+    assert.deepEqual((await handleBranches({ cwd: src })).branches, ['main'])
   })
 } else {
   skipped = 7
