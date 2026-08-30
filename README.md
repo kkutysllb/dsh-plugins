@@ -14,6 +14,7 @@
 | [kcoder-skills](./kcoder-skills) | 方法论技能包（适配自 KSkills，dsh 兼容清洗后物化） |
 | [dsh-file-review-tab](./dsh-file-review-tab) | 文件审查 fork（origin: Lzh3070/dsh-file-review-tab）：行级红绿 diff + undo 审查 agent 产物；tsdown 构建型，lib 产物随仓提交，包名 @kcoder/file-review |
 | [DSH-better-sidebar](./DSH-better-sidebar) | dsh-better-sidebar（npm 0.17.x）的 fork 源码仓：侧边栏工作台底座（文件树/CM6/预览/子代理），仅作 npm 包维护，不参与 KCoder sync |
+| [dsh-super-ppts](./dsh-super-ppts) | 演示文稿超级插件（开发真源 kkutysllb/dsh-super-ppts 的分发镜像，由其 scripts/sync-to-dsh-plugins.mjs 同步，--check 对账）：可编辑 PPTX（pptx-designer 引擎+渲染验收闭环）与 HTML 在线演示（8 形态）双交付线 + 「演示文稿专家」Agent 预设 |
 
 ## 安装
 
