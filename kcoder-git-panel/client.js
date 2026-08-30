@@ -427,6 +427,8 @@ window.__ModuleLoader__.load({
 
       /* ---- 环境信息行为（Codex 风格：worktree/分支/提交/推送/比较） ---- */
       const effectiveCwd = () => cwdOverride ?? currentCwd()
+      /** 待提交变更总数（staged + changed + untracked）。 */
+      const totalChanges = (s) => s.staged + s.changed + s.untracked
       const baseName = (p) => {
         const segs = String(p).split('/').filter(Boolean)
         return segs.length > 0 ? (segs[segs.length - 1] ?? p) : p
@@ -606,7 +608,7 @@ window.__ModuleLoader__.load({
       }
       cpRow.r.onclick = () => {
         if (!snapshot.isRepo) return
-        if (!(snapshot.staged > 0 || (snapshot.ahead > 0 && snapshot.hasUpstream))) return
+        if (!(totalChanges(snapshot) > 0 || (snapshot.ahead > 0 && snapshot.hasUpstream))) return
         commitOpen = !commitOpen
         commitBox.style.display = commitOpen ? '' : 'none'
         actionHint('')
@@ -641,12 +643,12 @@ window.__ModuleLoader__.load({
         locRow.r.classList.toggle('dim', !s.isRepo)
         brRow.lb.textContent = s.branch ?? (s.isRepo ? '(detached)' : '—')
         brRow.r.classList.toggle('dim', !s.isRepo)
-        cpRow.r.classList.toggle('dim', !(s.isRepo && (s.staged > 0 || (s.ahead > 0 && s.hasUpstream))))
+        cpRow.r.classList.toggle('dim', !(s.isRepo && (totalChanges(s) > 0 || (s.ahead > 0 && s.hasUpstream))))
         cpRow.lb.textContent = s.hasUpstream && s.ahead > 0
           ? '提交或推送（' + s.ahead + ' 待推送）'
           : '提交或推送'
         cmpRow.r.classList.toggle('dim', !(s.isRepo && s.remoteUrl !== null && s.defaultBranch !== null && s.branch !== null))
-        doCommitBtn.disabled = !(s.staged > 0) || busyAction
+        doCommitBtn.disabled = !(totalChanges(s) > 0) || busyAction
         doPushBtn.disabled = !(s.hasUpstream && s.ahead > 0) || busyAction
         hintLine.textContent = hintMsg
         // 变更文件列表（展开态重建）

@@ -567,12 +567,24 @@ export async function handleCreateBranch(body) {
   return r.ok ? { ok: true } : { ok: false, error: firstLine(r.err) ?? 'create branch failed' }
 }
 
-/** commit：仅提交已暂存变更（git 自身拦空暂存；信息非空且 ≤2000 字）。 */
+/** commit：提交待提交变更（已有暂存仅提暂存；无暂存但有
+ *  changed/untracked 时先 add -A 全量暂存——对齐 Codex 提交或推送语义；
+ *  无任何变更拒绝；信息非空且 ≤2000 字）。 */
 export async function handleCommit(body) {
   const cwd = absCwd(body)
   if (cwd === '') return { ok: false, error: 'bad cwd' }
   const message = typeof body?.message === 'string' ? body.message.trim() : ''
   if (message === '' || message.length > 2000) return { ok: false, error: 'empty or too long message' }
+  const st = await runGit(['status', '--porcelain=v1'], cwd, GIT_TIMEOUT_MS)
+  if (!st.ok) return { ok: false, error: firstLine(st.err) ?? 'status failed' }
+  const counts = parseStatusLines(st.out)
+  if (counts.staged + counts.changed + counts.untracked === 0) {
+    return { ok: false, error: 'nothing to commit' }
+  }
+  if (counts.staged === 0) {
+    const add = await runGit(['add', '-A'], cwd, WRITE_TIMEOUT_MS)
+    if (!add.ok) return { ok: false, error: firstLine(add.err) ?? 'stage failed' }
+  }
   const r = await runGit(['commit', '-m', message], cwd, WRITE_TIMEOUT_MS)
   return r.ok ? { ok: true } : { ok: false, error: firstLine(r.err) ?? 'commit failed' }
 }

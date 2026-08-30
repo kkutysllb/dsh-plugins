@@ -395,6 +395,16 @@ if (await gitAvailable()) {
     // open-compare：本地路径 remote 不可派生 compare URL
     const oc = await handleOpenCompare({ cwd: src })
     assert.equal(oc.ok, false)
+    // 无暂存提交：仅 unstaged 变更 → 自动 add -A 后提交
+    await writeFile(join(src, 'd.txt'), 'd\n')
+    const cm2 = await handleCommit({ cwd: src, message: 'add d' })
+    assert.equal(cm2.ok, true)
+    const s3 = await probeWorkspace(src)
+    assert.equal(s3.ahead, 1)
+    assert.equal(s3.untracked, 0) // 自动暂存并入提交
+    assert.equal((await handlePush({ cwd: src })).ok, true)
+    // 无任何变更拒绝提交
+    assert.equal((await handleCommit({ cwd: src, message: 'noop' })).ok, false)
   })
 } else {
   skipped = 7
