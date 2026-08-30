@@ -8,6 +8,7 @@
 | 插件 | 说明 |
 |---|---|
 | [kcoder-git-panel](./kcoder-git-panel) | 独立 git 工作区浮动面板：变更统计 + Codex 风格环境信息区（变更文件列表 / 工作位置·worktree 切换 / 分支选择器 / 提交或推送 / 比较分支外链）+ 任务计划列表 |
+| [kcoder-stats-panel](./kcoder-stats-panel) | 会话统计图表面板：hover 输入框下方 StatsLine 缩略条 → 底部弹出自绘图表（轮/步、首 token 平均、解码速度、LLM/工具调用耗时、Token 用量、缓存命中率环），zh/en 双时长格式解析 |
 
 ## 安装
 
