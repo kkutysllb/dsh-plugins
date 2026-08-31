@@ -48,7 +48,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	let react_dom_client = require("react-dom/client");
 	let _deepseek_ai_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 	let react_jsx_runtime = require("react/jsx-runtime");
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-Y2CYZVJY.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-Y2CYZVJY.mjs
 	var __defProp$1, __name$1, __export$1;
 	var init_chunk_Y2CYZVJY = __esmMin((() => {
 		__defProp$1 = Object.defineProperty;
@@ -362,7 +362,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		}));
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-X3CZISLH.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-X3CZISLH.mjs
 	var import_dayjs_min$2, LEVELS, log, setLogLevel, format$1;
 	var init_chunk_X3CZISLH = __esmMin((() => {
 		init_chunk_Y2CYZVJY();
@@ -30170,7 +30170,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-DU6HZSFF.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-DU6HZSFF.mjs
 	function setupDompurifyHooks() {
 		const TEMPORARY_ATTRIBUTE = "data-temp-href-target";
 		purify.addHook("beforeSanitizeAttributes", (node) => {
@@ -41419,7 +41419,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}));
 	//#endregion
 	//#region node_modules/.pnpm/d3-shape@3.2.0/node_modules/d3-shape/src/point.js
-	function x$1(p) {
+	function x$2(p) {
 		return p[0];
 	}
 	function y$2(p) {
@@ -41430,7 +41430,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	//#region node_modules/.pnpm/d3-shape@3.2.0/node_modules/d3-shape/src/line.js
 	function line_default(x, y) {
 		var defined = constant_default$1(true), context = null, curve = linear_default, output = null, path = withPath(line);
-		x = typeof x === "function" ? x : x === void 0 ? x$1 : constant_default$1(x);
+		x = typeof x === "function" ? x : x === void 0 ? x$2 : constant_default$1(x);
 		y = typeof y === "function" ? y : y === void 0 ? y$2 : constant_default$1(y);
 		function line(data) {
 			var i, n = (data = array_default(data)).length, d, defined0 = false, buffer;
@@ -42516,7 +42516,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_src$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-CLGD4ZFX.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-CLGD4ZFX.mjs
 	var selectSvgElement;
 	var init_chunk_CLGD4ZFX = __esmMin((() => {
 		init_chunk_DU6HZSFF();
@@ -42530,7 +42530,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		}, "selectSvgElement");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-P2QGCYS3.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-P2QGCYS3.mjs
 	var solidStateFill, normalizeStyleList, compileStyles, styles2Map, isLabelStyle, styles2String, userNodeOverrides, getStrokeDashArray;
 	var init_chunk_P2QGCYS3 = __esmMin((() => {
 		init_chunk_DU6HZSFF();
@@ -43023,7 +43023,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_html();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-PWAF6VOD.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-PWAF6VOD.mjs
 	var unknownIcon, iconsStore, loaderStore, registerIconPacks, getRegisteredIconData, isIconAvailable, getIconSVG;
 	var init_chunk_PWAF6VOD = __esmMin((() => {
 		init_chunk_DU6HZSFF();
@@ -43165,7 +43165,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		}
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/predicate/isArray.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/predicate/isArray.mjs
 	/**
 	* Checks if the given value is an array.
 	*
@@ -43191,7 +43191,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	var init_isArray$1 = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/predicate/isPlainObject.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/predicate/isPlainObject.mjs
 	/**
 	* Checks if a given value is a plain object.
 	*
@@ -43230,7 +43230,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	var init_isPlainObject$1 = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/function/noop.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/function/noop.mjs
 	/**
 	* A no-operation function that does nothing.
 	* This can be used as a placeholder or default function.
@@ -43243,13 +43243,13 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	function noop$4() {}
 	var init_noop$1 = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/_internal/getSymbols.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/_internal/getSymbols.mjs
 	function getSymbols$1(object) {
 		return Object.getOwnPropertySymbols(object).filter((symbol) => Object.prototype.propertyIsEnumerable.call(object, symbol));
 	}
 	var init_getSymbols = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/_internal/getTag.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/_internal/getTag.mjs
 	/**
 	* Gets the `toStringTag` of `value`.
 	*
@@ -43263,7 +43263,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	var init_getTag = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/_internal/tags.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/_internal/tags.mjs
 	var regexpTag$5, stringTag$6, numberTag$5, booleanTag, argumentsTag, symbolTag$5, dateTag$5, mapTag$9, setTag$9, arrayTag$4, arrayBufferTag$5, objectTag$6, dataViewTag$6, uint8ArrayTag, uint8ClampedArrayTag, uint16ArrayTag, uint32ArrayTag, int8ArrayTag, int16ArrayTag, int32ArrayTag, float32ArrayTag, float64ArrayTag;
 	var init_tags = __esmMin((() => {
 		regexpTag$5 = "[object RegExp]";
@@ -43290,7 +43290,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		float64ArrayTag = "[object Float64Array]";
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/_internal/globalThis.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/_internal/globalThis.mjs
 	var globalThis_;
 	var init_globalThis = __esmMin((() => {
 		globalThis_ = typeof globalThis === "object" && globalThis || typeof window === "object" && window || typeof self === "object" && self || typeof global === "object" && global || (function() {
@@ -43298,7 +43298,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		})();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/predicate/isBuffer.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/predicate/isBuffer.mjs
 	/**
 	* Checks if the given value is a Buffer instance.
 	*
@@ -43324,7 +43324,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_globalThis();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/predicate/isLength.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/predicate/isLength.mjs
 	/**
 	* Checks if a given value is a valid length.
 	*
@@ -43351,7 +43351,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	var init_isLength$1 = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/predicate/isArrayLike.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/predicate/isArrayLike.mjs
 	/**
 	* Checks if `value` is array-like.
 	*
@@ -43373,7 +43373,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isLength$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/_internal/isUnsafeProperty.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/_internal/isUnsafeProperty.mjs
 	/**
 	* Checks if a property key is unsafe to access or copy directly.
 	*
@@ -43392,7 +43392,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	var init_isUnsafeProperty = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/predicate/isPrimitive.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/predicate/isPrimitive.mjs
 	/**
 	* Checks whether a value is a JavaScript primitive.
 	* JavaScript primitives include null, undefined, strings, numbers, booleans, symbols, and bigints.
@@ -43419,7 +43419,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	var init_isPrimitive = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/predicate/isTypedArray.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/predicate/isTypedArray.mjs
 	/**
 	* Checks if a value is a TypedArray.
 	* @param x The value to check.
@@ -43440,7 +43440,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	var init_isTypedArray$2 = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/object/cloneDeepWith.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/object/cloneDeepWith.mjs
 	/**
 	* Deeply clones the given object.
 	*
@@ -43624,7 +43624,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isBuffer$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/object/cloneDeepWith.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/object/cloneDeepWith.mjs
 	/**
 	* Creates a deep clone of the given object using a customizer function.
 	*
@@ -43698,7 +43698,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_cloneDeepWith$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/object/cloneDeep.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/object/cloneDeep.mjs
 	/**
 	* Creates a deep clone of the given object.
 	*
@@ -43752,7 +43752,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_cloneDeepWith();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/predicate/isArguments.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/predicate/isArguments.mjs
 	/**
 	* Checks if the given value is an arguments object.
 	*
@@ -43780,7 +43780,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_getTag();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/predicate/isObjectLike.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/predicate/isObjectLike.mjs
 	/**
 	* Checks if the given value is object-like.
 	*
@@ -43809,7 +43809,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	var init_isObjectLike$1 = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/predicate/isArrayLikeObject.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/predicate/isArrayLikeObject.mjs
 	/**
 	* Checks if the given value is a non-primitive, array-like object.
 	*
@@ -43830,7 +43830,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isObjectLike$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/predicate/isTypedArray.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/predicate/isTypedArray.mjs
 	/**
 	* Checks if a value is a TypedArray.
 	* @param x The value to check.
@@ -43853,14 +43853,14 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isTypedArray$2();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/_internal/isPrototype.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/_internal/isPrototype.mjs
 	function isPrototype$2(value) {
 		const constructor = value?.constructor;
 		return value === (typeof constructor === "function" ? constructor.prototype : Object.prototype);
 	}
 	var init_isPrototype = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/function/memoize.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/function/memoize.mjs
 	/**
 	* Creates a function that memoizes the result of func. If resolver is provided it determines the cache key for
 	* storing the result based on the arguments provided to the memoized function. By default, the first argument
@@ -43889,7 +43889,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		memoize$3.Cache = Map;
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/object/clone.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/object/clone.mjs
 	/**
 	* Creates a shallow clone of the given object.
 	*
@@ -44046,7 +44046,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isTypedArray$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/object/clone.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/object/clone.mjs
 	/**
 	* Creates a shallow clone of the given object.
 	*
@@ -44108,7 +44108,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isTypedArray$2();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/object/mergeWith.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/object/mergeWith.mjs
 	/**
 	* Merges the properties of one or more source objects into the target object using a customizer function.
 	*
@@ -44172,7 +44172,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		stack.set(source, target);
 		if (Array.isArray(source)) {
 			source = source.slice();
-			for (let i = 0; i < source.length; i++) source[i] = source[i] ?? void 0;
+			for (let i = 0; i < source.length; i++) if (!(i in source)) source[i] = void 0;
 		}
 		const sourceKeys = [...Object.keys(source), ...getSymbols$1(source)];
 		for (let i = 0; i < sourceKeys.length; i++) {
@@ -44220,7 +44220,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isTypedArray$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/object/merge.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/object/merge.mjs
 	/**
 	* Merges the properties of one or more source objects into the target object.
 	*
@@ -44266,7 +44266,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_mergeWith();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/predicate/isEmpty.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/predicate/isEmpty.mjs
 	/**
 	* Checks if a given value is empty.
 	*
@@ -44315,7 +44315,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isTypedArray$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/es-toolkit@1.51.0/node_modules/es-toolkit/dist/compat/index.mjs
+	//#region node_modules/.pnpm/es-toolkit@1.52.0/node_modules/es-toolkit/dist/compat/index.mjs
 	var init_compat = __esmMin((() => {
 		init_memoize$1();
 		init_clone$1();
@@ -44323,7 +44323,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		init_isEmpty$1();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-75Z2AOVW.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-75Z2AOVW.mjs
 	function interpolateToCurve(interpolate, defaultCurve) {
 		if (!interpolate) return defaultCurve;
 		return d3CurveTypes[`curve${interpolate.charAt(0).toUpperCase() + interpolate.slice(1)}`] ?? defaultCurve;
@@ -45064,10 +45064,11 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		})();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/marked@16.3.0/node_modules/marked/lib/marked.esm.js
+	//#region node_modules/.pnpm/marked@16.4.2/node_modules/marked/lib/marked.esm.js
 	/**
-	* marked v16.3.0 - a markdown parser
-	* Copyright (c) 2011-2025, Christopher Jeffrey. (MIT Licensed)
+	* marked v16.4.2 - a markdown parser
+	* Copyright (c) 2018-2025, MarkedJS. (MIT License)
+	* Copyright (c) 2011-2018, Christopher Jeffrey. (MIT License)
 	* https://github.com/markedjs/marked
 	*/
 	/**
@@ -45089,9 +45090,9 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		};
 	}
 	function G(l) {
-		O = l;
+		T = l;
 	}
-	function h(l, e = "") {
+	function d(l, e = "") {
 		let t = typeof l == "string" ? l : l.source, n = {
 			replace: (r, i) => {
 				let s = typeof i == "string" ? i : i.source;
@@ -45103,8 +45104,8 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 	}
 	function w$1(l, e) {
 		if (e) {
-			if (m.escapeTest.test(l)) return l.replace(m.escapeReplace, ke);
-		} else if (m.escapeTestNoEncode.test(l)) return l.replace(m.escapeReplaceNoEncode, ke);
+			if (m.escapeTest.test(l)) return l.replace(m.escapeReplace, ge);
+		} else if (m.escapeTestNoEncode.test(l)) return l.replace(m.escapeReplaceNoEncode, ge);
 		return l;
 	}
 	function J(l) {
@@ -45116,10 +45117,10 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		return l;
 	}
 	function V(l, e) {
-		let n = l.replace(m.findPipe, (i, s, o) => {
-			let a = !1, u = s;
-			for (; --u >= 0 && o[u] === "\\";) a = !a;
-			return a ? "|" : " |";
+		let n = l.replace(m.findPipe, (i, s, a) => {
+			let o = !1, p = s;
+			for (; --p >= 0 && a[p] === "\\";) o = !o;
+			return o ? "|" : " |";
 		}).split(m.splitPipe), r = 0;
 		if (n[0].trim() || n.shift(), n.length > 0 && !n.at(-1)?.trim() && n.pop(), e) if (n.length > e) n.splice(e);
 		else for (; n.length < e;) n.push("");
@@ -45138,7 +45139,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		}
 		return l.slice(0, n - r);
 	}
-	function ge(l, e) {
+	function fe(l, e) {
 		if (l.indexOf(e[1]) === -1) return -1;
 		let t = 0;
 		for (let n = 0; n < l.length; n++) if (l[n] === "\\") n++;
@@ -45146,20 +45147,20 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 		else if (l[n] === e[1] && (t--, t < 0)) return n;
 		return t > 0 ? -2 : -1;
 	}
-	function fe(l, e, t, n, r) {
-		let i = e.href, s = e.title || null, o = l[1].replace(r.other.outputLinkReplace, "$1");
+	function me(l, e, t, n, r) {
+		let i = e.href, s = e.title || null, a = l[1].replace(r.other.outputLinkReplace, "$1");
 		n.state.inLink = !0;
-		let a = {
+		let o = {
 			type: l[0].charAt(0) === "!" ? "image" : "link",
 			raw: t,
 			href: i,
 			title: s,
-			text: o,
-			tokens: n.inlineTokens(o)
+			text: a,
+			tokens: n.inlineTokens(a)
 		};
-		return n.state.inLink = !1, a;
+		return n.state.inLink = !1, o;
 	}
-	function Je(l, e, t) {
+	function Ye(l, e, t) {
 		let n = l.match(t.other.indentCodeCompensation);
 		if (n === null) return e;
 		let r = n[1];
@@ -45167,18 +45168,25 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 `).map((i) => {
 			let s = i.match(t.other.beginningSpace);
 			if (s === null) return i;
-			let [o] = s;
-			return o.length >= r.length ? i.slice(r.length) : i;
+			let [a] = s;
+			return a.length >= r.length ? i.slice(r.length) : i;
 		}).join(`
 `);
 	}
-	function d(l, e) {
+	function k(l, e) {
 		return _.parse(l, e);
 	}
-	var O, E, m, xe, be, Re, C, Oe, j, se, ie, Te, F, we, Q, ye, Pe, v, U, Se, oe, K$1, re, _e, Le, Me, ze, ae, Ae, D, W, le, Ee, ue, Ce, Ie, Be, pe, qe, ve, ce, De, He, Ze, Ge, Ne, je, Fe, q, Qe, he, de, X, Ke, N, We, I, M, Xe, ke, y$1, b, P, $, R, S, B, _;
+	var T, E, be, m, Re, Te, Oe, I, we, F, ie, oe, ye, j, Pe, Q, Se, $e, v, U, _e, ae, K$1, re, Me, ze, Ae, Ee, le, Ie, D, W, ue, Ce, pe, Be, qe, ve, ce, De, He, he, Ze, Ge, Ne, Fe, je, Qe, Ue, q, Ke, de, ke, We, se, X, Xe, N, Je, C, M, Ve, ge, y$1, x$1, P, $, b, S, B, _;
 	var init_marked_esm = __esmMin((() => {
-		O = L();
+		T = L();
 		E = { exec: () => null };
+		be = (() => {
+			try {
+				return true;
+			} catch {
+				return !1;
+			}
+		})();
 		m = {
 			codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm,
 			outputLinkReplace: /\\([\[\]])/g,
@@ -45237,148 +45245,150 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 			headingBeginRegex: (l) => new RegExp(`^ {0,${Math.min(3, l - 1)}}#`),
 			htmlBeginRegex: (l) => new RegExp(`^ {0,${Math.min(3, l - 1)}}<(?:[a-z].*>|!--)`, "i")
 		};
-		xe = /^(?:[ \t]*(?:\n|$))+/;
-		be = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/;
-		Re = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/;
-		C = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/;
-		Oe = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/;
-		j = /(?:[*+-]|\d{1,9}[.)])/;
-		se = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/;
-		ie = h(se).replace(/bull/g, j).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex();
-		Te = h(se).replace(/bull/g, j).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex();
-		F = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/;
-		we = /^[^\n]+/;
+		Re = /^(?:[ \t]*(?:\n|$))+/;
+		Te = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/;
+		Oe = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/;
+		I = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/;
+		we = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/;
+		F = /(?:[*+-]|\d{1,9}[.)])/;
+		ie = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/;
+		oe = d(ie).replace(/bull/g, F).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex();
+		ye = d(ie).replace(/bull/g, F).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex();
+		j = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/;
+		Pe = /^[^\n]+/;
 		Q = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/;
-		ye = h(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", Q).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex();
-		Pe = h(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, j).getRegex();
+		Se = d(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", Q).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex();
+		$e = d(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g, F).getRegex();
 		v = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul";
 		U = /<!--(?:-?>|[\s\S]*?(?:-->|$))/;
-		Se = h("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", U).replace("tag", v).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
-		oe = h(F).replace("hr", C).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", v).getRegex();
+		_e = d("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", U).replace("tag", v).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
+		ae = d(j).replace("hr", I).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", v).getRegex();
 		K$1 = {
-			blockquote: h(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", oe).getRegex(),
-			code: be,
-			def: ye,
-			fences: Re,
-			heading: Oe,
-			hr: C,
-			html: Se,
-			lheading: ie,
-			list: Pe,
-			newline: xe,
-			paragraph: oe,
+			blockquote: d(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", ae).getRegex(),
+			code: Te,
+			def: Se,
+			fences: Oe,
+			heading: we,
+			hr: I,
+			html: _e,
+			lheading: oe,
+			list: $e,
+			newline: Re,
+			paragraph: ae,
 			table: E,
-			text: we
+			text: Pe
 		};
-		re = h("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", C).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", v).getRegex();
-		_e = {
+		re = d("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", I).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", v).getRegex();
+		Me = {
 			...K$1,
-			lheading: Te,
+			lheading: ye,
 			table: re,
-			paragraph: h(F).replace("hr", C).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", re).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", v).getRegex()
+			paragraph: d(j).replace("hr", I).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", re).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)]) ").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", v).getRegex()
 		};
-		Le = {
+		ze = {
 			...K$1,
-			html: h(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", U).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
+			html: d(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", U).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
 			def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
 			heading: /^(#{1,6})(.*)(?:\n+|$)/,
 			fences: E,
 			lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,
-			paragraph: h(F).replace("hr", C).replace("heading", ` *#{1,6} *[^
-]`).replace("lheading", ie).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex()
+			paragraph: d(j).replace("hr", I).replace("heading", ` *#{1,6} *[^
+]`).replace("lheading", oe).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex()
 		};
-		Me = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/;
-		ze = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/;
-		ae = /^( {2,}|\\)\n(?!\s*$)/;
-		Ae = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/;
+		Ae = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/;
+		Ee = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/;
+		le = /^( {2,}|\\)\n(?!\s*$)/;
+		Ie = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/;
 		D = /[\p{P}\p{S}]/u;
 		W = /[\s\p{P}\p{S}]/u;
-		le = /[^\s\p{P}\p{S}]/u;
-		Ee = h(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, W).getRegex();
-		ue = /(?!~)[\p{P}\p{S}]/u;
-		Ce = /(?!~)[\s\p{P}\p{S}]/u;
-		Ie = /(?:[^\s\p{P}\p{S}]|~)/u;
-		Be = /\[[^\[\]]*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)|`[^`]*?`|<(?! )[^<>]*?>/g;
-		pe = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/;
-		qe = h(pe, "u").replace(/punct/g, D).getRegex();
-		ve = h(pe, "u").replace(/punct/g, ue).getRegex();
-		ce = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)";
-		De = h(ce, "gu").replace(/notPunctSpace/g, le).replace(/punctSpace/g, W).replace(/punct/g, D).getRegex();
-		He = h(ce, "gu").replace(/notPunctSpace/g, Ie).replace(/punctSpace/g, Ce).replace(/punct/g, ue).getRegex();
-		Ze = h("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, le).replace(/punctSpace/g, W).replace(/punct/g, D).getRegex();
-		Ge = h(/\\(punct)/, "gu").replace(/punct/g, D).getRegex();
-		Ne = h(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex();
-		je = h(U).replace("(?:-->|$)", "-->").getRegex();
-		Fe = h("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", je).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex();
-		q = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`[^`]*`|[^\[\]\\`])*?/;
-		Qe = h(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", q).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex();
-		he = h(/^!?\[(label)\]\[(ref)\]/).replace("label", q).replace("ref", Q).getRegex();
-		de = h(/^!?\[(ref)\](?:\[\])?/).replace("ref", Q).getRegex();
+		ue = /[^\s\p{P}\p{S}]/u;
+		Ce = d(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, W).getRegex();
+		pe = /(?!~)[\p{P}\p{S}]/u;
+		Be = /(?!~)[\s\p{P}\p{S}]/u;
+		qe = /(?:[^\s\p{P}\p{S}]|~)/u;
+		ve = d(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", be ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex();
+		ce = /^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/;
+		De = d(ce, "u").replace(/punct/g, D).getRegex();
+		He = d(ce, "u").replace(/punct/g, pe).getRegex();
+		he = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)";
+		Ze = d(he, "gu").replace(/notPunctSpace/g, ue).replace(/punctSpace/g, W).replace(/punct/g, D).getRegex();
+		Ge = d(he, "gu").replace(/notPunctSpace/g, qe).replace(/punctSpace/g, Be).replace(/punct/g, pe).getRegex();
+		Ne = d("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, ue).replace(/punctSpace/g, W).replace(/punct/g, D).getRegex();
+		Fe = d(/\\(punct)/, "gu").replace(/punct/g, D).getRegex();
+		je = d(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex();
+		Qe = d(U).replace("(?:-->|$)", "-->").getRegex();
+		Ue = d("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", Qe).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex();
+		q = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+[^`]*?`+(?!`)|[^\[\]\\`])*?/;
+		Ke = d(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label", q).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex();
+		de = d(/^!?\[(label)\]\[(ref)\]/).replace("label", q).replace("ref", Q).getRegex();
+		ke = d(/^!?\[(ref)\](?:\[\])?/).replace("ref", Q).getRegex();
+		We = d("reflink|nolink(?!\\()", "g").replace("reflink", de).replace("nolink", ke).getRegex();
+		se = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/;
 		X = {
 			_backpedal: E,
-			anyPunctuation: Ge,
-			autolink: Ne,
-			blockSkip: Be,
-			br: ae,
-			code: ze,
+			anyPunctuation: Fe,
+			autolink: je,
+			blockSkip: ve,
+			br: le,
+			code: Ee,
 			del: E,
-			emStrongLDelim: qe,
-			emStrongRDelimAst: De,
-			emStrongRDelimUnd: Ze,
-			escape: Me,
-			link: Qe,
-			nolink: de,
-			punctuation: Ee,
-			reflink: he,
-			reflinkSearch: h("reflink|nolink(?!\\()", "g").replace("reflink", he).replace("nolink", de).getRegex(),
-			tag: Fe,
-			text: Ae,
+			emStrongLDelim: De,
+			emStrongRDelimAst: Ze,
+			emStrongRDelimUnd: Ne,
+			escape: Ae,
+			link: Ke,
+			nolink: ke,
+			punctuation: Ce,
+			reflink: de,
+			reflinkSearch: We,
+			tag: Ue,
+			text: Ie,
 			url: E
 		};
-		Ke = {
+		Xe = {
 			...X,
-			link: h(/^!?\[(label)\]\((.*?)\)/).replace("label", q).getRegex(),
-			reflink: h(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", q).getRegex()
+			link: d(/^!?\[(label)\]\((.*?)\)/).replace("label", q).getRegex(),
+			reflink: d(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", q).getRegex()
 		};
 		N = {
 			...X,
-			emStrongRDelimAst: He,
-			emStrongLDelim: ve,
-			url: h(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/, "i").replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(),
+			emStrongRDelimAst: Ge,
+			emStrongLDelim: He,
+			url: d(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", se).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(),
 			_backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,
 			del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/,
-			text: /^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/
+			text: d(/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", se).getRegex()
 		};
-		We = {
+		Je = {
 			...N,
-			br: h(ae).replace("{2,}", "*").getRegex(),
-			text: h(N.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex()
+			br: d(le).replace("{2,}", "*").getRegex(),
+			text: d(N.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex()
 		};
-		I = {
+		C = {
 			normal: K$1,
-			gfm: _e,
-			pedantic: Le
+			gfm: Me,
+			pedantic: ze
 		};
 		M = {
 			normal: X,
 			gfm: N,
-			breaks: We,
-			pedantic: Ke
+			breaks: Je,
+			pedantic: Xe
 		};
-		Xe = {
+		Ve = {
 			"&": "&amp;",
 			"<": "&lt;",
 			">": "&gt;",
 			"\"": "&quot;",
 			"'": "&#39;"
 		};
-		ke = (l) => Xe[l];
+		ge = (l) => Ve[l];
 		y$1 = class {
 			options;
 			rules;
 			lexer;
 			constructor(e) {
-				this.options = e || O;
+				this.options = e || T;
 			}
 			space(e) {
 				let t = this.rules.block.newline.exec(e);
@@ -45403,7 +45413,7 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 			fences(e) {
 				let t = this.rules.block.fences.exec(e);
 				if (t) {
-					let n = t[0], r = Je(n, t[3] || "", this.rules);
+					let n = t[0], r = Ye(n, t[3] || "", this.rules);
 					return {
 						type: "code",
 						raw: n,
@@ -45444,32 +45454,32 @@ globalThis.__dshChunks__["mermaid"] = (require) => {
 `).split(`
 `), r = "", i = "", s = [];
 					for (; n.length > 0;) {
-						let o = !1, a = [], u;
-						for (u = 0; u < n.length; u++) if (this.rules.other.blockquoteStart.test(n[u])) a.push(n[u]), o = !0;
-						else if (!o) a.push(n[u]);
+						let a = !1, o = [], p;
+						for (p = 0; p < n.length; p++) if (this.rules.other.blockquoteStart.test(n[p])) o.push(n[p]), a = !0;
+						else if (!a) o.push(n[p]);
 						else break;
-						n = n.slice(u);
-						let p = a.join(`
-`), c = p.replace(this.rules.other.blockquoteSetextReplace, `
+						n = n.slice(p);
+						let u = o.join(`
+`), c = u.replace(this.rules.other.blockquoteSetextReplace, `
     $1`).replace(this.rules.other.blockquoteSetextReplace2, "");
 						r = r ? `${r}
-${p}` : p, i = i ? `${i}
+${u}` : u, i = i ? `${i}
 ${c}` : c;
-						let f = this.lexer.state.top;
-						if (this.lexer.state.top = !0, this.lexer.blockTokens(c, s, !0), this.lexer.state.top = f, n.length === 0) break;
-						let k = s.at(-1);
-						if (k?.type === "code") break;
-						if (k?.type === "blockquote") {
-							let x = k, g = x.raw + `
+						let g = this.lexer.state.top;
+						if (this.lexer.state.top = !0, this.lexer.blockTokens(c, s, !0), this.lexer.state.top = g, n.length === 0) break;
+						let h = s.at(-1);
+						if (h?.type === "code") break;
+						if (h?.type === "blockquote") {
+							let R = h, f = R.raw + `
 ` + n.join(`
-`), T = this.blockquote(g);
-							s[s.length - 1] = T, r = r.substring(0, r.length - x.raw.length) + T.raw, i = i.substring(0, i.length - x.text.length) + T.text;
+`), O = this.blockquote(f);
+							s[s.length - 1] = O, r = r.substring(0, r.length - R.raw.length) + O.raw, i = i.substring(0, i.length - R.text.length) + O.text;
 							break;
-						} else if (k?.type === "list") {
-							let x = k, g = x.raw + `
+						} else if (h?.type === "list") {
+							let R = h, f = R.raw + `
 ` + n.join(`
-`), T = this.list(g);
-							s[s.length - 1] = T, r = r.substring(0, r.length - k.raw.length) + T.raw, i = i.substring(0, i.length - x.raw.length) + T.raw, n = g.substring(s.at(-1).raw.length).split(`
+`), O = this.list(f);
+							s[s.length - 1] = O, r = r.substring(0, r.length - h.raw.length) + O.raw, i = i.substring(0, i.length - R.raw.length) + O.raw, n = f.substring(s.at(-1).raw.length).split(`
 `);
 							continue;
 						}
@@ -45494,53 +45504,53 @@ ${c}` : c;
 						items: []
 					};
 					n = r ? `\\d{1,9}\\${n.slice(-1)}` : `\\${n}`, this.options.pedantic && (n = r ? n : "[*+-]");
-					let s = this.rules.other.listItemRegex(n), o = !1;
+					let s = this.rules.other.listItemRegex(n), a = !1;
 					for (; e;) {
-						let u = !1, p = "", c = "";
+						let p = !1, u = "", c = "";
 						if (!(t = s.exec(e)) || this.rules.block.hr.test(e)) break;
-						p = t[0], e = e.substring(p.length);
-						let f = t[2].split(`
-`, 1)[0].replace(this.rules.other.listReplaceTabs, (H) => " ".repeat(3 * H.length)), k = e.split(`
-`, 1)[0], x = !f.trim(), g = 0;
-						if (this.options.pedantic ? (g = 2, c = f.trimStart()) : x ? g = t[1].length + 1 : (g = t[2].search(this.rules.other.nonSpaceChar), g = g > 4 ? 1 : g, c = f.slice(g), g += t[1].length), x && this.rules.other.blankLine.test(k) && (p += k + `
-`, e = e.substring(k.length + 1), u = !0), !u) {
-							let H = this.rules.other.nextBulletRegex(g), ee = this.rules.other.hrRegex(g), te = this.rules.other.fencesBeginRegex(g), ne = this.rules.other.headingBeginRegex(g), me = this.rules.other.htmlBeginRegex(g);
+						u = t[0], e = e.substring(u.length);
+						let g = t[2].split(`
+`, 1)[0].replace(this.rules.other.listReplaceTabs, (H) => " ".repeat(3 * H.length)), h = e.split(`
+`, 1)[0], R = !g.trim(), f = 0;
+						if (this.options.pedantic ? (f = 2, c = g.trimStart()) : R ? f = t[1].length + 1 : (f = t[2].search(this.rules.other.nonSpaceChar), f = f > 4 ? 1 : f, c = g.slice(f), f += t[1].length), R && this.rules.other.blankLine.test(h) && (u += h + `
+`, e = e.substring(h.length + 1), p = !0), !p) {
+							let H = this.rules.other.nextBulletRegex(f), ee = this.rules.other.hrRegex(f), te = this.rules.other.fencesBeginRegex(f), ne = this.rules.other.headingBeginRegex(f), xe = this.rules.other.htmlBeginRegex(f);
 							for (; e;) {
 								let Z = e.split(`
 `, 1)[0], A;
-								if (k = Z, this.options.pedantic ? (k = k.replace(this.rules.other.listReplaceNesting, "  "), A = k) : A = k.replace(this.rules.other.tabCharGlobal, "    "), te.test(k) || ne.test(k) || me.test(k) || H.test(k) || ee.test(k)) break;
-								if (A.search(this.rules.other.nonSpaceChar) >= g || !k.trim()) c += `
-` + A.slice(g);
+								if (h = Z, this.options.pedantic ? (h = h.replace(this.rules.other.listReplaceNesting, "  "), A = h) : A = h.replace(this.rules.other.tabCharGlobal, "    "), te.test(h) || ne.test(h) || xe.test(h) || H.test(h) || ee.test(h)) break;
+								if (A.search(this.rules.other.nonSpaceChar) >= f || !h.trim()) c += `
+` + A.slice(f);
 								else {
-									if (x || f.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || te.test(f) || ne.test(f) || ee.test(f)) break;
+									if (R || g.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || te.test(g) || ne.test(g) || ee.test(g)) break;
 									c += `
-` + k;
+` + h;
 								}
-								!x && !k.trim() && (x = !0), p += Z + `
-`, e = e.substring(Z.length + 1), f = A.slice(g);
+								!R && !h.trim() && (R = !0), u += Z + `
+`, e = e.substring(Z.length + 1), g = A.slice(f);
 							}
 						}
-						i.loose || (o ? i.loose = !0 : this.rules.other.doubleBlankLine.test(p) && (o = !0));
-						let T = null, Y;
-						this.options.gfm && (T = this.rules.other.listIsTask.exec(c), T && (Y = T[0] !== "[ ] ", c = c.replace(this.rules.other.listReplaceTask, ""))), i.items.push({
+						i.loose || (a ? i.loose = !0 : this.rules.other.doubleBlankLine.test(u) && (a = !0));
+						let O = null, Y;
+						this.options.gfm && (O = this.rules.other.listIsTask.exec(c), O && (Y = O[0] !== "[ ] ", c = c.replace(this.rules.other.listReplaceTask, ""))), i.items.push({
 							type: "list_item",
-							raw: p,
-							task: !!T,
+							raw: u,
+							task: !!O,
 							checked: Y,
 							loose: !1,
 							text: c,
 							tokens: []
-						}), i.raw += p;
+						}), i.raw += u;
 					}
-					let a = i.items.at(-1);
-					if (a) a.raw = a.raw.trimEnd(), a.text = a.text.trimEnd();
+					let o = i.items.at(-1);
+					if (o) o.raw = o.raw.trimEnd(), o.text = o.text.trimEnd();
 					else return;
 					i.raw = i.raw.trimEnd();
-					for (let u = 0; u < i.items.length; u++) if (this.lexer.state.top = !1, i.items[u].tokens = this.lexer.blockTokens(i.items[u].text, []), !i.loose) {
-						let p = i.items[u].tokens.filter((f) => f.type === "space");
-						i.loose = p.length > 0 && p.some((f) => this.rules.other.anyLine.test(f.raw));
+					for (let p = 0; p < i.items.length; p++) if (this.lexer.state.top = !1, i.items[p].tokens = this.lexer.blockTokens(i.items[p].text, []), !i.loose) {
+						let u = i.items[p].tokens.filter((g) => g.type === "space");
+						i.loose = u.length > 0 && u.some((g) => this.rules.other.anyLine.test(g.raw));
 					}
-					if (i.loose) for (let u = 0; u < i.items.length; u++) i.items[u].loose = !0;
+					if (i.loose) for (let p = 0; p < i.items.length; p++) i.items[p].loose = !0;
 					return i;
 				}
 			}
@@ -45579,18 +45589,18 @@ ${c}` : c;
 					rows: []
 				};
 				if (n.length === r.length) {
-					for (let o of r) this.rules.other.tableAlignRight.test(o) ? s.align.push("right") : this.rules.other.tableAlignCenter.test(o) ? s.align.push("center") : this.rules.other.tableAlignLeft.test(o) ? s.align.push("left") : s.align.push(null);
-					for (let o = 0; o < n.length; o++) s.header.push({
-						text: n[o],
-						tokens: this.lexer.inline(n[o]),
+					for (let a of r) this.rules.other.tableAlignRight.test(a) ? s.align.push("right") : this.rules.other.tableAlignCenter.test(a) ? s.align.push("center") : this.rules.other.tableAlignLeft.test(a) ? s.align.push("left") : s.align.push(null);
+					for (let a = 0; a < n.length; a++) s.header.push({
+						text: n[a],
+						tokens: this.lexer.inline(n[a]),
 						header: !0,
-						align: s.align[o]
+						align: s.align[a]
 					});
-					for (let o of i) s.rows.push(V(o, s.header.length).map((a, u) => ({
-						text: a,
-						tokens: this.lexer.inline(a),
+					for (let a of i) s.rows.push(V(a, s.header.length).map((o, p) => ({
+						text: o,
+						tokens: this.lexer.inline(o),
 						header: !1,
-						align: s.align[u]
+						align: s.align[p]
 					})));
 					return s;
 				}
@@ -45655,11 +45665,11 @@ ${c}` : c;
 						let s = z(n.slice(0, -1), "\\");
 						if ((n.length - s.length) % 2 === 0) return;
 					} else {
-						let s = ge(t[2], "()");
+						let s = fe(t[2], "()");
 						if (s === -2) return;
 						if (s > -1) {
-							let a = (t[0].indexOf("!") === 0 ? 5 : 4) + t[1].length + s;
-							t[2] = t[2].substring(0, s), t[0] = t[0].substring(0, a).trim(), t[3] = "";
+							let o = (t[0].indexOf("!") === 0 ? 5 : 4) + t[1].length + s;
+							t[2] = t[2].substring(0, s), t[0] = t[0].substring(0, o).trim(), t[3] = "";
 						}
 					}
 					let r = t[2], i = "";
@@ -45667,7 +45677,7 @@ ${c}` : c;
 						let s = this.rules.other.pedanticHrefTitle.exec(r);
 						s && (r = s[1], i = s[3]);
 					} else i = t[3] ? t[3].slice(1, -1) : "";
-					return r = r.trim(), this.rules.other.startAngleBracket.test(r) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(n) ? r = r.slice(1) : r = r.slice(1, -1)), fe(t, {
+					return r = r.trim(), this.rules.other.startAngleBracket.test(r) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(n) ? r = r.slice(1) : r = r.slice(1, -1)), me(t, {
 						href: r && r.replace(this.rules.inline.anyPunctuation, "$1"),
 						title: i && i.replace(this.rules.inline.anyPunctuation, "$1")
 					}, t[0], this.lexer, this.rules);
@@ -45685,41 +45695,41 @@ ${c}` : c;
 							text: s
 						};
 					}
-					return fe(n, i, n[0], this.lexer, this.rules);
+					return me(n, i, n[0], this.lexer, this.rules);
 				}
 			}
 			emStrong(e, t, n = "") {
 				let r = this.rules.inline.emStrongLDelim.exec(e);
 				if (!r || r[3] && n.match(this.rules.other.unicodeAlphaNumeric)) return;
 				if (!(r[1] || r[2] || "") || !n || this.rules.inline.punctuation.exec(n)) {
-					let s = [...r[0]].length - 1, o, a, u = s, p = 0, c = r[0][0] === "*" ? this.rules.inline.emStrongRDelimAst : this.rules.inline.emStrongRDelimUnd;
+					let s = [...r[0]].length - 1, a, o, p = s, u = 0, c = r[0][0] === "*" ? this.rules.inline.emStrongRDelimAst : this.rules.inline.emStrongRDelimUnd;
 					for (c.lastIndex = 0, t = t.slice(-1 * e.length + s); (r = c.exec(t)) != null;) {
-						if (o = r[1] || r[2] || r[3] || r[4] || r[5] || r[6], !o) continue;
-						if (a = [...o].length, r[3] || r[4]) {
-							u += a;
+						if (a = r[1] || r[2] || r[3] || r[4] || r[5] || r[6], !a) continue;
+						if (o = [...a].length, r[3] || r[4]) {
+							p += o;
 							continue;
-						} else if ((r[5] || r[6]) && s % 3 && !((s + a) % 3)) {
-							p += a;
+						} else if ((r[5] || r[6]) && s % 3 && !((s + o) % 3)) {
+							u += o;
 							continue;
 						}
-						if (u -= a, u > 0) continue;
-						a = Math.min(a, a + u + p);
-						let f = [...r[0]][0].length, k = e.slice(0, s + r.index + f + a);
-						if (Math.min(s, a) % 2) {
-							let g = k.slice(1, -1);
+						if (p -= o, p > 0) continue;
+						o = Math.min(o, o + p + u);
+						let g = [...r[0]][0].length, h = e.slice(0, s + r.index + g + o);
+						if (Math.min(s, o) % 2) {
+							let f = h.slice(1, -1);
 							return {
 								type: "em",
-								raw: k,
-								text: g,
-								tokens: this.lexer.inlineTokens(g)
+								raw: h,
+								text: f,
+								tokens: this.lexer.inlineTokens(f)
 							};
 						}
-						let x = k.slice(2, -2);
+						let R = h.slice(2, -2);
 						return {
 							type: "strong",
-							raw: k,
-							text: x,
-							tokens: this.lexer.inlineTokens(x)
+							raw: h,
+							text: R,
+							tokens: this.lexer.inlineTokens(R)
 						};
 					}
 				}
@@ -45806,28 +45816,28 @@ ${c}` : c;
 				}
 			}
 		};
-		b = class l {
+		x$1 = class l {
 			tokens;
 			options;
 			state;
 			tokenizer;
 			inlineQueue;
 			constructor(e) {
-				this.tokens = [], this.tokens.links = Object.create(null), this.options = e || O, this.options.tokenizer = this.options.tokenizer || new y$1(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = {
+				this.tokens = [], this.tokens.links = Object.create(null), this.options = e || T, this.options.tokenizer = this.options.tokenizer || new y$1(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = {
 					inLink: !1,
 					inRawBlock: !1,
 					top: !0
 				};
 				let t = {
 					other: m,
-					block: I.normal,
+					block: C.normal,
 					inline: M.normal
 				};
-				this.options.pedantic ? (t.block = I.pedantic, t.inline = M.pedantic) : this.options.gfm && (t.block = I.gfm, this.options.breaks ? t.inline = M.breaks : t.inline = M.gfm), this.tokenizer.rules = t;
+				this.options.pedantic ? (t.block = C.pedantic, t.inline = M.pedantic) : this.options.gfm && (t.block = C.gfm, this.options.breaks ? t.inline = M.breaks : t.inline = M.gfm), this.tokenizer.rules = t;
 			}
 			static get rules() {
 				return {
-					block: I,
+					block: C,
 					inline: M
 				};
 			}
@@ -45912,9 +45922,9 @@ ${c}` : c;
 					}
 					let i = e;
 					if (this.options.extensions?.startBlock) {
-						let s = 1 / 0, o = e.slice(1), a;
-						this.options.extensions.startBlock.forEach((u) => {
-							a = u.call({ lexer: this }, o), typeof a == "number" && a >= 0 && (s = Math.min(s, a));
+						let s = 1 / 0, a = e.slice(1), o;
+						this.options.extensions.startBlock.forEach((p) => {
+							o = p.call({ lexer: this }, a), typeof o == "number" && o >= 0 && (s = Math.min(s, o));
 						}), s < 1 / 0 && s >= 0 && (i = e.substring(0, s + 1));
 					}
 					if (this.state.top && (r = this.tokenizer.paragraph(i))) {
@@ -45957,11 +45967,12 @@ ${c}` : c;
 					if (o.length > 0) for (; (r = this.tokenizer.rules.inline.reflinkSearch.exec(n)) != null;) o.includes(r[0].slice(r[0].lastIndexOf("[") + 1, -1)) && (n = n.slice(0, r.index) + "[" + "a".repeat(r[0].length - 2) + "]" + n.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex));
 				}
 				for (; (r = this.tokenizer.rules.inline.anyPunctuation.exec(n)) != null;) n = n.slice(0, r.index) + "++" + n.slice(this.tokenizer.rules.inline.anyPunctuation.lastIndex);
-				for (; (r = this.tokenizer.rules.inline.blockSkip.exec(n)) != null;) n = n.slice(0, r.index) + "[" + "a".repeat(r[0].length - 2) + "]" + n.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
+				let i;
+				for (; (r = this.tokenizer.rules.inline.blockSkip.exec(n)) != null;) i = r[2] ? r[2].length : 0, n = n.slice(0, r.index + i) + "[" + "a".repeat(r[0].length - i - 2) + "]" + n.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);
 				n = this.options.hooks?.emStrongMask?.call({ lexer: this }, n) ?? n;
-				let i = !1, s = "";
+				let s = !1, a = "";
 				for (; e;) {
-					i || (s = ""), i = !1;
+					s || (a = ""), s = !1;
 					let o;
 					if (this.options.extensions?.inline?.some((u) => (o = u.call({ lexer: this }, e, t)) ? (e = e.substring(o.raw.length), t.push(o), !0) : !1)) continue;
 					if (o = this.tokenizer.escape(e)) {
@@ -45982,7 +45993,7 @@ ${c}` : c;
 						o.type === "text" && u?.type === "text" ? (u.raw += o.raw, u.text += o.text) : t.push(o);
 						continue;
 					}
-					if (o = this.tokenizer.emStrong(e, n, s)) {
+					if (o = this.tokenizer.emStrong(e, n, a)) {
 						e = e.substring(o.raw.length), t.push(o);
 						continue;
 					}
@@ -46006,15 +46017,15 @@ ${c}` : c;
 						e = e.substring(o.raw.length), t.push(o);
 						continue;
 					}
-					let a = e;
+					let p = e;
 					if (this.options.extensions?.startInline) {
-						let u = 1 / 0, p = e.slice(1), c;
-						this.options.extensions.startInline.forEach((f) => {
-							c = f.call({ lexer: this }, p), typeof c == "number" && c >= 0 && (u = Math.min(u, c));
-						}), u < 1 / 0 && u >= 0 && (a = e.substring(0, u + 1));
+						let u = 1 / 0, c = e.slice(1), g;
+						this.options.extensions.startInline.forEach((h) => {
+							g = h.call({ lexer: this }, c), typeof g == "number" && g >= 0 && (u = Math.min(u, g));
+						}), u < 1 / 0 && u >= 0 && (p = e.substring(0, u + 1));
 					}
-					if (o = this.tokenizer.inlineText(a)) {
-						e = e.substring(o.raw.length), o.raw.slice(-1) !== "_" && (s = o.raw.slice(-1)), i = !0;
+					if (o = this.tokenizer.inlineText(p)) {
+						e = e.substring(o.raw.length), o.raw.slice(-1) !== "_" && (a = o.raw.slice(-1)), s = !0;
 						let u = t.at(-1);
 						u?.type === "text" ? (u.raw += o.raw, u.text += o.text) : t.push(o);
 						continue;
@@ -46034,7 +46045,7 @@ ${c}` : c;
 			options;
 			parser;
 			constructor(e) {
-				this.options = e || O;
+				this.options = e || T;
 			}
 			space(e) {
 				return "";
@@ -46067,9 +46078,9 @@ ${this.parser.parse(e)}</blockquote>
 			}
 			list(e) {
 				let t = e.ordered, n = e.start, r = "";
-				for (let o = 0; o < e.items.length; o++) {
-					let a = e.items[o];
-					r += this.listitem(a);
+				for (let a = 0; a < e.items.length; a++) {
+					let o = e.items[a];
+					r += this.listitem(o);
 				}
 				let i = t ? "ol" : "ul", s = t && n !== 1 ? " start=\"" + n + "\"" : "";
 				return "<" + i + s + `>
@@ -46105,7 +46116,7 @@ ${this.parser.parse(e)}</blockquote>
 				for (let i = 0; i < e.rows.length; i++) {
 					let s = e.rows[i];
 					n = "";
-					for (let o = 0; o < s.length; o++) n += this.tablecell(s[o]);
+					for (let a = 0; a < s.length; a++) n += this.tablecell(s[a]);
 					r += this.tablerow({ text: n });
 				}
 				return r && (r = `<tbody>${r}</tbody>`), `<table>
@@ -46187,12 +46198,12 @@ ${e}</tr>
 				return "";
 			}
 		};
-		R = class l {
+		b = class l {
 			options;
 			renderer;
 			textRenderer;
 			constructor(e) {
-				this.options = e || O, this.options.renderer = this.options.renderer || new P(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new $();
+				this.options = e || T, this.options.renderer = this.options.renderer || new P(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new $();
 			}
 			static parse(e, t) {
 				return new l(t).parse(e);
@@ -46205,8 +46216,8 @@ ${e}</tr>
 				for (let r = 0; r < e.length; r++) {
 					let i = e[r];
 					if (this.options.extensions?.renderers?.[i.type]) {
-						let o = i, a = this.options.extensions.renderers[o.type].call({ parser: this }, o);
-						if (a !== !1 || ![
+						let a = i, o = this.options.extensions.renderers[a.type].call({ parser: this }, a);
+						if (o !== !1 || ![
 							"space",
 							"hr",
 							"heading",
@@ -46218,8 +46229,8 @@ ${e}</tr>
 							"def",
 							"paragraph",
 							"text"
-						].includes(o.type)) {
-							n += a || "";
+						].includes(a.type)) {
+							n += o || "";
 							continue;
 						}
 					}
@@ -46256,26 +46267,26 @@ ${e}</tr>
 							n += this.renderer.paragraph(s);
 							continue;
 						case "text": {
-							let o = s, a = this.renderer.text(o);
-							for (; r + 1 < e.length && e[r + 1].type === "text";) o = e[++r], a += `
-` + this.renderer.text(o);
+							let a = s, o = this.renderer.text(a);
+							for (; r + 1 < e.length && e[r + 1].type === "text";) a = e[++r], o += `
+` + this.renderer.text(a);
 							t ? n += this.renderer.paragraph({
 								type: "paragraph",
-								raw: a,
-								text: a,
+								raw: o,
+								text: o,
 								tokens: [{
 									type: "text",
-									raw: a,
-									text: a,
+									raw: o,
+									text: o,
 									escaped: !0
 								}]
-							}) : n += a;
+							}) : n += o;
 							continue;
 						}
 						default: {
-							let o = "Token with \"" + s.type + "\" type was not found.";
-							if (this.options.silent) return console.error(o), "";
-							throw new Error(o);
+							let a = "Token with \"" + s.type + "\" type was not found.";
+							if (this.options.silent) return console.error(a), "";
+							throw new Error(a);
 						}
 					}
 				}
@@ -46286,8 +46297,8 @@ ${e}</tr>
 				for (let r = 0; r < e.length; r++) {
 					let i = e[r];
 					if (this.options.extensions?.renderers?.[i.type]) {
-						let o = this.options.extensions.renderers[i.type].call({ parser: this }, i);
-						if (o !== !1 || ![
+						let a = this.options.extensions.renderers[i.type].call({ parser: this }, i);
+						if (a !== !1 || ![
 							"escape",
 							"html",
 							"link",
@@ -46299,7 +46310,7 @@ ${e}</tr>
 							"del",
 							"text"
 						].includes(i.type)) {
-							n += o || "";
+							n += a || "";
 							continue;
 						}
 					}
@@ -46336,9 +46347,9 @@ ${e}</tr>
 							n += t.text(s);
 							break;
 						default: {
-							let o = "Token with \"" + s.type + "\" type was not found.";
-							if (this.options.silent) return console.error(o), "";
-							throw new Error(o);
+							let a = "Token with \"" + s.type + "\" type was not found.";
+							if (this.options.silent) return console.error(a), "";
+							throw new Error(a);
 						}
 					}
 				}
@@ -46349,7 +46360,7 @@ ${e}</tr>
 			options;
 			block;
 			constructor(e) {
-				this.options = e || O;
+				this.options = e || T;
 			}
 			static passThroughHooks = /* @__PURE__ */ new Set([
 				"preprocess",
@@ -46375,10 +46386,10 @@ ${e}</tr>
 				return e;
 			}
 			provideLexer() {
-				return this.block ? b.lex : b.lexInline;
+				return this.block ? x$1.lex : x$1.lexInline;
 			}
 			provideParser() {
-				return this.block ? R.parse : R.parseInline;
+				return this.block ? b.parse : b.parseInline;
 			}
 		};
 		B = class {
@@ -46386,10 +46397,10 @@ ${e}</tr>
 			options = this.setOptions;
 			parse = this.parseMarkdown(!0);
 			parseInline = this.parseMarkdown(!1);
-			Parser = R;
+			Parser = b;
 			Renderer = P;
 			TextRenderer = $;
-			Lexer = b;
+			Lexer = x$1;
 			Tokenizer = y$1;
 			Hooks = S;
 			constructor(...e) {
@@ -46401,7 +46412,7 @@ ${e}</tr>
 					case "table": {
 						let i = r;
 						for (let s of i.header) n = n.concat(this.walkTokens(s.tokens, t));
-						for (let s of i.rows) for (let o of s) n = n.concat(this.walkTokens(o.tokens, t));
+						for (let s of i.rows) for (let a of s) n = n.concat(this.walkTokens(a.tokens, t));
 						break;
 					}
 					case "list": {
@@ -46412,8 +46423,8 @@ ${e}</tr>
 					default: {
 						let i = r;
 						this.defaults.extensions?.childTokens?.[i.type] ? this.defaults.extensions.childTokens[i.type].forEach((s) => {
-							let o = i[s].flat(1 / 0);
-							n = n.concat(this.walkTokens(o, t));
+							let a = i[s].flat(1 / 0);
+							n = n.concat(this.walkTokens(a, t));
 						}) : i.tokens && (n = n.concat(this.walkTokens(i.tokens, t)));
 					}
 				}
@@ -46430,9 +46441,9 @@ ${e}</tr>
 						if (!i.name) throw new Error("extension name required");
 						if ("renderer" in i) {
 							let s = t.renderers[i.name];
-							s ? t.renderers[i.name] = function(...o) {
-								let a = i.renderer.apply(this, o);
-								return a === !1 && (a = s.apply(this, o)), a;
+							s ? t.renderers[i.name] = function(...a) {
+								let o = i.renderer.apply(this, a);
+								return o === !1 && (o = s.apply(this, a)), o;
 							} : t.renderers[i.name] = i.renderer;
 						}
 						if ("tokenizer" in i) {
@@ -46446,10 +46457,10 @@ ${e}</tr>
 						for (let s in n.renderer) {
 							if (!(s in i)) throw new Error(`renderer '${s}' does not exist`);
 							if (["options", "parser"].includes(s)) continue;
-							let o = s, a = n.renderer[o], u = i[o];
-							i[o] = (...p) => {
-								let c = a.apply(i, p);
-								return c === !1 && (c = u.apply(i, p)), c || "";
+							let a = s, o = n.renderer[a], p = i[a];
+							i[a] = (...u) => {
+								let c = o.apply(i, u);
+								return c === !1 && (c = p.apply(i, u)), c || "";
 							};
 						}
 						r.renderer = i;
@@ -46463,10 +46474,10 @@ ${e}</tr>
 								"rules",
 								"lexer"
 							].includes(s)) continue;
-							let o = s, a = n.tokenizer[o], u = i[o];
-							i[o] = (...p) => {
-								let c = a.apply(i, p);
-								return c === !1 && (c = u.apply(i, p)), c;
+							let a = s, o = n.tokenizer[a], p = i[a];
+							i[a] = (...u) => {
+								let c = o.apply(i, u);
+								return c === !1 && (c = p.apply(i, u)), c;
 							};
 						}
 						r.tokenizer = i;
@@ -46476,23 +46487,30 @@ ${e}</tr>
 						for (let s in n.hooks) {
 							if (!(s in i)) throw new Error(`hook '${s}' does not exist`);
 							if (["options", "block"].includes(s)) continue;
-							let o = s, a = n.hooks[o], u = i[o];
-							S.passThroughHooks.has(s) ? i[o] = (p) => {
-								if (this.defaults.async && S.passThroughHooksRespectAsync.has(s)) return Promise.resolve(a.call(i, p)).then((f) => u.call(i, f));
-								let c = a.call(i, p);
-								return u.call(i, c);
-							} : i[o] = (...p) => {
-								let c = a.apply(i, p);
-								return c === !1 && (c = u.apply(i, p)), c;
+							let a = s, o = n.hooks[a], p = i[a];
+							S.passThroughHooks.has(s) ? i[a] = (u) => {
+								if (this.defaults.async && S.passThroughHooksRespectAsync.has(s)) return (async () => {
+									let g = await o.call(i, u);
+									return p.call(i, g);
+								})();
+								let c = o.call(i, u);
+								return p.call(i, c);
+							} : i[a] = (...u) => {
+								if (this.defaults.async) return (async () => {
+									let g = await o.apply(i, u);
+									return g === !1 && (g = await p.apply(i, u)), g;
+								})();
+								let c = o.apply(i, u);
+								return c === !1 && (c = p.apply(i, u)), c;
 							};
 						}
 						r.hooks = i;
 					}
 					if (n.walkTokens) {
 						let i = this.defaults.walkTokens, s = n.walkTokens;
-						r.walkTokens = function(o) {
-							let a = [];
-							return a.push(s.call(this, o)), i && (a = a.concat(i.call(this, o))), a;
+						r.walkTokens = function(a) {
+							let o = [];
+							return o.push(s.call(this, a)), i && (o = o.concat(i.call(this, a))), o;
 						};
 					}
 					this.defaults = {
@@ -46508,31 +46526,34 @@ ${e}</tr>
 				}, this;
 			}
 			lexer(e, t) {
-				return b.lex(e, t ?? this.defaults);
+				return x$1.lex(e, t ?? this.defaults);
 			}
 			parser(e, t) {
-				return R.parse(e, t ?? this.defaults);
+				return b.parse(e, t ?? this.defaults);
 			}
 			parseMarkdown(e) {
 				return (n, r) => {
 					let i = { ...r }, s = {
 						...this.defaults,
 						...i
-					}, o = this.onError(!!s.silent, !!s.async);
-					if (this.defaults.async === !0 && i.async === !1) return o(/* @__PURE__ */ new Error("marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise."));
-					if (typeof n > "u" || n === null) return o(/* @__PURE__ */ new Error("marked(): input parameter is undefined or null"));
-					if (typeof n != "string") return o(/* @__PURE__ */ new Error("marked(): input parameter is of type " + Object.prototype.toString.call(n) + ", string expected"));
-					s.hooks && (s.hooks.options = s, s.hooks.block = e);
-					let a = s.hooks ? s.hooks.provideLexer() : e ? b.lex : b.lexInline, u = s.hooks ? s.hooks.provideParser() : e ? R.parse : R.parseInline;
-					if (s.async) return Promise.resolve(s.hooks ? s.hooks.preprocess(n) : n).then((p) => a(p, s)).then((p) => s.hooks ? s.hooks.processAllTokens(p) : p).then((p) => s.walkTokens ? Promise.all(this.walkTokens(p, s.walkTokens)).then(() => p) : p).then((p) => u(p, s)).then((p) => s.hooks ? s.hooks.postprocess(p) : p).catch(o);
+					}, a = this.onError(!!s.silent, !!s.async);
+					if (this.defaults.async === !0 && i.async === !1) return a(/* @__PURE__ */ new Error("marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise."));
+					if (typeof n > "u" || n === null) return a(/* @__PURE__ */ new Error("marked(): input parameter is undefined or null"));
+					if (typeof n != "string") return a(/* @__PURE__ */ new Error("marked(): input parameter is of type " + Object.prototype.toString.call(n) + ", string expected"));
+					if (s.hooks && (s.hooks.options = s, s.hooks.block = e), s.async) return (async () => {
+						let o = s.hooks ? await s.hooks.preprocess(n) : n, u = await (s.hooks ? await s.hooks.provideLexer() : e ? x$1.lex : x$1.lexInline)(o, s), c = s.hooks ? await s.hooks.processAllTokens(u) : u;
+						s.walkTokens && await Promise.all(this.walkTokens(c, s.walkTokens));
+						let h = await (s.hooks ? await s.hooks.provideParser() : e ? b.parse : b.parseInline)(c, s);
+						return s.hooks ? await s.hooks.postprocess(h) : h;
+					})().catch(a);
 					try {
 						s.hooks && (n = s.hooks.preprocess(n));
-						let p = a(n, s);
+						let p = (s.hooks ? s.hooks.provideLexer() : e ? x$1.lex : x$1.lexInline)(n, s);
 						s.hooks && (p = s.hooks.processAllTokens(p)), s.walkTokens && this.walkTokens(p, s.walkTokens);
-						let c = u(p, s);
+						let c = (s.hooks ? s.hooks.provideParser() : e ? b.parse : b.parseInline)(p, s);
 						return s.hooks && (c = s.hooks.postprocess(c)), c;
-					} catch (p) {
-						return o(p);
+					} catch (o) {
+						return a(o);
 					}
 				};
 			}
@@ -46549,34 +46570,34 @@ Please report this to https://github.com/markedjs/marked.`, e) {
 			}
 		};
 		_ = new B();
-		d.options = d.setOptions = function(l) {
-			return _.setOptions(l), d.defaults = _.defaults, G(d.defaults), d;
+		k.options = k.setOptions = function(l) {
+			return _.setOptions(l), k.defaults = _.defaults, G(k.defaults), k;
 		};
-		d.getDefaults = L;
-		d.defaults = O;
-		d.use = function(...l) {
-			return _.use(...l), d.defaults = _.defaults, G(d.defaults), d;
+		k.getDefaults = L;
+		k.defaults = T;
+		k.use = function(...l) {
+			return _.use(...l), k.defaults = _.defaults, G(k.defaults), k;
 		};
-		d.walkTokens = function(l, e) {
+		k.walkTokens = function(l, e) {
 			return _.walkTokens(l, e);
 		};
-		d.parseInline = _.parseInline;
-		d.Parser = R;
-		d.parser = R.parse;
-		d.Renderer = P;
-		d.TextRenderer = $;
-		d.Lexer = b;
-		d.lexer = b.lex;
-		d.Tokenizer = y$1;
-		d.Hooks = S;
-		d.parse = d;
-		d.options;
-		d.setOptions;
-		d.use;
-		d.walkTokens;
-		d.parseInline;
-		R.parse;
-		b.lex;
+		k.parseInline = _.parseInline;
+		k.Parser = b;
+		k.parser = b.parse;
+		k.Renderer = P;
+		k.TextRenderer = $;
+		k.Lexer = x$1;
+		k.lexer = x$1.lex;
+		k.Tokenizer = y$1;
+		k.Hooks = S;
+		k.parse = k;
+		k.options;
+		k.setOptions;
+		k.use;
+		k.walkTokens;
+		k.parseInline;
+		b.parse;
+		x$1.lex;
 	}));
 	//#endregion
 	//#region node_modules/.pnpm/ts-dedent@2.3.0/node_modules/ts-dedent/esm/index.js
@@ -46614,7 +46635,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
 	}
 	var init_esm = __esmMin((() => {}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-GMAD6QVW.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-GMAD6QVW.mjs
 	function preprocessMarkdown(markdown, { markdownAutoWrap }) {
 		const withoutExtraSpaces = dedent(markdown.replace(/<br\/>/g, "\n").replace(/\n{2,}/g, "\n"));
 		if (markdownAutoWrap === false) {}
@@ -46628,7 +46649,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
 	}
 	function markdownToLines(markdown, config = {}) {
 		const preprocessedMarkdown = preprocessMarkdown(markdown, config);
-		const nodes = d.lexer(preprocessedMarkdown);
+		const nodes = k.lexer(preprocessedMarkdown);
 		const lines = [[]];
 		let currentLine = 0;
 		function processNode(node, parentType = "normal") {
@@ -46674,7 +46695,7 @@ Please report this to https://github.com/markedjs/marked.`, e) {
 		return `<p>${text.replace(/\\n|\n/g, "<br />")}</p>`;
 	}
 	function markdownToHTML(markdown, { markdownAutoWrap } = {}) {
-		const nodes = d.lexer(markdown);
+		const nodes = k.lexer(markdown);
 		function output(node) {
 			if (node.type === "text") {
 				if (markdownAutoWrap === false) return node.text.replace(/\n */g, "<br/>").replace(/ /g, "&nbsp;");
@@ -48527,7 +48548,7 @@ raf(cb) {
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-TEH6E4GO.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-4HAMMTFA.mjs
 	async function configureLabelImages(container) {
 		const images = container.getElementsByTagName("img");
 		if (!images || images.length === 0) return;
@@ -53210,7 +53231,7 @@ raf(cb) {
 		return shape in shapes$1;
 	}
 	var import_rough_cjs$5, import_rough_cjs$6, import_rough_cjs$7, import_rough_cjs$8, import_rough_cjs$9, import_rough_cjs$10, import_rough_cjs$11, import_rough_cjs$12, import_rough_cjs$13, import_rough_cjs$14, import_rough_cjs$15, import_rough_cjs$16, import_rough_cjs$17, import_rough_cjs$18, import_rough_cjs$19, import_rough_cjs$20, import_rough_cjs$21, import_rough_cjs$22, import_rough_cjs$23, import_rough_cjs$24, import_rough_cjs$25, import_rough_cjs$26, import_rough_cjs$27, import_rough_cjs$28, import_rough_cjs$29, import_rough_cjs$30, import_rough_cjs$31, import_rough_cjs$32, import_rough_cjs$33, import_rough_cjs$34, import_rough_cjs$35, import_rough_cjs$36, import_rough_cjs$37, import_rough_cjs$38, import_rough_cjs$39, import_rough_cjs$40, import_rough_cjs$41, import_rough_cjs$42, import_rough_cjs$43, import_rough_cjs$44, import_rough_cjs$45, import_rough_cjs$46, import_rough_cjs$47, import_rough_cjs$48, import_rough_cjs$49, import_rough_cjs$50, import_rough_cjs$51, import_rough_cjs$52, import_rough_cjs$53, import_rough_cjs$54, import_rough_cjs$55, import_rough_cjs$56, import_rough_cjs$57, import_rough_cjs$58, import_rough_cjs$59, import_rough_cjs$60, import_rough_cjs$61, import_rough_cjs$62, import_rough_cjs$63, import_rough_cjs$64, import_rough_cjs$65, import_rough_cjs$66, import_rough_cjs$67, import_rough_cjs$68, import_rough_cjs$69, ELEMENT_NODE, TEXT_NODE, SECTION_GAP, MIN_WRAP_WIDTH, c4LabelHelper, labelHelper, insertLabel, updateNodeBounds, getNodeClasses, intersect_rect_default, createRoundedRectPathD, createLabel_default, intersect_node_default, intersect_ellipse_default, intersect_circle_default, intersect_line_default, intersect_default, INDICATOR_ROW_HEIGHT, SEPARATOR_GAP, MIN_WIDTH, RADIUS, DIRECTION_ORDER, POINT_KEY, expandAndDeduplicateDirections, getDirectionKey, arrowPointFactories, getArrowPoints, NOTCH_SIZE, createCylinderPathD, createOuterCylinderPathD, createInnerCylinderPathD, MIN_HEIGHT, MIN_WIDTH2, MIN_HEIGHT2, MIN_WIDTH3, createHexagonPathD, createCylinderPathD2, createOuterCylinderPathD2, createInnerCylinderPathD2, MIN_HEIGHT3, MIN_WIDTH4, createDecisionBoxPathD, FRAME_WIDTH, FRAME_WIDTH2, TAG_RATIO, createCylinderPathD3, createOuterCylinderPathD3, createInnerCylinderPathD3, MIN_HEIGHT4, MIN_WIDTH5, MIN_HEIGHT5, MIN_WIDTH6, rectOffset, COLOR_THEMES$3, REDUX_THEMES, colorFromPriority, shapesDefs, shapes$1;
-	var init_chunk_TEH6E4GO = __esmMin((() => {
+	var init_chunk_4HAMMTFA = __esmMin((() => {
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -53309,7 +53330,7 @@ raf(cb) {
 				}))
 			].filter((section) => section.text);
 			const wrapWidth = node.width ? Math.max(node.width - 2 * (node.padding ?? 0), MIN_WRAP_WIDTH) : getConfig2$2().flowchart?.wrappingWidth ?? 200;
-			const width = config.wrap ? wrapWidth : Number.POSITIVE_INFINITY;
+			const width = config.c4?.wrap ?? true ? wrapWidth : Number.POSITIVE_INFINITY;
 			const rendered = await Promise.all(sections.map(async (section) => {
 				const sectionEl = labelEl.append("g").attr("class", section.cssClass);
 				const textEl = await createText(sectionEl, sanitizeText$1(decodeEntities(section.text ?? ""), config), {
@@ -54704,7 +54725,7 @@ raf(cb) {
 		__name$1(isValidShape, "isValidShape");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-OBVCFTLP.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-GVQU2GXP.mjs
 	async function insertNode(elem, node, renderOptions) {
 		let newEl;
 		let el;
@@ -54731,8 +54752,8 @@ raf(cb) {
 		return newEl;
 	}
 	var getSubGraphTitleMargins, nodeElems, setNodeElem, clear$3, positionNode;
-	var init_chunk_OBVCFTLP = __esmMin((() => {
-		init_chunk_TEH6E4GO();
+	var init_chunk_GVQU2GXP = __esmMin((() => {
+		init_chunk_4HAMMTFA();
 		init_chunk_75Z2AOVW();
 		init_chunk_X3CZISLH();
 		init_chunk_Y2CYZVJY();
@@ -54764,11 +54785,11 @@ raf(cb) {
 		}, "positionNode");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-JQ64N6SF.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-L3NEJ4N5.mjs
 	var import_rough_cjs$3, import_rough_cjs$4, swimlane, rect, shapes, clusterElems, insertCluster, clear$2;
-	var init_chunk_JQ64N6SF = __esmMin((() => {
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+	var init_chunk_L3NEJ4N5 = __esmMin((() => {
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_DU6HZSFF();
@@ -55186,7 +55207,7 @@ raf(cb) {
 		}, "clear");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-R7TYR2AO.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-OSK3NFVY.mjs
 	function calculateDeltaAndAngle(point1, point2) {
 		if (point1 === void 0 || point2 === void 0) return {
 			angle: 0,
@@ -55314,9 +55335,9 @@ raf(cb) {
 		return newPoints;
 	}
 	var import_rough_cjs$2, computeLabelTransform, markerOffsets, markerOffsets2, pointTransformer, getLineFunctionsWithOffset, addEdgeMarkers, arrowTypesMap, arrowTypesWithMarginSupport, addEdgeMarker, resolveEdgeCurveType, edgeLabels, terminalLabels, clear$1, hasEdgeLabel, getLabelStyles, insertEdgeLabel, positionEdgeLabel, orthogonalizeToLabelClippedPoints, outsideNode, intersection$1, cutPathAtIntersect, findAdjacentPoint, fixCorners, generateDashArray, insertEdge, insertMarkers$1, markers, markers_default;
-	var init_chunk_R7TYR2AO = __esmMin((() => {
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+	var init_chunk_OSK3NFVY = __esmMin((() => {
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_75Z2AOVW();
@@ -56073,31 +56094,31 @@ raf(cb) {
 			extension: /* @__PURE__ */ __name$1((elem, type, id) => {
 				log.trace("Making markers for ", id);
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-extensionStart").attr("class", "marker extension " + type).attr("refX", 18).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").attr("d", "M 1,7 L18,13 V 1 Z");
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-extensionEnd").attr("class", "marker extension " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").append("path").attr("d", "M 1,1 V 13 L18,7 Z");
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-extensionEnd").attr("class", "marker extension " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").attr("d", "M 1,1 V 13 L18,7 Z");
 				elem.append("marker").attr("id", id + "_" + type + "-extensionStart-margin").attr("class", "marker extension " + type).attr("refX", 18).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").attr("viewBox", "0 0 20 14").append("polygon").attr("points", "10,7 18,13 18,1").style("stroke-width", 2).style("stroke-dasharray", "0");
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-extensionEnd-margin").attr("class", "marker extension " + type).attr("refX", 9).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").attr("viewBox", "0 0 20 14").append("polygon").attr("points", "10,1 10,13 18,7").style("stroke-width", 2).style("stroke-dasharray", "0");
 			}, "extension"),
 			composition: /* @__PURE__ */ __name$1((elem, type, id) => {
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-compositionStart").attr("class", "marker composition " + type).attr("refX", 18).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").append("path").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-compositionEnd").attr("class", "marker composition " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").append("path").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-compositionStart").attr("class", "marker composition " + type).attr("refX", 18).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-compositionEnd").attr("class", "marker composition " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-compositionStart-margin").attr("class", "marker composition " + type).attr("refX", 15).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").style("stroke-width", 0).attr("viewBox", "0 0 15 15").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-compositionEnd-margin").attr("class", "marker composition " + type).attr("refX", 3.5).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").style("stroke-width", 0).attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
 			}, "composition"),
 			aggregation: /* @__PURE__ */ __name$1((elem, type, id) => {
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-aggregationStart").attr("class", "marker aggregation " + type).attr("refX", 18).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").append("path").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-aggregationEnd").attr("class", "marker aggregation " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").append("path").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-aggregationStart").attr("class", "marker aggregation " + type).attr("refX", 18).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-aggregationEnd").attr("class", "marker aggregation " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-aggregationStart-margin").attr("class", "marker aggregation " + type).attr("refX", 15).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").style("stroke-width", 2).attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-aggregationEnd-margin").attr("class", "marker aggregation " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").style("stroke-width", 2).attr("d", "M 18,7 L9,13 L1,7 L9,1 Z");
 			}, "aggregation"),
 			dependency: /* @__PURE__ */ __name$1((elem, type, id) => {
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-dependencyStart").attr("class", "marker dependency " + type).attr("refX", 6).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").append("path").attr("d", "M 5,7 L9,13 L1,7 L9,1 Z");
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-dependencyEnd").attr("class", "marker dependency " + type).attr("refX", 13).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").append("path").attr("d", "M 18,7 L9,13 L14,7 L9,1 Z");
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-dependencyStart").attr("class", "marker dependency " + type).attr("refX", 6).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").attr("d", "M 5,7 L9,13 L1,7 L9,1 Z");
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-dependencyEnd").attr("class", "marker dependency " + type).attr("refX", 13).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").attr("d", "M 18,7 L9,13 L14,7 L9,1 Z");
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-dependencyStart-margin").attr("class", "marker dependency " + type).attr("refX", 4).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").style("stroke-width", 0).attr("d", "M 5,7 L9,13 L1,7 L9,1 Z");
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-dependencyEnd-margin").attr("class", "marker dependency " + type).attr("refX", 16).attr("refY", 7).attr("markerWidth", 20).attr("markerHeight", 28).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("path").style("stroke-width", 0).attr("d", "M 18,7 L9,13 L14,7 L9,1 Z");
 			}, "dependency"),
 			lollipop: /* @__PURE__ */ __name$1((elem, type, id) => {
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-lollipopStart").attr("class", "marker lollipop " + type).attr("refX", 13).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").append("circle").attr("fill", "transparent").attr("cx", 7).attr("cy", 7).attr("r", 6);
-				elem.append("defs").append("marker").attr("id", id + "_" + type + "-lollipopEnd").attr("class", "marker lollipop " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").append("circle").attr("fill", "transparent").attr("cx", 7).attr("cy", 7).attr("r", 6);
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-lollipopStart").attr("class", "marker lollipop " + type).attr("refX", 13).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("circle").attr("fill", "transparent").attr("cx", 7).attr("cy", 7).attr("r", 6);
+				elem.append("defs").append("marker").attr("id", id + "_" + type + "-lollipopEnd").attr("class", "marker lollipop " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("circle").attr("fill", "transparent").attr("cx", 7).attr("cy", 7).attr("r", 6);
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-lollipopStart-margin").attr("class", "marker lollipop " + type).attr("refX", 13).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("circle").attr("fill", "transparent").attr("cx", 7).attr("cy", 7).attr("r", 6).attr("stroke-width", 2);
 				elem.append("defs").append("marker").attr("id", id + "_" + type + "-lollipopEnd-margin").attr("class", "marker lollipop " + type).attr("refX", 1).attr("refY", 7).attr("markerWidth", 190).attr("markerHeight", 240).attr("orient", "auto").attr("markerUnits", "userSpaceOnUse").append("circle").attr("fill", "transparent").attr("cx", 7).attr("cy", 7).attr("r", 6).attr("stroke-width", 2);
 			}, "lollipop"),
@@ -62827,8 +62848,8 @@ raf(cb) {
 		init_graph();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/sizeCapture-X5ZJPWSS.mjs
-	var sizeCapture_X5ZJPWSS_exports = /* @__PURE__ */ __exportAll({
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/sizeCapture-INFHLROL.mjs
+	var sizeCapture_INFHLROL_exports = /* @__PURE__ */ __exportAll({
 		captureNodeSizes: () => captureNodeSizes,
 		shouldCaptureSizes: () => shouldCaptureSizes
 	});
@@ -62877,7 +62898,7 @@ raf(cb) {
 		}, element);
 	}
 	var DDLT_SIZE_CAPTURE_VERSION;
-	var init_sizeCapture_X5ZJPWSS = __esmMin((() => {
+	var init_sizeCapture_INFHLROL = __esmMin((() => {
 		init_chunk_Y2CYZVJY();
 		DDLT_SIZE_CAPTURE_VERSION = 1;
 		__name$1(getCaptureGlobal, "getCaptureGlobal");
@@ -62887,8 +62908,8 @@ raf(cb) {
 		__name$1(captureNodeSizes, "captureNodeSizes");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-DSNCTWBM.mjs
-	function createLayoutElementGroups(element, { edgePathsClass = "edges edgePath" } = {}) {
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-2E4U76K2.mjs
+	function createLayoutElementGroups(element, { edgePathsClass = "edges edgePaths" } = {}) {
 		const rootGroups = element.insert("g").attr("class", "root");
 		return {
 			clusters: rootGroups.insert("g").attr("class", "clusters"),
@@ -62953,7 +62974,7 @@ raf(cb) {
 			if (!data4Layout.edges.some((existingEdge) => existingEdge.id === edge.id)) data4Layout.edges.push(edge);
 		}
 		if (globalThis.mermaidCaptureSizes) {
-			const { captureNodeSizes } = await Promise.resolve().then(() => (init_sizeCapture_X5ZJPWSS(), sizeCapture_X5ZJPWSS_exports));
+			const { captureNodeSizes } = await Promise.resolve().then(() => (init_sizeCapture_INFHLROL(), sizeCapture_INFHLROL_exports));
 			captureNodeSizes(element, data4Layout);
 		}
 		return {
@@ -62966,7 +62987,7 @@ raf(cb) {
 		const measureLayoutFn = measureLayout ?? defaultMeasureLayout;
 		return /* @__PURE__ */ __name$1(async function render(data4Layout, svg, helpers, options) {
 			const element = svg.select("g");
-			markers_default(element, data4Layout.markers, data4Layout.type, data4Layout.diagramId);
+			(helpers?.insertMarkers ?? markers_default)(element, data4Layout.markers, data4Layout.type, data4Layout.diagramId);
 			clearLayoutRenderState();
 			const renderContext = {
 				element,
@@ -63100,11 +63121,11 @@ raf(cb) {
 		}
 	}
 	var clusterDb, descendants, parents, clear4, isDescendant$1, edgeInCluster, copy$1, extractDescendants, findCommonEdges, findNonClusterChild, getAnchorId, adjustClustersAndEdges, extractor, sorter, sortNodesByHierarchy, isNodeInExtractableCluster, findSafeAnchorNode;
-	var init_chunk_DSNCTWBM = __esmMin((() => {
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+	var init_chunk_2E4U76K2 = __esmMin((() => {
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_75Z2AOVW();
 		init_chunk_DU6HZSFF();
 		init_chunk_X3CZISLH();
@@ -63400,7 +63421,7 @@ raf(cb) {
 		__name$1(positionRenderedEdgeLabel, "positionRenderedEdgeLabel");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-LNGE3PJU.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-LNGE3PJU.mjs
 	function getDefaultExportFromCjs$1(x) {
 		return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, "default") ? x["default"] : x;
 	}
@@ -68120,8 +68141,8 @@ raf(cb) {
 		init_rank();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/dagre-3AP2YEHR.mjs
-	var dagre_3AP2YEHR_exports = /* @__PURE__ */ __exportAll({
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/dagre-GXQ25YYZ.mjs
+	var dagre_GXQ25YYZ_exports = /* @__PURE__ */ __exportAll({
 		applyDagreLayoutResult: () => applyDagreLayoutResult,
 		getEdgesToRender: () => getEdgesToRender,
 		measureDagreLayout: () => measureDagreLayout,
@@ -68130,12 +68151,12 @@ raf(cb) {
 		runDagreLayoutCore: () => runDagreLayoutCore
 	});
 	var clamp, getDefaultSelfLoopSide, shouldMergeSelfLoopSegments, DAGRE_NODE_LAYOUT_PROPERTIES, getSelfLoopSide, getSelfLoopPoints, getSelfLoopLabelPosition, getEdgesToRender, measureDagreGraph, runDagreGraphLayout, normalizeDagreNode, applyDagreNodeLayout, normalizeDagreEdge, applyDagreLayoutResult, paintDagreLayoutCore, renderDagreSubgraph, prepareLayoutForDagre, measureDagreLayout, runDagreLayoutCore, render$3;
-	var init_dagre_3AP2YEHR = __esmMin((() => {
-		init_chunk_DSNCTWBM();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+	var init_dagre_GXQ25YYZ = __esmMin((() => {
+		init_chunk_2E4U76K2();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -68711,8 +68732,8 @@ raf(cb) {
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/swimlanes-XN3QIQJK.mjs
-	var swimlanes_XN3QIQJK_exports = /* @__PURE__ */ __exportAll({ render: () => render$2 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/swimlanes-42K2YHIH.mjs
+	var swimlanes_42K2YHIH_exports = /* @__PURE__ */ __exportAll({ render: () => render$2 });
 	function buildSegmentList(points) {
 		const segments = [];
 		for (let i = 0; i < points.length - 1; i++) segments.push({
@@ -75383,12 +75404,12 @@ raf(cb) {
 		data4Layout.edges = transformedData.edges;
 	}
 	var ROUNDED_CORNER_RADIUS, CORNER_EPSILON, ENDPOINT_EPSILON, MIN_JUMP_RADIUS, DEFAULT_SWIMLANE_ID, TOP_LANE_TITLE_BAND_HEIGHT, MIN_TOP_LANE_HORIZONTAL_PADDING, EDGE_LABEL_LOG_PREFIX, EPS, EPS2, INSIDE_EPS, CORNER_CLEARANCE, EPS3, PORT_SHIFT, TRY_DELTAS, EPS_LOCAL, MIN_SHARED, segmentsFor, orthogonallyAligned, EPS4, MIN_SHARED2, EPS5, MARKER_CLEARANCE_LENGTH, MARKER_CLEARANCE_HALF_WIDTH, EPS6, PORT_SHIFT2, LABEL_CLEARANCE_BUFFER, PRECISION, LAYERING, COORDINATES, AUTOMATIC_LANE_ORDERING_RESTARTS, EPS7, NODE_PADDING$1, HORIZONTAL_PIPE_MARGIN, VERTICAL_PIPE_MARGIN, ROUTING_MARGIN, ANCHOR_OFFSET, TRACK_SPACING, render$2;
-	var init_swimlanes_XN3QIQJK = __esmMin((() => {
-		init_chunk_DSNCTWBM();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+	var init_swimlanes_42K2YHIH = __esmMin((() => {
+		init_chunk_2E4U76K2();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -75640,7 +75661,7 @@ EPSILON: 1e-6 };
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/cytoscape@3.34.1/node_modules/cytoscape/dist/cytoscape.esm.mjs
+	//#region node_modules/.pnpm/cytoscape@3.34.2/node_modules/cytoscape/dist/cytoscape.esm.mjs
 	/**
 	* Copyright (c) 2016-2026, The Cytoscape Consortium.
 	*
@@ -103481,7 +103502,7 @@ EPSILON: 1e-6 };
 			}
 			return style;
 		};
-		version = "3.34.1";
+		version = "3.34.2";
 		cytoscape$1 = function cytoscape(options) {
 			if (options === void 0) options = {};
 			if (plainObject(options)) return new Core(options);
@@ -107240,7 +107261,7 @@ EPSILON: 1e-6 };
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/cytoscape-cose-bilkent@4.1.0_cytoscape@3.34.1/node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js
+	//#region node_modules/.pnpm/cytoscape-cose-bilkent@4.1.0_cytoscape@3.34.2/node_modules/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js
 	var require_cytoscape_cose_bilkent = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		(function webpackUniversalModuleDefinition(root, factory) {
 			if (typeof exports === "object" && typeof module === "object") module.exports = factory(require_cose_base$1());
@@ -107525,7 +107546,7 @@ EPSILON: 1e-6 };
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/cose-bilkent-JH36ORCC.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/cose-bilkent-JH36ORCC.mjs
 	var cose_bilkent_JH36ORCC_exports = /* @__PURE__ */ __exportAll({ render: () => render2$1 });
 	function addNodes(nodes, cy) {
 		nodes.forEach((node) => {
@@ -107790,13 +107811,13 @@ EPSILON: 1e-6 };
 		}, "render");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-CKBBP62Z.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-TLUHSLCS.mjs
 	var internalHelpers, layoutAlgorithms, registerLayoutLoaders, render$1, getRegisteredLayoutAlgorithm;
-	var init_chunk_CKBBP62Z = __esmMin((() => {
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+	var init_chunk_TLUHSLCS = __esmMin((() => {
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_75Z2AOVW();
 		init_chunk_DU6HZSFF();
 		init_chunk_X3CZISLH();
@@ -107822,11 +107843,11 @@ EPSILON: 1e-6 };
 			registerLayoutLoaders([
 				{
 					name: "dagre",
-					loader: /* @__PURE__ */ __name$1(async () => await Promise.resolve().then(() => (init_dagre_3AP2YEHR(), dagre_3AP2YEHR_exports)), "loader")
+					loader: /* @__PURE__ */ __name$1(async () => await Promise.resolve().then(() => (init_dagre_GXQ25YYZ(), dagre_GXQ25YYZ_exports)), "loader")
 				},
 				{
 					name: "swimlane",
-					loader: /* @__PURE__ */ __name$1(async () => await Promise.resolve().then(() => (init_swimlanes_XN3QIQJK(), swimlanes_XN3QIQJK_exports)), "loader")
+					loader: /* @__PURE__ */ __name$1(async () => await Promise.resolve().then(() => (init_swimlanes_42K2YHIH(), swimlanes_42K2YHIH_exports)), "loader")
 				},
 				...[{
 					name: "cose-bilkent",
@@ -108098,9 +108119,7 @@ EPSILON: 1e-6 };
 			case 40:
 				if (type === 41) delimiter(type);
 				break;
-			case 92:
-				next$1();
-				break;
+			case 92: next$1();
 		}
 		return position;
 	}
@@ -108342,7 +108361,7 @@ EPSILON: 1e-6 };
 		};
 	}
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-F27PBJKO.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-F27PBJKO.mjs
 	var import_dist$2, drawRect$1, drawBackgroundRect$1, drawText$3, drawImage, drawEmbeddedImage, getNoteRect$1, getTextObj$1, createTooltip;
 	var init_chunk_F27PBJKO = __esmMin((() => {
 		init_chunk_DU6HZSFF();
@@ -108436,8 +108455,8 @@ EPSILON: 1e-6 };
 		}, "createTooltip");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/c4Diagram-UCG6FXSJ.mjs
-	var c4Diagram_UCG6FXSJ_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$35 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/c4Diagram-7LVT6UL2.mjs
+	var c4Diagram_7LVT6UL2_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$35 });
 	function calcC4ShapeTextWH(textType, c4Shape, c4ShapeTextWrap, textConf, textLimitWidth) {
 		const textElement = c4Shape[textType];
 		if (!textElement.width) {
@@ -108522,9 +108541,9 @@ EPSILON: 1e-6 };
 		}
 	}
 	var parser$28, c4Diagram_default, getRequiredConfig, assignAttributes, createGlobalBoundary, c4ShapeArray, boundaryParseStack, currentBoundaryParse, parentBoundaryParse, boundaries, rels, title, wrapEnabled, c4ShapeInRow, c4BoundaryInRow, c4Type, getC4Type, setC4Type, addRel, addPersonOrSystem, addContainer, addComponent, addPersonOrSystemBoundary, addContainerBoundary, addDeploymentNode, popBoundaryParseStack, updateElStyle, updateRelStyle, updateLayoutConfig, getC4ShapeInRow, getC4BoundaryInRow, getCurrentBoundaryParse, getParentBoundaryParse, getC4ShapeArray, getC4Shape, getC4ShapeKeys, getBoundaries, getBoundarys, getRels, getTitle$1, setWrap, autoWrap, c4Db_default, drawRect2$2, drawRels, drawBoundary, insertDatabaseIcon$1, insertComputerIcon$1, insertClockIcon$1, insertArrowHead$1, insertArrowEnd, insertArrowFilledHead$1, insertArrowCrossHead$1, _drawTextCandidateFunc$3, svgDraw_default$3, getDiagramRoot, QUEUE_SHAPES, DB_SHAPES, SHAPE_KEYWORDS, keywordShape, resolveNodeShape, STEREOTYPE_NAMES, stereotypeLabel, isExternal, stereotypeText, C4_ELEMENT_TYPES, C4_ELEMENT_TYPE_SET, isC4ElementType, elementCssStyles, buildC4Node, globalBoundaryMaxX, globalBoundaryMaxY, c4ShapeInRow2, c4BoundaryInRow2, conf$3, Bounds, setConf$4, boundaryFont, messageFont$1, drawBoundary2, drawC4ShapeArray, Point$1, getIntersectPoint, getIntersectPoints, drawRels2, c4Renderer_default, elementFontStyles, diagram$35;
-	var init_c4Diagram_UCG6FXSJ = __esmMin((() => {
+	var init_c4Diagram_7LVT6UL2 = __esmMin((() => {
 		init_chunk_F27PBJKO();
-		init_chunk_TEH6E4GO();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -112119,7 +112138,7 @@ ${elementFontStyles()}
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-5VM5RSS4.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-5VM5RSS4.mjs
 	var getIconStyles;
 	var init_chunk_5VM5RSS4 = __esmMin((() => {
 		init_chunk_Y2CYZVJY();
@@ -112140,7 +112159,7 @@ ${elementFontStyles()}
 `, "getIconStyles");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-XXDRQBXY.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-XXDRQBXY.mjs
 	var getDiagramElement;
 	var init_chunk_XXDRQBXY = __esmMin((() => {
 		init_chunk_Y2CYZVJY();
@@ -112152,7 +112171,7 @@ ${elementFontStyles()}
 		}, "getDiagramElement");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-POPQ4Y6H.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-POPQ4Y6H.mjs
 	var setupViewPortForSVG, calculateDimensionsWithPadding, createViewBox;
 	var init_chunk_POPQ4Y6H = __esmMin((() => {
 		init_chunk_DU6HZSFF();
@@ -112185,16 +112204,16 @@ ${elementFontStyles()}
 		}, "createViewBox");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-RHFEMEQ7.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-SHT3W25Y.mjs
 	var MERMAID_DOM_ID_PREFIX$1, FlowDB, flowRenderer_v3_unified_default, parser$27, flow_default, newParser, flowParser_default, fade$2, styles_default$8, createFlowDiagram, diagram$34;
-	var init_chunk_RHFEMEQ7 = __esmMin((() => {
+	var init_chunk_SHT3W25Y = __esmMin((() => {
 		init_chunk_5VM5RSS4();
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
 		init_chunk_LNGE3PJU();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
-		init_chunk_TEH6E4GO();
+		init_chunk_4HAMMTFA();
 		init_chunk_75Z2AOVW();
 		init_chunk_DU6HZSFF();
 		init_chunk_X3CZISLH();
@@ -116885,7 +116904,7 @@ You have to call mermaid.initialize.`);
     fill: ${options.arrowheadColor};
   }
 
-  .edgePath .path {
+  .edgePaths .path {
     stroke: ${options.lineColor};
     stroke-width: ${options.strokeWidth ?? 2}px;
   }
@@ -117001,22 +117020,22 @@ You have to call mermaid.initialize.`);
 		diagram$34 = createFlowDiagram();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/flowDiagram-A5DVABFB.mjs
-	var flowDiagram_A5DVABFB_exports = /* @__PURE__ */ __exportAll({
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/flowDiagram-HODETNUW.mjs
+	var flowDiagram_HODETNUW_exports = /* @__PURE__ */ __exportAll({
 		createFlowDiagram: () => createFlowDiagram,
 		diagram: () => diagram$34
 	});
-	var init_flowDiagram_A5DVABFB = __esmMin((() => {
-		init_chunk_RHFEMEQ7();
+	var init_flowDiagram_HODETNUW = __esmMin((() => {
+		init_chunk_SHT3W25Y();
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
 		init_chunk_LNGE3PJU();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -117025,20 +117044,20 @@ You have to call mermaid.initialize.`);
 		init_chunk_X3CZISLH();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/swimlanesDiagram-VK2B7HYN.mjs
-	var swimlanesDiagram_VK2B7HYN_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$33 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/swimlanesDiagram-VR7AAH4N.mjs
+	var swimlanesDiagram_VR7AAH4N_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$33 });
 	var diagram$33;
-	var init_swimlanesDiagram_VK2B7HYN = __esmMin((() => {
-		init_chunk_RHFEMEQ7();
+	var init_swimlanesDiagram_VR7AAH4N = __esmMin((() => {
+		init_chunk_SHT3W25Y();
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
 		init_chunk_LNGE3PJU();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -117059,17 +117078,17 @@ You have to call mermaid.initialize.`);
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/erDiagram-SSCWMZ5O.mjs
-	var erDiagram_SSCWMZ5O_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$32 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/erDiagram-RLTQ6QDP.mjs
+	var erDiagram_RLTQ6QDP_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$32 });
 	var parser$26, erDiagram_default, ErDB, erRenderer_unified_exports, draw$9, fade$1, COLOR_THEMES$2, genColor$2, diagram$32;
-	var init_erDiagram_SSCWMZ5O = __esmMin((() => {
+	var init_erDiagram_RLTQ6QDP = __esmMin((() => {
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_TLUHSLCS();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -119356,7 +119375,7 @@ You have to call mermaid.initialize.`);
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-2Q5K7J3B.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-2Q5K7J3B.mjs
 	var ImperativeState;
 	var init_chunk_2Q5K7J3B = __esmMin((() => {
 		init_chunk_Y2CYZVJY();
@@ -119377,7 +119396,7 @@ You have to call mermaid.initialize.`);
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-JWPE2WC7.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-JWPE2WC7.mjs
 	function populateCommonDb(ast, db) {
 		if (ast.accDescr) db.setAccDescription?.(ast.accDescr);
 		if (ast.accTitle) db.setAccTitle?.(ast.accTitle);
@@ -147433,7 +147452,7 @@ ${content}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/gitGraphDiagram-WWUBYQGX.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/gitGraphDiagram-WWUBYQGX.mjs
 	var gitGraphDiagram_WWUBYQGX_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$31 });
 	function getID() {
 		return random({ length: 7 });
@@ -148993,7 +149012,7 @@ ${content}`;
 		}));
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/ganttDiagram-EL5Y4UJY.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/ganttDiagram-EL5Y4UJY.mjs
 	var ganttDiagram_EL5Y4UJY_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$30 });
 	function getTaskTags(data, task, tags2) {
 		let matchFound = true;
@@ -151211,10 +151230,10 @@ ${content}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/infoDiagram-RXCK75RN.mjs
-	var infoDiagram_RXCK75RN_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$29 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/infoDiagram-27XIBGKW.mjs
+	var infoDiagram_27XIBGKW_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$29 });
 	var parser$23, DEFAULT_INFO_DB, diagram$29;
-	var init_infoDiagram_RXCK75RN = __esmMin((() => {
+	var init_infoDiagram_27XIBGKW = __esmMin((() => {
 		init_chunk_CLGD4ZFX();
 		init_chunk_DU6HZSFF();
 		init_chunk_X3CZISLH();
@@ -151224,7 +151243,7 @@ ${content}`;
 			const ast = await parse$1("info", input);
 			log.debug(ast);
 		}, "parse") };
-		DEFAULT_INFO_DB = { version: "11.17.0" };
+		DEFAULT_INFO_DB = { version: "11.17.2" };
 		diagram$29 = {
 			parser: parser$23,
 			db: { getVersion: /* @__PURE__ */ __name$1(() => DEFAULT_INFO_DB.version, "getVersion") },
@@ -151237,7 +151256,7 @@ ${content}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/pieDiagram-E7YTZNPT.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/pieDiagram-E7YTZNPT.mjs
 	var pieDiagram_E7YTZNPT_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$28 });
 	var DEFAULT_PIE_CONFIG, DEFAULT_PIE_DB, sections$3, showData, config, db$5, populateDb$6, parser$22, pieStyles_default, createPieArcs, diagram$28;
 	var init_pieDiagram_E7YTZNPT = __esmMin((() => {
@@ -151475,7 +151494,7 @@ ${content}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/quadrantDiagram-AXDQQJYC.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/quadrantDiagram-AXDQQJYC.mjs
 	var quadrantDiagram_AXDQQJYC_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$27 });
 	function validateHexCode(value) {
 		return !/^#?([\dA-Fa-f]{6}|[\dA-Fa-f]{3})$/.test(value);
@@ -153710,7 +153729,7 @@ ${content}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/xychartDiagram-S5SC5T6Z.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/xychartDiagram-S5SC5T6Z.mjs
 	var xychartDiagram_S5SC5T6Z_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$26 });
 	function isBarPlot(data) {
 		return data.type === "bar";
@@ -156343,17 +156362,17 @@ ${content}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/requirementDiagram-EFPCY7ZU.mjs
-	var requirementDiagram_EFPCY7ZU_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$25 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/requirementDiagram-BXWQKSXE.mjs
+	var requirementDiagram_BXWQKSXE_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$25 });
 	var parser$19, requirementDiagram_default, RequirementDB, genColor, styles_default$7, requirementRenderer_exports, draw$8, diagram$25;
-	var init_requirementDiagram_EFPCY7ZU = __esmMin((() => {
+	var init_requirementDiagram_BXWQKSXE = __esmMin((() => {
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_TLUHSLCS();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -158808,7 +158827,7 @@ ${content}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/sequenceDiagram-WJ2MYXX4.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/sequenceDiagram-WJ2MYXX4.mjs
 	var sequenceDiagram_WJ2MYXX4_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$24 });
 	async function boundMessage(_diagram, msgModel) {
 		bounds$1.bumpVerticalPos(10);
@@ -164257,13 +164276,13 @@ ${content}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-LCL6LL3I.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-TICWLB2K.mjs
 	var parser$17, classDiagram_default, visibilityValues, ClassMember, MERMAID_DOM_ID_PREFIX, classCounter, sanitizeText2$1, ClassDB, styles_default$5, classRenderer_v3_unified_default;
-	var init_chunk_LCL6LL3I = __esmMin((() => {
+	var init_chunk_TICWLB2K = __esmMin((() => {
 		init_chunk_5VM5RSS4();
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
 		init_chunk_75Z2AOVW();
 		init_chunk_DU6HZSFF();
@@ -168059,19 +168078,19 @@ g.classGroup line {
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/classDiagram-DTDB5LWJ.mjs
-	var classDiagram_DTDB5LWJ_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$23 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/classDiagram-ZZMXUADV.mjs
+	var classDiagram_ZZMXUADV_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$23 });
 	var diagram$23;
-	var init_classDiagram_DTDB5LWJ = __esmMin((() => {
-		init_chunk_LCL6LL3I();
+	var init_classDiagram_ZZMXUADV = __esmMin((() => {
+		init_chunk_TICWLB2K();
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -168093,19 +168112,19 @@ g.classGroup line {
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/classDiagram-v2-JRS7N3AN.mjs
-	var classDiagram_v2_JRS7N3AN_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$22 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/classDiagram-v2-VYDZK3BY.mjs
+	var classDiagram_v2_VYDZK3BY_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$22 });
 	var diagram$22;
-	var init_classDiagram_v2_JRS7N3AN = __esmMin((() => {
-		init_chunk_LCL6LL3I();
+	var init_classDiagram_v2_VYDZK3BY = __esmMin((() => {
+		init_chunk_TICWLB2K();
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -168127,7 +168146,7 @@ g.classGroup line {
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-G27WJ6UU.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-IMKFNOWR.mjs
 	function stateDomId(itemId = "", counter = 0, type = "", typeSpacer = DOMID_TYPE_SPACER) {
 		return `${DOMID_STATE}-${itemId}${type !== null && type.length > 0 ? `${typeSpacer}${type}` : ""}-${counter}`;
 	}
@@ -168151,10 +168170,10 @@ g.classGroup line {
 		return dbInfoItem?.styles ?? [];
 	}
 	var parser$16, stateDiagram_default, DEFAULT_DIAGRAM_DIRECTION, DEFAULT_NESTED_DOC_DIR, STMT_DIRECTION, STMT_STATE, STMT_ROOT, STMT_RELATION, STMT_CLASSDEF, STMT_STYLEDEF, STMT_APPLYCLASS, DEFAULT_STATE_TYPE, DIVIDER_TYPE, G_EDGE_STYLE, G_EDGE_ARROWHEADSTYLE, G_EDGE_LABELPOS, G_EDGE_LABELTYPE, G_EDGE_THICKNESS, SHAPE_STATE, SHAPE_STATE_WITH_DESC, SHAPE_START, SHAPE_END, SHAPE_DIVIDER, SHAPE_GROUP, SHAPE_NOTE, SHAPE_NOTEGROUP, CSS_DIAGRAM, CSS_DIAGRAM_STATE, CSS_EDGE, CSS_NOTE, CSS_EDGE_NOTE_EDGE, CSS_DIAGRAM_NOTE, CSS_DIAGRAM_CLUSTER, CSS_DIAGRAM_CLUSTER_ALT, PARENT, NOTE, DOMID_STATE, DOMID_TYPE_SPACER, NOTE_ID, PARENT_ID, getDir, stateRenderer_v3_unified_default, nodeDb, graphItemCount, setupDoc, getDir2, dataFetcher, reset$1, CONSTANTS, newClassesList, newDoc, clone, StateDB, styles_default$4;
-	var init_chunk_G27WJ6UU = __esmMin((() => {
+	var init_chunk_IMKFNOWR = __esmMin((() => {
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
 		init_chunk_75Z2AOVW();
 		init_chunk_DU6HZSFF();
@@ -170726,19 +170745,19 @@ g.stateGroup line {
 `, "getStyles");
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/stateDiagram-HBIQ2CUA.mjs
-	var stateDiagram_HBIQ2CUA_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$21 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/stateDiagram-D77RDMKH.mjs
+	var stateDiagram_D77RDMKH_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$21 });
 	var drawStartState, drawDivider, drawSimpleState, drawDescrState, addTitleAndBox, drawEndState, drawForkJoinState, _drawLongText, drawNote, drawState, edgeCount$1, drawEdge, conf$1, transformationLog, setConf$1, insertMarkers, draw$6, getLabelWidth, renderDoc, diagram$21;
-	var init_stateDiagram_HBIQ2CUA = __esmMin((() => {
-		init_chunk_G27WJ6UU();
+	var init_stateDiagram_D77RDMKH = __esmMin((() => {
+		init_chunk_IMKFNOWR();
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -171094,19 +171113,19 @@ g.stateGroup line {
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/stateDiagram-v2-4QOOHH4V.mjs
-	var stateDiagram_v2_4QOOHH4V_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$20 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/stateDiagram-v2-MP3YSRHH.mjs
+	var stateDiagram_v2_MP3YSRHH_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$20 });
 	var diagram$20;
-	var init_stateDiagram_v2_4QOOHH4V = __esmMin((() => {
-		init_chunk_G27WJ6UU();
+	var init_stateDiagram_v2_MP3YSRHH = __esmMin((() => {
+		init_chunk_IMKFNOWR();
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
+		init_chunk_TLUHSLCS();
 		init_chunk_F27PBJKO();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -171128,8 +171147,8 @@ g.stateGroup line {
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/journeyDiagram-EYS64GPL.mjs
-	var journeyDiagram_EYS64GPL_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$19 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/journeyDiagram-3NMN7TZE.mjs
+	var journeyDiagram_3NMN7TZE_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$19 });
 	function drawActorLegend(diagram2) {
 		const conf2 = getConfig2$2().journey;
 		const maxLabelWidth = conf2.maxLabelWidth;
@@ -171194,7 +171213,7 @@ g.stateGroup line {
 		});
 	}
 	var parser$15, journey_default, currentSection$1, sections$2, tasks$1, rawTasks$1, clear2$7, addSection$1, getSections$2, getTasks$1, updateActors, addTask$1, addTaskOrg$1, compileTasks$1, journeyDb_default, styles_default$3, drawRect2, drawFace$1, drawCircle$1, drawText2, drawLabel$1, drawSection$1, taskCount$1, drawTask$1, drawBackgroundRect2, _drawTextCandidateFunc$1, svgDraw_default$1, setConf, actors, maxWidth, conf, leftMargin, draw$5, bounds, fills, textColours, drawTasks$1, journeyRenderer_default, diagram$19;
-	var init_journeyDiagram_EYS64GPL = __esmMin((() => {
+	var init_journeyDiagram_3NMN7TZE = __esmMin((() => {
 		init_chunk_5VM5RSS4();
 		init_chunk_F27PBJKO();
 		init_chunk_DU6HZSFF();
@@ -171934,7 +171953,7 @@ g.stateGroup line {
     fill: ${options.arrowheadColor};
   }
 
-  .edgePath .path {
+  .edgePaths .path {
     stroke: ${options.lineColor};
     stroke-width: 1.5px;
   }
@@ -172355,7 +172374,7 @@ g.stateGroup line {
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/timeline-definition-24CTP7MA.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/timeline-definition-24CTP7MA.mjs
 	var timeline_definition_24CTP7MA_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$18 });
 	function wrap(text, width) {
 		text.each(function() {
@@ -173913,17 +173932,17 @@ g.stateGroup line {
 		init_v4();
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/mindmap-definition-FBJOCRG2.mjs
-	var mindmap_definition_FBJOCRG2_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$17 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/mindmap-definition-YA3MSWOX.mjs
+	var mindmap_definition_YA3MSWOX_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$17 });
 	var parser$13, mindmap_default, MAX_SECTIONS, nodeType$1, MindmapDB, mindmapRenderer_default, genSections$1, genGradient, diagram$17;
-	var init_mindmap_definition_FBJOCRG2 = __esmMin((() => {
+	var init_mindmap_definition_YA3MSWOX = __esmMin((() => {
 		init_chunk_XXDRQBXY();
 		init_chunk_POPQ4Y6H();
-		init_chunk_CKBBP62Z();
-		init_chunk_JQ64N6SF();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_TLUHSLCS();
+		init_chunk_L3NEJ4N5();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -175189,16 +175208,16 @@ g.stateGroup line {
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/kanban-definition-3QL26DDD.mjs
-	var kanban_definition_3QL26DDD_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$16 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/kanban-definition-UXKFOSKX.mjs
+	var kanban_definition_UXKFOSKX_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$16 });
 	var parser$12, kanban_default, nodes$1, sections, cnt$1, elements, clear, getSection, getSections, getData, addNode$1, nodeType, kanbanDb_default, kanbanRenderer_default, genSections, diagram$16;
-	var init_kanban_definition_3QL26DDD = __esmMin((() => {
+	var init_kanban_definition_UXKFOSKX = __esmMin((() => {
 		init_chunk_CLGD4ZFX();
 		init_chunk_5VM5RSS4();
 		init_chunk_LNGE3PJU();
-		init_chunk_JQ64N6SF();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_L3NEJ4N5();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -179177,7 +179196,7 @@ g.stateGroup line {
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/sankeyDiagram-P5KCCOFB.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/sankeyDiagram-P5KCCOFB.mjs
 	var sankeyDiagram_P5KCCOFB_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$15 });
 	var import_d3_sankey, parser$11, sankey_default, links, nodes, nodesMap, clear2$5, SankeyLink, addLink$1, SankeyNode, sankeyDB_default, Uid, alignmentsMap, findCentralNodeLayer, sankeyRenderer_default, prepareTextForParsing, styles_default$2, originalParse, diagram$15;
 	var init_sankeyDiagram_P5KCCOFB = __esmMin((() => {
@@ -179965,7 +179984,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/diagram-Z3DM3KII.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/diagram-Z3DM3KII.mjs
 	var diagram_Z3DM3KII_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$14 });
 	var DEFAULT_PACKET_CONFIG, PacketDB, maxPacketSize, populate$4, getNextFittingBlock, parser$10, draw$3, drawWord, renderer$5, defaultPacketStyleOptions, diagram$14;
 	var init_diagram_Z3DM3KII = __esmMin((() => {
@@ -180152,7 +180171,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/diagram-UQ7AKVKN.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/diagram-UQ7AKVKN.mjs
 	var diagram_UQ7AKVKN_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$13 });
 	function drawCurves(g, axes, curves, minValue, maxValue, graticule, config) {
 		const numAxes = axes.length;
@@ -180442,8 +180461,8 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/blockDiagram-NRAW4CY4.mjs
-	var blockDiagram_NRAW4CY4_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$12 });
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/blockDiagram-I7D4REHJ.mjs
+	var blockDiagram_I7D4REHJ_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$12 });
 	function typeStr2Type(typeStr) {
 		log.debug("typeStr2Type", typeStr);
 		switch (typeStr) {
@@ -180901,11 +180920,11 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		}
 	}
 	var parser$8, block_default, blockDatabase, edgeList, edgeCount, COLOR_KEYWORD, FILL_KEYWORD, BG_FILL, STYLECLASS_SEP, classes, diagramId, sanitizeText, addStyleClass, addStyle2Node, setCssClass, populateBlockDatabase, blocks, rootBlock, clear2$4, cnt, blockDB_default, fade, styles_default$1, getMaxChildSize, diagram$12;
-	var init_blockDiagram_NRAW4CY4 = __esmMin((() => {
+	var init_blockDiagram_I7D4REHJ = __esmMin((() => {
 		init_chunk_5VM5RSS4();
-		init_chunk_R7TYR2AO();
-		init_chunk_OBVCFTLP();
-		init_chunk_TEH6E4GO();
+		init_chunk_OSK3NFVY();
+		init_chunk_GVQU2GXP();
+		init_chunk_4HAMMTFA();
 		init_chunk_P2QGCYS3();
 		init_chunk_GMAD6QVW();
 		init_chunk_PWAF6VOD();
@@ -182660,7 +182679,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
     fill: ${options.arrowheadColor};
   }
 
-  .edgePath .path {
+  .edgePaths .path {
     stroke: ${options.lineColor};
     stroke-width: 2.0px;
   }
@@ -182814,7 +182833,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/diagram-S7CK7UJ4.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/diagram-S7CK7UJ4.mjs
 	var diagram_S7CK7UJ4_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$11 });
 	function isBoxDrawingFormat(lines) {
 		return lines.some((line) => ALL_BOX_CHARS.test(line));
@@ -188625,7 +188644,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/cytoscape-fcose@2.2.0_cytoscape@3.34.1/node_modules/cytoscape-fcose/cytoscape-fcose.js
+	//#region node_modules/.pnpm/cytoscape-fcose@2.2.0_cytoscape@3.34.2/node_modules/cytoscape-fcose/cytoscape-fcose.js
 	var require_cytoscape_fcose = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		(function webpackUniversalModuleDefinition(root, factory) {
 			if (typeof exports === "object" && typeof module === "object") module.exports = factory(require_cose_base());
@@ -189713,7 +189732,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		});
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/architectureDiagram-5GKGNRK7.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/architectureDiagram-5GKGNRK7.mjs
 	var architectureDiagram_5GKGNRK7_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$10 });
 	function withSeededRandom(seed, fn) {
 		if (seed === 0) return fn();
@@ -190729,7 +190748,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/diagram-VSXAHHWV.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/diagram-VSXAHHWV.mjs
 	var diagram_VSXAHHWV_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$9 });
 	function reset() {
 		store = {};
@@ -191283,7 +191302,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/ishikawaDiagram-5VMMS53U.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/ishikawaDiagram-5VMMS53U.mjs
 	var ishikawaDiagram_5VMMS53U_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$8 });
 	var import_rough_cjs$1, parser$4, ishikawa_default, IshikawaDB, FONT_SIZE_DEFAULT, SPINE_BASE_LENGTH, BONE_STUB, BONE_BASE, BONE_PER_CHILD, ANGLE, COS_A, SIN_A, applyPaddedViewBox, draw$1, sideStats, drawHead, flattenTree, drawCauseLabel, drawArrowMarker, drawBranch, splitLines, wrapText$1, drawMultilineText, lerp, drawLine, diagram$8;
 	var init_ishikawaDiagram_5VMMS53U = __esmMin((() => {
@@ -193814,7 +193833,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		SMALL = 1e-10;
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/vennDiagram-4TSXK5OY.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/vennDiagram-4TSXK5OY.mjs
 	var vennDiagram_4TSXK5OY_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$7 });
 	function getConfig2() {
 		return cleanAndMerge(DEFAULT_VENN_CONFIG, getConfig().venn);
@@ -195060,7 +195079,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/diagram-VX7I27RA.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/diagram-VX7I27RA.mjs
 	var diagram_VX7I27RA_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$6 });
 	function buildHierarchy(items) {
 		if (!items.length) return [];
@@ -195493,7 +195512,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/wardleyDiagram-VM6X3IG4.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/wardleyDiagram-VM6X3IG4.mjs
 	var wardleyDiagram_VM6X3IG4_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$5 });
 	function getConfig3() {
 		return getConfig2$2()["wardley-beta"];
@@ -196368,7 +196387,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/cynefinDiagram-5FMLGOSQ.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/cynefinDiagram-5FMLGOSQ.mjs
 	var cynefinDiagram_5FMLGOSQ_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$4 });
 	function seededRandom(seed) {
 		let t = seed + 1831565813 | 0;
@@ -196847,7 +196866,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/chunk-SVP7TREG.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/chunk-SVP7TREG.mjs
 	var diagramTitle, accTitle, accDescription, rules, ruleMap, sanitizeText2, sanitizeAstNode, clear2, setTitle, getTitle, db, DEFAULT_RAILROAD_CONFIG, COLOR_VALUE_PATTERN, FONT_FAMILY_PATTERN, RAILROAD_STYLE_OPTION_KEYS, isRailroadStyleOptions, extractRailroadOverrides, extractThemeOverrides, sanitizeColorValue, sanitizeFontFamilyValue, sanitizeNumberValue, parseThemeFontSize, buildThemeDefaults, buildRailroadStyleOptions, getStyles, PathBuilder, RailroadRenderer, configureRailroadSvgSize, renderer$1;
 	var init_chunk_SVP7TREG = __esmMin((() => {
 		init_chunk_CLGD4ZFX();
@@ -197533,7 +197552,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		}, "draw") };
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/railroadDiagram-O6MQD6OU.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/railroadDiagram-O6MQD6OU.mjs
 	var railroadDiagram_O6MQD6OU_exports = /* @__PURE__ */ __exportAll({
 		default: () => railroadDiagram_default,
 		diagram: () => diagram$3
@@ -197627,7 +197646,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		railroadDiagram_default = diagram$3;
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/ebnfDiagram-PWID7BFC.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/ebnfDiagram-PWID7BFC.mjs
 	var ebnfDiagram_PWID7BFC_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$2 });
 	var langiumParser$2, transformChoice, transformSequence$1, transformPrimary$2, transformPostfix, transformTerm, transformRule$2, populateDb$2, diagram$2;
 	var init_ebnfDiagram_PWID7BFC = __esmMin((() => {
@@ -197751,7 +197770,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/abnfDiagram-VCTEODGH.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/abnfDiagram-VCTEODGH.mjs
 	var abnfDiagram_VCTEODGH_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram$1 });
 	var langiumParser$1, transformAlternation, transformConcatenation, parseRepeat, transformElement, transformPrimary$1, transformRule$1, populateDb$1, diagram$1;
 	var init_abnfDiagram_VCTEODGH = __esmMin((() => {
@@ -197861,7 +197880,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/chunks/mermaid.core/pegDiagram-XKGWAZYB.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/chunks/mermaid.core/pegDiagram-XKGWAZYB.mjs
 	var pegDiagram_XKGWAZYB_exports = /* @__PURE__ */ __exportAll({ diagram: () => diagram });
 	var langiumParser, transformOrderedChoice, transformSequence, transformPrefix, nodeToLabel, transformSuffix, transformPrimary, transformRule, populateDb, diagram;
 	var init_pegDiagram_XKGWAZYB = __esmMin((() => {
@@ -197977,15 +197996,15 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		};
 	}));
 	//#endregion
-	//#region node_modules/.pnpm/mermaid@11.17.0/node_modules/mermaid/dist/mermaid.core.mjs
+	//#region node_modules/.pnpm/mermaid@11.17.2/node_modules/mermaid/dist/mermaid.core.mjs
 	init_chunk_CLGD4ZFX();
-	init_chunk_DSNCTWBM();
+	init_chunk_2E4U76K2();
 	init_chunk_LNGE3PJU();
-	init_chunk_CKBBP62Z();
-	init_chunk_JQ64N6SF();
-	init_chunk_R7TYR2AO();
-	init_chunk_OBVCFTLP();
-	init_chunk_TEH6E4GO();
+	init_chunk_TLUHSLCS();
+	init_chunk_L3NEJ4N5();
+	init_chunk_OSK3NFVY();
+	init_chunk_GVQU2GXP();
+	init_chunk_4HAMMTFA();
 	init_chunk_P2QGCYS3();
 	init_chunk_GMAD6QVW();
 	init_chunk_PWAF6VOD();
@@ -198004,7 +198023,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*C4Context|C4Container|C4Component|C4Dynamic|C4Deployment/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_c4Diagram_UCG6FXSJ(), c4Diagram_UCG6FXSJ_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_c4Diagram_7LVT6UL2(), c4Diagram_7LVT6UL2_exports));
 			return {
 				id,
 				diagram: diagram2
@@ -198019,7 +198038,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*graph/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_flowDiagram_A5DVABFB(), flowDiagram_A5DVABFB_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_flowDiagram_HODETNUW(), flowDiagram_HODETNUW_exports));
 			return {
 				id: id2,
 				diagram: diagram2
@@ -198036,7 +198055,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*flowchart/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_flowDiagram_A5DVABFB(), flowDiagram_A5DVABFB_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_flowDiagram_HODETNUW(), flowDiagram_HODETNUW_exports));
 			return {
 				id: id3,
 				diagram: diagram2
@@ -198050,7 +198069,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*swimlane-beta\b/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_swimlanesDiagram_VK2B7HYN(), swimlanesDiagram_VK2B7HYN_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_swimlanesDiagram_VR7AAH4N(), swimlanesDiagram_VR7AAH4N_exports));
 			return {
 				id: id4,
 				diagram: diagram2
@@ -198064,7 +198083,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*erDiagram/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_erDiagram_SSCWMZ5O(), erDiagram_SSCWMZ5O_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_erDiagram_RLTQ6QDP(), erDiagram_RLTQ6QDP_exports));
 			return {
 				id: id5,
 				diagram: diagram2
@@ -198106,7 +198125,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*info/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_infoDiagram_RXCK75RN(), infoDiagram_RXCK75RN_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_infoDiagram_27XIBGKW(), infoDiagram_27XIBGKW_exports));
 			return {
 				id: id8,
 				diagram: diagram2
@@ -198162,7 +198181,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*requirement(Diagram)?/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_requirementDiagram_EFPCY7ZU(), requirementDiagram_EFPCY7ZU_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_requirementDiagram_BXWQKSXE(), requirementDiagram_BXWQKSXE_exports));
 			return {
 				id: id12,
 				diagram: diagram2
@@ -198191,7 +198210,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*classDiagram/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_classDiagram_DTDB5LWJ(), classDiagram_DTDB5LWJ_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_classDiagram_ZZMXUADV(), classDiagram_ZZMXUADV_exports));
 			return {
 				id: id14,
 				diagram: diagram2
@@ -198206,7 +198225,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*classDiagram-v2/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_classDiagram_v2_JRS7N3AN(), classDiagram_v2_JRS7N3AN_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_classDiagram_v2_VYDZK3BY(), classDiagram_v2_VYDZK3BY_exports));
 			return {
 				id: id15,
 				diagram: diagram2
@@ -198221,7 +198240,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*stateDiagram/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_stateDiagram_HBIQ2CUA(), stateDiagram_HBIQ2CUA_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_stateDiagram_D77RDMKH(), stateDiagram_D77RDMKH_exports));
 			return {
 				id: id16,
 				diagram: diagram2
@@ -198237,7 +198256,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return false;
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_stateDiagram_v2_4QOOHH4V(), stateDiagram_v2_4QOOHH4V_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_stateDiagram_v2_MP3YSRHH(), stateDiagram_v2_MP3YSRHH_exports));
 			return {
 				id: id17,
 				diagram: diagram2
@@ -198251,7 +198270,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*journey/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_journeyDiagram_EYS64GPL(), journeyDiagram_EYS64GPL_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_journeyDiagram_3NMN7TZE(), journeyDiagram_3NMN7TZE_exports));
 			return {
 				id: id18,
 				diagram: diagram2
@@ -198290,7 +198309,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return false;
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_flowDiagram_A5DVABFB(), flowDiagram_A5DVABFB_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_flowDiagram_HODETNUW(), flowDiagram_HODETNUW_exports));
 			return {
 				id: id19,
 				diagram: diagram2
@@ -198318,7 +198337,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*mindmap/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_mindmap_definition_FBJOCRG2(), mindmap_definition_FBJOCRG2_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_mindmap_definition_YA3MSWOX(), mindmap_definition_YA3MSWOX_exports));
 			return {
 				id: id21,
 				diagram: diagram2
@@ -198332,7 +198351,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*kanban/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_kanban_definition_3QL26DDD(), kanban_definition_3QL26DDD_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_kanban_definition_UXKFOSKX(), kanban_definition_UXKFOSKX_exports));
 			return {
 				id: id22,
 				diagram: diagram2
@@ -198388,7 +198407,7 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 			return /^\s*block(-beta)?/.test(txt);
 		}, "detector"),
 		loader: /* @__PURE__ */ __name$1(async () => {
-			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_blockDiagram_NRAW4CY4(), blockDiagram_NRAW4CY4_exports));
+			const { diagram: diagram2 } = await Promise.resolve().then(() => (init_blockDiagram_I7D4REHJ(), blockDiagram_I7D4REHJ_exports));
 			return {
 				id: id26,
 				diagram: diagram2
@@ -198937,10 +198956,10 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		style1.innerHTML = rules;
 		svg.insertBefore(style1, firstChild);
 		try {
-			await diag.renderer.draw(text, id39, "11.17.0", diag);
+			await diag.renderer.draw(text, id39, "11.17.2", diag);
 		} catch (e) {
 			if (config.suppressErrorRendering) removeTempElements();
-			else errorRenderer_default.draw(text, id39, "11.17.0");
+			else errorRenderer_default.draw(text, id39, "11.17.2");
 			throw e;
 		}
 		const svgNode = root.select(`${enclosingDivID_selector} svg`);
@@ -200090,8 +200109,8 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		return new XMLSerializer().serializeToString(doc.documentElement);
 	}
 	//#endregion
-	//#region \0dsh-css:/Users/libing/Library/pnpm/store/v11/tmp/_tmp_Z8jIED/src/client/sidebar.module.css.mjs
-	const css = "[data-dsh-panel-host]{z-index:25;pointer-events:none;position:fixed;inset:0;overflow:hidden}[data-dsh-panel-host][data-dsh-panel-host-degraded]{position:absolute;top:0;left:0}._3Lqp1a_toggleCluster{top:calc(3px + env(safe-area-inset-top));z-index:45;pointer-events:auto;flex-direction:row;gap:4px;display:flex;position:absolute;right:10px}._3Lqp1a_panel:not(._3Lqp1a_panelHidden) ._3Lqp1a_tabBar{padding-right:72px}._3Lqp1a_toggleButton{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out), color var(--ds-transition-duration-slow) var(--ds-ease-in-out);background:0 0;border:none;border-radius:50%;justify-content:center;align-items:center;display:flex}._3Lqp1a_toggleButton:hover:not(:disabled):not([aria-disabled=true]){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_toggleButton:disabled,._3Lqp1a_toggleButton[aria-disabled=true]{opacity:.4;cursor:default}._3Lqp1a_panel{box-sizing:border-box;z-index:40;pointer-events:auto;background:var(--dsw-alias-bg-layer-1);border-left:1px solid var(--dsw-alias-border-l2);padding-bottom:env(safe-area-inset-bottom);transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), width var(--ds-transition-duration-slow) var(--ds-ease-in-out);flex-direction:column;display:flex;position:absolute;top:0;bottom:0;right:0}._3Lqp1a_panelHidden{pointer-events:none;visibility:hidden;transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), width var(--ds-transition-duration-slow) var(--ds-ease-in-out), visibility 0s linear var(--ds-transition-duration-slow);transform:translate(102%)}._3Lqp1a_panel[data-dragging]{transition:none}._3Lqp1a_panelResize{cursor:col-resize;z-index:2;touch-action:none;width:8px;position:absolute;top:0;bottom:0;left:-4px}._3Lqp1a_panelResizeActive{background:var(--dsw-alias-interactive-bg-hover-accent)}._3Lqp1a_panelBody{flex:1;min-width:0;min-height:0;display:flex}._3Lqp1a_bottomPanel{z-index:40;background:var(--dsw-alias-bg-layer-1);border-top:1px solid var(--dsw-alias-border-l2);pointer-events:auto;padding-bottom:env(safe-area-inset-bottom);transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), height var(--ds-transition-duration-slow) var(--ds-ease-in-out);flex-direction:column;display:flex;position:absolute;bottom:0}._3Lqp1a_bottomPanelHidden{pointer-events:none;visibility:hidden;transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), height var(--ds-transition-duration-slow) var(--ds-ease-in-out), visibility 0s linear var(--ds-transition-duration-slow);transform:translateY(102%)}._3Lqp1a_bottomPanel[data-dragging]{transition:none}._3Lqp1a_panel,._3Lqp1a_bottomPanel{contain:layout style}body[data-dsh-sidebar-dragging] ._3Lqp1a_panel,body[data-dsh-sidebar-dragging] ._3Lqp1a_bottomPanel{will-change:transform}._3Lqp1a_bottomResize{cursor:row-resize;z-index:2;touch-action:none;height:8px;position:absolute;top:-4px;left:0;right:0}._3Lqp1a_bottomResizeActive{background:var(--dsw-alias-interactive-bg-hover-accent)}._3Lqp1a_bottomClose{z-index:4;width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:none;border-radius:50%;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex;position:absolute;top:3px;right:6px}._3Lqp1a_bottomClose:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_bottomPanel ._3Lqp1a_tabBar{padding-right:40px}._3Lqp1a_floatWindow{z-index:42;pointer-events:auto;background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);box-shadow:var(--dsw-shadow-lv3);contain:layout style;border-radius:8px;flex-direction:column;display:flex;position:absolute;overflow:hidden}._3Lqp1a_floatWindowDragging{will-change:left, top, width, height}._3Lqp1a_floatHeader{height:34px;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:1px solid var(--dsw-alias-border-l1);cursor:grab;user-select:none;flex:none;align-items:center;gap:4px;padding:0 4px 0 10px;display:flex}._3Lqp1a_floatWindowDragging ._3Lqp1a_floatHeader{cursor:grabbing}._3Lqp1a_floatTitle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}._3Lqp1a_floatClose{width:18px;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:none;border-radius:4px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._3Lqp1a_floatClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_floatContent{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden}._3Lqp1a_floatResize{z-index:2;cursor:nwse-resize;touch-action:none;width:14px;height:14px;position:absolute;bottom:0;right:0}._3Lqp1a_floatResize:hover{background:var(--dsw-alias-interactive-bg-hover-accent)}._3Lqp1a_pane[data-dsh-float-dock-over]{outline:2px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-2px}._3Lqp1a_floatDropHint{z-index:46;pointer-events:none;border:2px dashed var(--dsw-alias-interactive-bg-hover-accent);background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover-accent) 12%, transparent);border-radius:8px;justify-content:center;align-items:center;display:flex;position:absolute}._3Lqp1a_floatDropHintLabel{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);border-radius:999px;padding:4px 12px}._3Lqp1a_toggleCluster,._3Lqp1a_toggleButton,._3Lqp1a_tabBar,._3Lqp1a_floatHeader{-webkit-app-region:no-drag}body[data-dsh-title-bar-compat] ._3Lqp1a_toggleCluster{top:calc(var(--dsh-title-bar-strip,40px) + 3px)}body[data-dsh-title-bar-compat] ._3Lqp1a_panel{padding-top:var(--dsh-title-bar-strip,40px)}._3Lqp1a_cornerHandle{left:-6px;bottom:calc(var(--dsh-sidebar-height,0px) + 6px);z-index:2;cursor:nwse-resize;touch-action:none;width:12px;height:12px;position:absolute}._3Lqp1a_cornerHandle:hover,._3Lqp1a_cornerHandle[data-dragging]{background:var(--dsw-alias-interactive-bg-hover-accent)}._3Lqp1a_iconButton{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:none;border-radius:50%;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._3Lqp1a_iconButton:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_iconButton:disabled{opacity:.4;cursor:default}._3Lqp1a_workbench,._3Lqp1a_split{flex:1;min-width:0;min-height:0;display:flex}._3Lqp1a_splitRow{flex-direction:row}._3Lqp1a_splitCol{flex-direction:column}._3Lqp1a_splitChild{display:flex;position:relative;overflow:hidden}._3Lqp1a_divider{z-index:3;touch-action:none;flex:none;position:relative}._3Lqp1a_dividerRow:after,._3Lqp1a_dividerCol:after{content:\"\";background:var(--dsw-alias-border-l2);transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out);position:absolute}._3Lqp1a_dividerRow{cursor:col-resize;width:7px;margin:0 -2px}._3Lqp1a_dividerRow:after{width:1px;top:0;bottom:0;left:50%;transform:translate(-50%)}._3Lqp1a_dividerCol{cursor:row-resize;height:7px;margin:-2px 0}._3Lqp1a_dividerCol:after{height:1px;top:50%;left:0;right:0;transform:translateY(-50%)}._3Lqp1a_divider:hover:after,._3Lqp1a_dividerActive:after{background:var(--dsw-alias-interactive-bg-hover-accent)}._3Lqp1a_pane{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;position:relative}._3Lqp1a_paneDrop{outline:1px solid var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}._3Lqp1a_dropOverlay{z-index:6;pointer-events:none;background:var(--dsw-alias-interactive-bg-hover-accent);opacity:.5;position:absolute}._3Lqp1a_dropLeft{width:25%;top:0;bottom:0;left:0}._3Lqp1a_dropRight{width:25%;top:0;bottom:0;right:0}._3Lqp1a_dropUp{height:25%;top:0;left:0;right:0}._3Lqp1a_dropDown{height:25%;bottom:0;left:0;right:0}._3Lqp1a_dropCenter{outline:2px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-2px;background:0 0;inset:25%}._3Lqp1a_paneContent{flex-direction:column;flex:1;min-height:0;display:flex;overflow:hidden}._3Lqp1a_paneTab{flex-direction:column;flex:1;min-height:0;display:flex}._3Lqp1a_paneTabHidden{display:none}._3Lqp1a_paneEmptyCards{flex:1;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));align-content:start;gap:8px;min-height:0;padding:12px;display:grid;overflow:hidden}._3Lqp1a_paneCard{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;text-align:center;border-radius:8px;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:12px 8px;display:flex}._3Lqp1a_paneCard:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-border-l2)}._3Lqp1a_paneCard:disabled{opacity:.45;cursor:default}._3Lqp1a_tabBar{border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);flex:none;align-items:stretch;height:34px;display:flex}._3Lqp1a_tabBarDrop{outline:1px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}._3Lqp1a_tabList{scrollbar-width:none;flex:1;min-width:0;display:flex;overflow-x:auto}._3Lqp1a_tabList::-webkit-scrollbar{display:none}._3Lqp1a_tab{min-width:64px;max-width:160px;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);border-right:1px solid var(--dsw-alias-border-l1);cursor:pointer;user-select:none;background:0 0;flex:none;align-items:center;gap:4px;padding:0 4px 0 10px;display:flex}._3Lqp1a_tab:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_tabActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active)}._3Lqp1a_tabTitle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}._3Lqp1a_tabBadge{min-width:16px;height:15px;font:var(--dsw-font-xxxs-strong-11);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-brand-primary);border-radius:8px;flex:none;justify-content:center;align-items:center;padding:0 4px;display:inline-flex}._3Lqp1a_tabClose{width:18px;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:none;border-radius:4px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}._3Lqp1a_tabClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_tabBarPlus{background:var(--dsw-alias-bg-layer-1);width:22px;height:22px;color:var(--dsw-alias-label-tertiary);cursor:pointer;border:none;border-radius:5px;flex:none;justify-content:center;align-self:center;align-items:center;margin:0 6px;padding:0;display:inline-flex;position:sticky;right:0}._3Lqp1a_tabBarPlus:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_pinnedTab{color:var(--dsw-alias-label-tertiary);font-style:italic}._3Lqp1a_pinnedTab:hover{color:var(--dsw-alias-label-secondary)}._3Lqp1a_explorer{flex-direction:column;flex:1;min-height:0;display:flex}._3Lqp1a_explorerHeader{flex:none;justify-content:space-between;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}._3Lqp1a_explorerRoot{font:var(--dsw-font-s-14);color:var(--dsw-alias-label-secondary);text-overflow:ellipsis;white-space:nowrap;overflow:hidden}._3Lqp1a_explorerBody{flex:1;min-height:0;padding:4px 8px 8px;overflow:hidden auto}._3Lqp1a_explorerRow{box-sizing:border-box;width:100%;max-width:100%;height:34px;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);text-align:left;cursor:pointer;white-space:nowrap;animation:_3Lqp1a_dsh-row-in .15s var(--ds-ease-in-out);background:0 0;border:none;border-radius:8px;align-items:center;gap:6px;padding:0 8px;display:flex}._3Lqp1a_explorerRow:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_explorerRowRevealed{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover-accent) 18%, transparent);box-shadow:inset 2px 0 0 var(--dsw-alias-interactive-bg-hover-accent)}._3Lqp1a_explorerDir{font:var(--dsw-font-s-strong-14)}._3Lqp1a_explorerHidden{opacity:.45}._3Lqp1a_explorerSymlink{color:var(--dsw-alias-label-tertiary);flex:none}._3Lqp1a_explorerBroken ._3Lqp1a_explorerName{color:var(--dsw-alias-state-error-primary)}._3Lqp1a_explorerName{text-overflow:ellipsis;white-space:nowrap;min-width:0;overflow:hidden}._3Lqp1a_explorerRef{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);height:20px;color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-strong-11);cursor:pointer;border-radius:999px;flex:none;align-items:center;padding:0 8px;display:none}._3Lqp1a_explorerRef:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_explorerRow:hover ._3Lqp1a_explorerRef,._3Lqp1a_explorerRow:focus-within ._3Lqp1a_explorerRef{display:inline-flex}._3Lqp1a_explorerCopied{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);flex:none}._3Lqp1a_explorerError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);cursor:default}@keyframes _3Lqp1a_dsh-row-in{0%{opacity:0}}._3Lqp1a_explorerEmpty{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;padding:16px}._3Lqp1a_explorerRowDropTarget{background:var(--dsw-alias-interactive-bg-hover);outline:1px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}._3Lqp1a_uploadDropZone{z-index:1001;pointer-events:none;border:2px dashed var(--dsw-alias-interactive-bg-hover-accent);box-shadow:0 0 0 200vmax var(--dsw-alias-bg-mask-drop);animation:_3Lqp1a_dsh-row-in .15s var(--ds-ease-in-out);border-radius:10px;justify-content:center;align-items:flex-start;padding:12px;display:flex;position:fixed}._3Lqp1a_uploadDropHero{flex-direction:column;align-items:center;gap:10px;max-width:100%;padding-top:8px;display:flex}._3Lqp1a_uploadDropZonePill{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);max-width:100%;box-shadow:var(--dsw-shadow-lv2);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);border-radius:999px;align-items:center;gap:6px;padding:6px 12px;display:flex}._3Lqp1a_uploadDropZoneText{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}._3Lqp1a_uploadDropChatHint{z-index:1002;pointer-events:none;animation:_3Lqp1a_dsh-row-in .15s var(--ds-ease-in-out);justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0}._3Lqp1a_uploadDropChatCard{text-align:center;max-width:100%;color:var(--dsw-alias-label-primary);font:var(--dsw-font-s-strong-14);flex-direction:column;align-items:center;gap:12px;display:flex}._3Lqp1a_uploadOverlay{z-index:30;background:var(--dsw-alias-bg-mask-1);backdrop-filter:var(--dsw-mask-blur);animation:_3Lqp1a_dsh-row-in .15s var(--ds-ease-in-out);justify-content:center;align-items:center;display:flex;position:absolute;inset:0}._3Lqp1a_uploadOverlayCard{border:1px solid var(--dsw-alias-border-inverted);background:var(--dsw-alias-bg-layer-2);min-width:280px;max-width:min(420px,100% - 48px);box-shadow:var(--dsw-shadow-lv3);border-radius:24px;flex-direction:column;gap:12px;padding:20px 24px;display:flex}._3Lqp1a_uploadOverlayTitle{font:var(--dsw-font-s-strong-14);color:var(--dsw-alias-label-primary);align-items:center;gap:8px;display:flex}._3Lqp1a_uploadOverlayTitle>svg{flex:none}._3Lqp1a_uploadOverlayTitle>span{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}._3Lqp1a_uploadOverlayProgress{background:var(--dsw-alias-border-l2);border-radius:3px;height:6px;overflow:hidden}._3Lqp1a_uploadOverlayProgressFill{background:var(--dsw-alias-interactive-bg-hover-accent);height:100%;transition:width .15s var(--ds-ease-in-out);border-radius:3px}._3Lqp1a_uploadOverlayStatus{min-height:1em;font:var(--dsw-font-xxs-12);font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}._3Lqp1a_uploadOverlayCancel{border:1px solid var(--dsw-alias-border-l2);height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;background:0 0;border-radius:8px;align-self:flex-end;padding:0 14px}._3Lqp1a_uploadOverlayCancel:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-border-l2)}._3Lqp1a_uploadOverlayCancel:disabled{opacity:.4;cursor:default}._3Lqp1a_editor{flex-direction:column;flex:1;min-height:0;display:flex}._3Lqp1a_editorHeader{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:6px;padding:6px 8px;display:flex}._3Lqp1a_editorTitle{min-width:0;font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-secondary);text-overflow:ellipsis;white-space:nowrap;flex:1;overflow:hidden}._3Lqp1a_editorPathInput{box-sizing:border-box;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}._3Lqp1a_editorPathInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}._3Lqp1a_editorTreeToggleActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active)}._3Lqp1a_editorBody{flex:1;min-height:0;display:flex}._3Lqp1a_editorMain{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex}._3Lqp1a_editorTreeDock{border-left:1px solid var(--dsw-alias-border-l1);flex:none;min-height:0;display:flex;position:relative}._3Lqp1a_editorTreeResize{cursor:col-resize;touch-action:none;z-index:3;width:6px;position:absolute;top:0;bottom:0;left:0}._3Lqp1a_editorTreeResize:hover{background:var(--dsw-alias-border-l2)}._3Lqp1a_editorTreePanel{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;position:relative}._3Lqp1a_editorTreePanelFull{flex:1}._3Lqp1a_editorTreeSearch{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:6px;padding:6px 8px;display:flex}._3Lqp1a_editorSearchInput{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:26px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}._3Lqp1a_editorSearchInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}._3Lqp1a_editorSearchHint{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);padding:8px 12px}._3Lqp1a_editorSearchResult{width:100%;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);text-align:left;cursor:pointer;text-overflow:ellipsis;white-space:nowrap;background:0 0;border:none;border-radius:6px;padding:4px 8px;display:block;overflow:hidden}._3Lqp1a_editorSearchResult:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_editorStatus{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary)}._3Lqp1a_editorStatusError{color:var(--dsw-alias-state-error-primary)}._3Lqp1a_dirtyDot{background:var(--dsw-alias-state-warn-primary);border-radius:50%;flex:none;width:7px;height:7px}._3Lqp1a_editorPlaceholder{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;flex:1;justify-content:center;align-items:center;padding:16px;display:flex}._3Lqp1a_orphanedType{opacity:.7;overflow-wrap:anywhere;margin-top:8px;font-size:12px;display:block}._3Lqp1a_editorBinary{text-align:center;flex-direction:column;flex:1;justify-content:center;align-items:center;gap:12px;padding:24px 16px;display:flex}._3Lqp1a_editorBinaryNotice{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}._3Lqp1a_editorDownloadLink{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out), border-color var(--ds-transition-duration-slow) var(--ds-ease-in-out);border-radius:6px;align-items:center;gap:6px;padding:6px 14px;text-decoration:none;display:inline-flex}._3Lqp1a_editorDownloadLink:hover{background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-border-l2)}._3Lqp1a_editorError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);padding:12px 16px}._3Lqp1a_editorBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;padding:4px 8px}._3Lqp1a_sandboxStatus{font:var(--dsw-font-xxxs-11);flex:none;align-items:center;gap:8px;padding:4px 10px;display:flex}._3Lqp1a_sandboxStatusOn{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:1px solid var(--dsw-alias-border-l1)}._3Lqp1a_sandboxStatusOff{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 10%, transparent);border-bottom:1px solid color-mix(in srgb, var(--dsw-alias-state-error-primary) 45%, transparent)}._3Lqp1a_sandboxDot{background:var(--dsw-alias-state-success-primary);border-radius:50%;flex:none;width:6px;height:6px}._3Lqp1a_sandboxStatusOff ._3Lqp1a_sandboxDot{background:var(--dsw-alias-state-error-primary)}._3Lqp1a_sandboxStatusText{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}._3Lqp1a_sandboxAction{border:1px solid var(--dsw-alias-border-l2);font:inherit;color:inherit;cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:2px 8px}._3Lqp1a_sandboxAction:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_editorHtml{background:var(--dsw-alias-bg-base);border:none;flex:1;width:100%;min-height:0}._3Lqp1a_browser{flex-direction:column;flex:1;min-height:0;display:flex}._3Lqp1a_browserBar{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:4px;padding:6px 8px;display:flex}._3Lqp1a_browserInput{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}._3Lqp1a_browserInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}._3Lqp1a_browserMessage{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;padding:4px 12px}._3Lqp1a_browserFrame{background:var(--dsw-alias-bg-base);border:none;flex:1;width:100%;min-height:0}._3Lqp1a_browserStart{text-align:center;min-height:0;font:var(--dsw-font-xs-13);color:var(--dsw-alias-label-tertiary);flex:1;justify-content:center;align-items:center;padding:20px;display:flex}._3Lqp1a_browserBlocked{text-align:center;min-height:0;color:var(--dsw-alias-state-warn-primary);flex-direction:column;flex:1;justify-content:center;align-items:center;gap:6px;padding:24px;display:flex}._3Lqp1a_browserBlockedTitle{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary)}._3Lqp1a_browserBlockedDesc{max-width:280px;font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-secondary)}._3Lqp1a_browserBlockedActions{gap:8px;margin-top:6px;display:flex}._3Lqp1a_browserBlockedButton{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxxs-11);cursor:pointer;border-radius:6px;padding:4px 12px}._3Lqp1a_browserBlockedButton:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_editorCm{background:0 0;flex:1;min-height:0;overflow:hidden}._3Lqp1a_editorCmHidden{display:none}._3Lqp1a_editorCm .cm-editor{height:100%}._3Lqp1a_editorCm .cm-scroller{padding:12px 16px}._3Lqp1a_editorCm .cm-editor.cm-focused{outline:none}._3Lqp1a_editorModeToggle{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);border-radius:6px;flex:none;align-items:center;gap:2px;padding:2px;display:inline-flex}._3Lqp1a_editorModeButton{color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);cursor:pointer;background:0 0;border:none;border-radius:4px;padding:2px 8px}._3Lqp1a_editorModeButton:hover{color:var(--dsw-alias-label-primary)}._3Lqp1a_editorModeActive{background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}._3Lqp1a_editorImageWrap{flex:1;justify-content:center;align-items:center;min-height:0;padding:12px;display:flex;overflow:auto}._3Lqp1a_editorImage{object-fit:contain;max-width:100%;max-height:100%}._3Lqp1a_editorMd{min-height:0;font:var(--dsw-font-xs-13);flex:1;padding:12px 16px;overflow-y:auto}._3Lqp1a_mermaidWrap{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);border-radius:6px;margin:6px 0;overflow:hidden}._3Lqp1a_mermaidHeader{border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);justify-content:space-between;align-items:center;gap:6px;padding:4px 8px;display:flex}._3Lqp1a_mermaidInfo{font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-tertiary)}._3Lqp1a_mermaidCopy{height:20px;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxxs-11);cursor:pointer;background:0 0;border:none;border-radius:4px;align-items:center;gap:4px;padding:0 6px;display:inline-flex}._3Lqp1a_mermaidCopy:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_mermaidBody{cursor:zoom-in;justify-content:center;padding:10px;display:flex;overflow:auto}._3Lqp1a_mermaidBody svg{max-width:100%;height:auto}._3Lqp1a_mermaidError{border-bottom:1px solid var(--dsw-alias-border-l1);color:var(--dsw-alias-state-error-primary);font:var(--dsw-font-xxxs-11);padding:6px 10px}._3Lqp1a_mermaidCode{font:var(--dsw-font-xxxs-11);margin:0;padding:8px 10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto}._3Lqp1a_mermaidMarkdown .md-code-block[data-mermaid-processed]{display:contents}._3Lqp1a_mermaidModal{z-index:1000;background:var(--dsw-alias-bg-mask-1);backdrop-filter:blur(2px);flex-direction:column;justify-content:center;align-items:center;display:flex;position:fixed;inset:0}._3Lqp1a_mermaidModalToolbar{z-index:10;gap:8px;display:flex;position:absolute;top:16px;right:16px}._3Lqp1a_mermaidModalButton{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);width:36px;height:36px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xs-strong-13);cursor:pointer;border-radius:8px;justify-content:center;align-items:center;display:inline-flex}._3Lqp1a_mermaidModalButton:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_mermaidModalStage{justify-content:center;align-items:center;width:90vw;height:80vh;display:flex;position:relative;overflow:hidden}._3Lqp1a_mermaidModalStage svg{cursor:grab;transform-origin:50%;user-select:none;-webkit-user-drag:none;background:var(--dsw-alias-bg-layer-1);border-radius:12px;max-width:none;max-height:none;padding:16px}._3Lqp1a_mermaidModalStage svg:active{cursor:grabbing}._3Lqp1a_mermaidModalHint{color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);pointer-events:none;position:absolute;bottom:16px;left:50%;transform:translate(-50%)}._3Lqp1a_selectionPopup{z-index:60;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxxs-strong-11);white-space:nowrap;cursor:pointer;border-radius:6px;align-items:center;padding:0 10px;display:inline-flex;position:fixed;transform:translate(-50%,calc(-100% - 8px))}._3Lqp1a_selectionPopup:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_editorPdf{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-height:0;display:flex}._3Lqp1a_editorPdfToolbar{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;justify-content:flex-end;padding:6px 8px;display:flex}._3Lqp1a_editorPdfStage{flex:1;min-height:0;display:flex;position:relative}._3Lqp1a_editorPdfFrame{background:var(--dsw-alias-bg-base);border:none;flex:1;width:100%;min-height:0}._3Lqp1a_editorPdfFrameBlocked{pointer-events:none}._3Lqp1a_editorPdfDragShield{z-index:4;pointer-events:none;background:0 0;position:absolute;inset:0}._3Lqp1a_editorPdfDragShieldActive{pointer-events:auto}body[data-dsh-tab-dragging] ._3Lqp1a_editorPdfFrame{pointer-events:none!important}body[data-dsh-tab-dragging] ._3Lqp1a_editorPdfDragShield{pointer-events:auto!important}._3Lqp1a_terminalWrap{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-height:0;display:flex;position:relative}._3Lqp1a_terminal{flex:1;min-height:0;padding:6px 4px 6px 8px}._3Lqp1a_terminal .xterm{height:100%}._3Lqp1a_terminalBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex-wrap:wrap;flex:none;align-items:center;gap:8px;padding:3px 10px;display:flex}._3Lqp1a_terminalBannerUrl{word-break:break-all;opacity:.85;flex-basis:100%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}._3Lqp1a_boundaryError{z-index:50;background:var(--dsw-alias-bg-layer-1);border-left:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);flex-direction:column;align-items:flex-start;gap:8px;padding:16px;display:flex;position:fixed;top:0;bottom:0;right:0;overflow:auto}._3Lqp1a_terminalRetry{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxxs-strong-11);cursor:pointer;border-radius:999px;flex:none;padding:1px 8px}._3Lqp1a_terminalRetry:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_terminalDepsBanner{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex-direction:column;flex:none;gap:6px;padding:10px;display:flex}._3Lqp1a_terminalDepsTitle{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-state-warn-primary)}._3Lqp1a_terminalDepsHint{opacity:.9}._3Lqp1a_terminalDepsCommandRow{align-items:flex-start;gap:8px;display:flex}._3Lqp1a_terminalRepairCommand{white-space:pre-wrap;word-break:break-all;user-select:text;min-width:0;color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2);border:1px solid var(--dsw-alias-border-l2);border-radius:4px;flex:1;max-height:160px;margin:0;padding:6px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;overflow:auto}._3Lqp1a_terminalDepsNote{opacity:.85}._3Lqp1a_terminalDepsActions{align-items:center;gap:8px;display:flex}._3Lqp1a_tabBoundaryError{min-height:0;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);flex-direction:column;flex:1;align-items:flex-start;gap:8px;padding:12px 16px;display:flex;overflow:auto}._3Lqp1a_git{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden auto}._3Lqp1a_gitHeader{flex:none;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}._3Lqp1a_gitWorktreeRow{flex:none;align-items:center;gap:8px;padding:6px 8px 0 12px;display:flex}._3Lqp1a_gitWorktreeLabel{color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);flex:none}._3Lqp1a_gitBranchSelect{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-base);min-width:0;height:26px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 6px}._3Lqp1a_gitSection{border-top:1px solid var(--dsw-alias-border-l1)}._3Lqp1a_gitSectionHeader{font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-tertiary);text-transform:uppercase;justify-content:space-between;align-items:center;padding:6px 12px 4px;display:flex}._3Lqp1a_gitLink{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-brand-primary);cursor:pointer;background:0 0;border:none;padding:0}._3Lqp1a_gitLink:hover:not(:disabled){text-decoration:underline}._3Lqp1a_gitLink:disabled{opacity:.4;cursor:default}._3Lqp1a_gitRow{min-height:34px;animation:_3Lqp1a_dsh-row-in .15s var(--ds-ease-in-out);border-radius:8px;align-items:center;gap:6px;margin:0 6px;padding:0 8px;display:flex}._3Lqp1a_gitRow:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_gitRowSelected{background:var(--dsw-alias-interactive-bg-active)}._3Lqp1a_gitRowMain{cursor:pointer;text-align:left;background:0 0;border:none;flex:1;align-items:center;gap:8px;min-width:0;padding:3px 0;display:flex}._3Lqp1a_gitBadge{width:20px;height:16px;font:var(--dsw-font-xxxs-strong-11);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary);border-radius:4px;flex:none;justify-content:center;align-items:center;display:inline-flex}._3Lqp1a_gitName{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}._3Lqp1a_gitEmpty{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);padding:4px 12px 8px}._3Lqp1a_gitPlaceholder{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;padding:16px}._3Lqp1a_gitError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);white-space:pre-wrap;padding:8px 12px}._3Lqp1a_gitDiff{border-top:1px solid var(--dsw-alias-border-l1);padding:8px}._3Lqp1a_gitDiffTab{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden auto}._3Lqp1a_gitDiffTabHeader{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}._3Lqp1a_gitDiffTabTitle{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}._3Lqp1a_gitDiffFile{width:100%;color:inherit;text-align:left;cursor:pointer;background:0 0;border:0;align-items:baseline;gap:6px;padding:8px 2px 2px;display:flex}._3Lqp1a_gitDiffFile:disabled{cursor:default}._3Lqp1a_gitDiffFile:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_gitDiffFileChevron{color:var(--dsw-alias-label-tertiary);flex:none;transform:rotate(0)}._3Lqp1a_gitDiffFileChevronExpanded{transform:rotate(90deg)}._3Lqp1a_gitDiffFilePath{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary);text-overflow:ellipsis;white-space:nowrap;overflow:hidden}._3Lqp1a_gitDiffFileOld{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);text-overflow:ellipsis;white-space:nowrap;flex:none;max-width:40%;overflow:hidden}._3Lqp1a_gitDiffFileTag{border:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-secondary);border-radius:999px;flex:none;padding:0 6px}._3Lqp1a_gitDiffHunk{font:var(--dsw-font-markdown-code-block-small);color:var(--dsw-alias-label-tertiary);gap:8px;padding:3px 2px;display:flex}._3Lqp1a_gitDiffHunkHeader{color:var(--dsw-alias-label-secondary);flex:none}._3Lqp1a_gitDiffHunkSection{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}._3Lqp1a_gitDiffLine{font:var(--dsw-font-markdown-code-block-small);white-space:pre-wrap;overflow-wrap:anywhere;align-items:stretch;min-width:0;line-height:20px;display:flex}._3Lqp1a_gitDiffNum{text-align:right;width:36px;color:var(--dsw-alias-label-tertiary);user-select:none;flex:none;padding-right:8px}._3Lqp1a_gitDiffCode{flex:1;min-width:0;overflow:visible}._3Lqp1a_gitDiffCtx{color:var(--dsw-alias-label-primary)}._3Lqp1a_gitDiffDel{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent)}._3Lqp1a_gitDiffAdd{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 12%, transparent)}._3Lqp1a_gitDiffMeta{padding-left:2px}._3Lqp1a_gitDiffMetaText{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);font-style:italic}._3Lqp1a_gitDiffExpand{width:100%;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-brand-primary);cursor:pointer;text-align:center;background:0 0;border:none;margin:4px 0;display:block}._3Lqp1a_gitDiffExpand:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_gitConfirmDesc{font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);white-space:pre-wrap;margin:0}._3Lqp1a_gitCommit{border-top:1px solid var(--dsw-alias-border-l1);align-items:center;gap:6px;padding:8px 12px;display:flex}._3Lqp1a_gitCommitInput{flex:1;min-width:0}._3Lqp1a_gitCommitButton{background:var(--dsw-alias-button-primary-fill);height:26px;color:var(--dsw-alias-label-primary-inverted);font:var(--dsw-font-xxs-strong-12);cursor:pointer;border:none;border-radius:6px;flex:none;padding:0 12px}._3Lqp1a_gitCommitButton:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}._3Lqp1a_gitCommitButton:disabled{opacity:.45;cursor:default}._3Lqp1a_gitLogRow{cursor:pointer;border-radius:8px;flex-direction:column;gap:2px;padding:5px 12px;display:flex}._3Lqp1a_gitLogRow:hover{background:var(--dsw-alias-interactive-bg-hover)}._3Lqp1a_gitLogLine1{align-items:baseline;gap:8px;min-width:0;display:flex}._3Lqp1a_gitLogHash{font:var(--dsw-font-markdown-code-block-small);color:var(--dsw-alias-label-tertiary);flex:none}._3Lqp1a_gitLogLine2{flex-wrap:wrap;align-items:center;gap:6px;min-width:0;display:flex}._3Lqp1a_gitLogRef{border:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-brand-primary);white-space:nowrap;border-radius:999px;flex:none;padding:0 5px}._3Lqp1a_gitLogSubject{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}._3Lqp1a_gitLogMeta{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary)}._3Lqp1a_gitLogMore{border:1px solid var(--dsw-alias-border-l2);width:calc(100% - 24px);font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border-radius:6px;margin:4px 12px 8px;padding:6px 0;display:block}._3Lqp1a_gitLogMore:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_gitLogMore:disabled{opacity:.5;cursor:default}._3Lqp1a_producedRow{flex-wrap:wrap;align-items:center;gap:8px;padding:4px 0;display:flex}._3Lqp1a_producedLabel{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}._3Lqp1a_producedChip{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);max-width:200px;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-12);cursor:pointer;border-radius:999px;align-items:center;gap:4px;padding:2px 8px;display:inline-flex;overflow:hidden}._3Lqp1a_producedChip:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_producedChip span{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}._3Lqp1a_producedMore{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}._3Lqp1a_toggleButton:focus-visible,._3Lqp1a_bottomClose:focus-visible,._3Lqp1a_iconButton:focus-visible,._3Lqp1a_tab:focus-visible,._3Lqp1a_tabClose:focus-visible,._3Lqp1a_tabBarPlus:focus-visible,._3Lqp1a_paneCard:focus-visible,._3Lqp1a_explorerRow:focus-visible,._3Lqp1a_explorerRef:focus-visible,._3Lqp1a_gitRowMain:focus-visible,._3Lqp1a_gitLink:focus-visible,._3Lqp1a_gitCommitButton:focus-visible,._3Lqp1a_gitLogRow:focus-visible,._3Lqp1a_gitLogMore:focus-visible,._3Lqp1a_gitDiffFile:focus-visible,._3Lqp1a_gitDiffExpand:focus-visible,._3Lqp1a_terminalRetry:focus-visible,._3Lqp1a_editorModeButton:focus-visible,._3Lqp1a_editorDownloadLink:focus-visible,._3Lqp1a_editorPptxButton:focus-visible,._3Lqp1a_editorDocxZoomRange:focus-visible{outline:2px solid var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}@media (prefers-reduced-motion:reduce){._3Lqp1a_panel,._3Lqp1a_panelHidden,._3Lqp1a_bottomPanel,._3Lqp1a_bottomPanelHidden,._3Lqp1a_toggleCluster,._3Lqp1a_toggleButton,._3Lqp1a_tab,._3Lqp1a_tabBarPlus,._3Lqp1a_paneCard,._3Lqp1a_explorerRow,._3Lqp1a_gitRow,._3Lqp1a_divider,._3Lqp1a_dividerRow:after,._3Lqp1a_dividerCol:after{transition:none;animation:none}}@media (width<=767px){._3Lqp1a_panel:not(._3Lqp1a_panelHidden) ._3Lqp1a_tabBar{padding-right:40px}._3Lqp1a_tab{min-width:48px;max-width:128px}}._3Lqp1a_openWithLabel{align-items:center;gap:8px;width:100%;min-width:0;display:flex}._3Lqp1a_openWithName{text-overflow:ellipsis;white-space:nowrap;flex:auto;min-width:0;overflow:hidden}._3Lqp1a_openWithChevron{color:var(--dsw-alias-label-tertiary);flex:none}._3Lqp1a_openWithPin{width:20px;height:20px;color:var(--dsw-alias-label-tertiary);cursor:pointer;border-radius:6px;flex:none;justify-content:center;align-items:center;display:inline-flex}._3Lqp1a_openWithPin:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_openWithPinActive{color:var(--dsw-alias-state-business-primary)}._3Lqp1a_editorHtmlBlock{margin:8px 0}._3Lqp1a_editorHtmlBlock img,._3Lqp1a_editorHtmlBlock video{max-width:100%}._3Lqp1a_editorHtmlBlock details{margin:4px 0;padding:4px 0}._3Lqp1a_editorHtmlBlock summary{cursor:pointer}._3Lqp1a_tocBar{z-index:3;pointer-events:none;justify-content:flex-end;height:0;display:flex;position:sticky;top:0}._3Lqp1a_tocButton{pointer-events:auto;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);width:26px;height:26px;color:var(--dsw-alias-label-secondary);cursor:pointer;border-radius:6px;justify-content:center;align-items:center;margin:4px 2px 0 0;padding:0;display:inline-flex}._3Lqp1a_tocButton:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_tocPanel{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);width:min(300px,82%);max-height:60vh;box-shadow:var(--dsw-shadow-lv2);pointer-events:auto;border-radius:8px;flex-direction:column;padding:4px;display:flex;position:absolute;top:32px;right:2px;overflow-y:auto}._3Lqp1a_tocItem{min-width:0;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-12);text-align:left;cursor:pointer;background:0 0;border:none;border-radius:6px;align-items:baseline;gap:8px;padding:4px 8px;display:flex}._3Lqp1a_tocItem:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}._3Lqp1a_tocItem[data-level=\"2\"]{padding-left:18px}._3Lqp1a_tocItem[data-level=\"3\"]{padding-left:28px}._3Lqp1a_tocItem[data-level=\"4\"]{padding-left:38px}._3Lqp1a_tocItem[data-level=\"5\"]{padding-left:48px}._3Lqp1a_tocItem[data-level=\"6\"]{padding-left:58px}._3Lqp1a_tocItemLevel{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);flex:none}._3Lqp1a_tocItemText{text-overflow:ellipsis;white-space:nowrap;flex:auto;min-width:0;overflow:hidden}@keyframes _3Lqp1a_dsh-toc-flash{0%,60%{background:var(--dsw-alias-interactive-bg-hover)}to{background:0 0}}._3Lqp1a_tocFlash{border-radius:4px;animation:1.2s ease-out _3Lqp1a_dsh-toc-flash}";
+	//#region \0dsh-css:/Users/libing/kk_Projects/dsh-plugins/DSH-better-sidebar/src/client/sidebar.module.css.mjs
+	const css = "[data-dsh-panel-host]{z-index:25;pointer-events:none;position:fixed;inset:0;overflow:hidden}[data-dsh-panel-host][data-dsh-panel-host-degraded]{position:absolute;top:0;left:0}.-\\30 d5ia_toggleCluster{top:calc(3px + env(safe-area-inset-top));z-index:45;pointer-events:auto;flex-direction:row;gap:4px;display:flex;position:absolute;right:10px}.-\\30 d5ia_panel:not(.-\\30 d5ia_panelHidden) .-\\30 d5ia_tabBar{padding-right:72px}.-\\30 d5ia_toggleButton{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out), color var(--ds-transition-duration-slow) var(--ds-ease-in-out);background:0 0;border:none;border-radius:50%;justify-content:center;align-items:center;display:flex}.-\\30 d5ia_toggleButton:hover:not(:disabled):not([aria-disabled=true]){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_toggleButton:disabled,.-\\30 d5ia_toggleButton[aria-disabled=true]{opacity:.4;cursor:default}.-\\30 d5ia_panel{box-sizing:border-box;z-index:40;pointer-events:auto;background:var(--dsw-alias-bg-layer-1);border-left:1px solid var(--dsw-alias-border-l2);padding-bottom:env(safe-area-inset-bottom);transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), width var(--ds-transition-duration-slow) var(--ds-ease-in-out);flex-direction:column;display:flex;position:absolute;top:0;bottom:0;right:0}.-\\30 d5ia_panelHidden{pointer-events:none;visibility:hidden;transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), width var(--ds-transition-duration-slow) var(--ds-ease-in-out), visibility 0s linear var(--ds-transition-duration-slow);transform:translate(102%)}.-\\30 d5ia_panel[data-dragging]{transition:none}.-\\30 d5ia_panelResize{cursor:col-resize;z-index:2;touch-action:none;width:8px;position:absolute;top:0;bottom:0;left:-4px}.-\\30 d5ia_panelResizeActive{background:var(--dsw-alias-interactive-bg-hover-accent)}.-\\30 d5ia_panelBody{flex:1;min-width:0;min-height:0;display:flex}.-\\30 d5ia_bottomPanel{z-index:40;background:var(--dsw-alias-bg-layer-1);border-top:1px solid var(--dsw-alias-border-l2);pointer-events:auto;padding-bottom:env(safe-area-inset-bottom);transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), height var(--ds-transition-duration-slow) var(--ds-ease-in-out);flex-direction:column;display:flex;position:absolute;bottom:0}.-\\30 d5ia_bottomPanelHidden{pointer-events:none;visibility:hidden;transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), height var(--ds-transition-duration-slow) var(--ds-ease-in-out), visibility 0s linear var(--ds-transition-duration-slow);transform:translateY(102%)}.-\\30 d5ia_bottomPanel[data-dragging]{transition:none}.-\\30 d5ia_panel,.-\\30 d5ia_bottomPanel{contain:layout style}body[data-dsh-sidebar-dragging] .-\\30 d5ia_panel,body[data-dsh-sidebar-dragging] .-\\30 d5ia_bottomPanel{will-change:transform}.-\\30 d5ia_bottomResize{cursor:row-resize;z-index:2;touch-action:none;height:8px;position:absolute;top:-4px;left:0;right:0}.-\\30 d5ia_bottomResizeActive{background:var(--dsw-alias-interactive-bg-hover-accent)}.-\\30 d5ia_bottomClose{z-index:4;width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:none;border-radius:50%;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex;position:absolute;top:3px;right:6px}.-\\30 d5ia_bottomClose:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_bottomPanel .-\\30 d5ia_tabBar{padding-right:40px}.-\\30 d5ia_floatWindow{z-index:42;pointer-events:auto;background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);box-shadow:var(--dsw-shadow-lv3);contain:layout style;border-radius:8px;flex-direction:column;display:flex;position:absolute;overflow:hidden}.-\\30 d5ia_floatWindowDragging{will-change:left, top, width, height}.-\\30 d5ia_floatHeader{height:34px;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:1px solid var(--dsw-alias-border-l1);cursor:grab;user-select:none;flex:none;align-items:center;gap:4px;padding:0 4px 0 10px;display:flex}.-\\30 d5ia_floatWindowDragging .-\\30 d5ia_floatHeader{cursor:grabbing}.-\\30 d5ia_floatTitle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.-\\30 d5ia_floatClose{width:18px;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:none;border-radius:4px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.-\\30 d5ia_floatClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_floatContent{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden}.-\\30 d5ia_floatResize{z-index:2;cursor:nwse-resize;touch-action:none;width:14px;height:14px;position:absolute;bottom:0;right:0}.-\\30 d5ia_floatResize:hover{background:var(--dsw-alias-interactive-bg-hover-accent)}.-\\30 d5ia_pane[data-dsh-float-dock-over]{outline:2px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-2px}.-\\30 d5ia_floatDropHint{z-index:46;pointer-events:none;border:2px dashed var(--dsw-alias-interactive-bg-hover-accent);background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover-accent) 12%, transparent);border-radius:8px;justify-content:center;align-items:center;display:flex;position:absolute}.-\\30 d5ia_floatDropHintLabel{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);border-radius:999px;padding:4px 12px}.-\\30 d5ia_toggleCluster,.-\\30 d5ia_toggleButton,.-\\30 d5ia_tabBar,.-\\30 d5ia_floatHeader{-webkit-app-region:no-drag}body[data-dsh-title-bar-compat] .-\\30 d5ia_toggleCluster{top:calc(var(--dsh-title-bar-strip,40px) + 3px)}body[data-dsh-title-bar-compat] .-\\30 d5ia_panel{padding-top:var(--dsh-title-bar-strip,40px)}.-\\30 d5ia_cornerHandle{left:-6px;bottom:calc(var(--dsh-sidebar-height,0px) + 6px);z-index:2;cursor:nwse-resize;touch-action:none;width:12px;height:12px;position:absolute}.-\\30 d5ia_cornerHandle:hover,.-\\30 d5ia_cornerHandle[data-dragging]{background:var(--dsw-alias-interactive-bg-hover-accent)}.-\\30 d5ia_iconButton{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:none;border-radius:50%;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.-\\30 d5ia_iconButton:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_iconButton:disabled{opacity:.4;cursor:default}.-\\30 d5ia_workbench,.-\\30 d5ia_split{flex:1;min-width:0;min-height:0;display:flex}.-\\30 d5ia_splitRow{flex-direction:row}.-\\30 d5ia_splitCol{flex-direction:column}.-\\30 d5ia_splitChild{display:flex;position:relative;overflow:hidden}.-\\30 d5ia_divider{z-index:3;touch-action:none;flex:none;position:relative}.-\\30 d5ia_dividerRow:after,.-\\30 d5ia_dividerCol:after{content:\"\";background:var(--dsw-alias-border-l2);transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out);position:absolute}.-\\30 d5ia_dividerRow{cursor:col-resize;width:7px;margin:0 -2px}.-\\30 d5ia_dividerRow:after{width:1px;top:0;bottom:0;left:50%;transform:translate(-50%)}.-\\30 d5ia_dividerCol{cursor:row-resize;height:7px;margin:-2px 0}.-\\30 d5ia_dividerCol:after{height:1px;top:50%;left:0;right:0;transform:translateY(-50%)}.-\\30 d5ia_divider:hover:after,.-\\30 d5ia_dividerActive:after{background:var(--dsw-alias-interactive-bg-hover-accent)}.-\\30 d5ia_pane{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;position:relative}.-\\30 d5ia_paneDrop{outline:1px solid var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.-\\30 d5ia_dropOverlay{z-index:6;pointer-events:none;background:var(--dsw-alias-interactive-bg-hover-accent);opacity:.5;position:absolute}.-\\30 d5ia_dropLeft{width:25%;top:0;bottom:0;left:0}.-\\30 d5ia_dropRight{width:25%;top:0;bottom:0;right:0}.-\\30 d5ia_dropUp{height:25%;top:0;left:0;right:0}.-\\30 d5ia_dropDown{height:25%;bottom:0;left:0;right:0}.-\\30 d5ia_dropCenter{outline:2px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-2px;background:0 0;inset:25%}.-\\30 d5ia_paneContent{flex-direction:column;flex:1;min-height:0;display:flex;overflow:hidden}.-\\30 d5ia_paneTab{flex-direction:column;flex:1;min-height:0;display:flex}.-\\30 d5ia_paneTabHidden{display:none}.-\\30 d5ia_paneEmptyCards{flex:1;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));align-content:start;gap:8px;min-height:0;padding:12px;display:grid;overflow:hidden}.-\\30 d5ia_paneCard{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;text-align:center;border-radius:8px;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:12px 8px;display:flex}.-\\30 d5ia_paneCard:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-border-l2)}.-\\30 d5ia_paneCard:disabled{opacity:.45;cursor:default}.-\\30 d5ia_tabBar{border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);flex:none;align-items:stretch;height:34px;display:flex}.-\\30 d5ia_tabBarDrop{outline:1px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.-\\30 d5ia_tabList{scrollbar-width:none;flex:1;min-width:0;display:flex;overflow-x:auto}.-\\30 d5ia_tabList::-webkit-scrollbar{display:none}.-\\30 d5ia_tab{min-width:64px;max-width:160px;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);border-right:1px solid var(--dsw-alias-border-l1);cursor:pointer;user-select:none;background:0 0;flex:none;align-items:center;gap:4px;padding:0 4px 0 10px;display:flex}.-\\30 d5ia_tab:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_tabActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active)}.-\\30 d5ia_tabTitle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.-\\30 d5ia_tabBadge{min-width:16px;height:15px;font:var(--dsw-font-xxxs-strong-11);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-brand-primary);border-radius:8px;flex:none;justify-content:center;align-items:center;padding:0 4px;display:inline-flex}.-\\30 d5ia_tabClose{width:18px;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:none;border-radius:4px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.-\\30 d5ia_tabClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_tabBarPlus{background:var(--dsw-alias-bg-layer-1);width:22px;height:22px;color:var(--dsw-alias-label-tertiary);cursor:pointer;border:none;border-radius:5px;flex:none;justify-content:center;align-self:center;align-items:center;margin:0 6px;padding:0;display:inline-flex;position:sticky;right:0}.-\\30 d5ia_tabBarPlus:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_pinnedTab{color:var(--dsw-alias-label-tertiary);font-style:italic}.-\\30 d5ia_pinnedTab:hover{color:var(--dsw-alias-label-secondary)}.-\\30 d5ia_explorer{flex-direction:column;flex:1;min-height:0;display:flex}.-\\30 d5ia_explorerHeader{flex:none;justify-content:space-between;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.-\\30 d5ia_explorerRoot{font:var(--dsw-font-s-14);color:var(--dsw-alias-label-secondary);text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.-\\30 d5ia_explorerBody{flex:1;min-height:0;padding:4px 8px 8px;overflow:hidden auto}.-\\30 d5ia_explorerRow{box-sizing:border-box;width:100%;max-width:100%;height:34px;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);text-align:left;cursor:pointer;white-space:nowrap;animation:-\\30 d5ia_dsh-row-in .15s var(--ds-ease-in-out);background:0 0;border:none;border-radius:8px;align-items:center;gap:6px;padding:0 8px;display:flex}.-\\30 d5ia_explorerRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_explorerRowRevealed{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover-accent) 18%, transparent);box-shadow:inset 2px 0 0 var(--dsw-alias-interactive-bg-hover-accent)}.-\\30 d5ia_explorerDir{font:var(--dsw-font-s-strong-14)}.-\\30 d5ia_explorerHidden{opacity:.45}.-\\30 d5ia_explorerSymlink{color:var(--dsw-alias-label-tertiary);flex:none}.-\\30 d5ia_explorerBroken .-\\30 d5ia_explorerName{color:var(--dsw-alias-state-error-primary)}.-\\30 d5ia_explorerName{text-overflow:ellipsis;white-space:nowrap;min-width:0;overflow:hidden}.-\\30 d5ia_explorerRef{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);height:20px;color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-strong-11);cursor:pointer;border-radius:999px;flex:none;align-items:center;padding:0 8px;display:none}.-\\30 d5ia_explorerRef:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_explorerRow:hover .-\\30 d5ia_explorerRef,.-\\30 d5ia_explorerRow:focus-within .-\\30 d5ia_explorerRef{display:inline-flex}.-\\30 d5ia_explorerCopied{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);flex:none}.-\\30 d5ia_explorerError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);cursor:default}@keyframes -\\30 d5ia_dsh-row-in{0%{opacity:0}}.-\\30 d5ia_explorerEmpty{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;padding:16px}.-\\30 d5ia_explorerRowDropTarget{background:var(--dsw-alias-interactive-bg-hover);outline:1px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.-\\30 d5ia_uploadDropZone{z-index:1001;pointer-events:none;border:2px dashed var(--dsw-alias-interactive-bg-hover-accent);box-shadow:0 0 0 200vmax var(--dsw-alias-bg-mask-drop);animation:-\\30 d5ia_dsh-row-in .15s var(--ds-ease-in-out);border-radius:10px;justify-content:center;align-items:flex-start;padding:12px;display:flex;position:fixed}.-\\30 d5ia_uploadDropHero{flex-direction:column;align-items:center;gap:10px;max-width:100%;padding-top:8px;display:flex}.-\\30 d5ia_uploadDropZonePill{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);max-width:100%;box-shadow:var(--dsw-shadow-lv2);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);border-radius:999px;align-items:center;gap:6px;padding:6px 12px;display:flex}.-\\30 d5ia_uploadDropZoneText{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.-\\30 d5ia_uploadDropChatHint{z-index:1002;pointer-events:none;animation:-\\30 d5ia_dsh-row-in .15s var(--ds-ease-in-out);justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0}.-\\30 d5ia_uploadDropChatCard{text-align:center;max-width:100%;color:var(--dsw-alias-label-primary);font:var(--dsw-font-s-strong-14);flex-direction:column;align-items:center;gap:12px;display:flex}.-\\30 d5ia_uploadOverlay{z-index:30;background:var(--dsw-alias-bg-mask-1);backdrop-filter:var(--dsw-mask-blur);animation:-\\30 d5ia_dsh-row-in .15s var(--ds-ease-in-out);justify-content:center;align-items:center;display:flex;position:absolute;inset:0}.-\\30 d5ia_uploadOverlayCard{border:1px solid var(--dsw-alias-border-inverted);background:var(--dsw-alias-bg-layer-2);min-width:280px;max-width:min(420px,100% - 48px);box-shadow:var(--dsw-shadow-lv3);border-radius:24px;flex-direction:column;gap:12px;padding:20px 24px;display:flex}.-\\30 d5ia_uploadOverlayTitle{font:var(--dsw-font-s-strong-14);color:var(--dsw-alias-label-primary);align-items:center;gap:8px;display:flex}.-\\30 d5ia_uploadOverlayTitle>svg{flex:none}.-\\30 d5ia_uploadOverlayTitle>span{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.-\\30 d5ia_uploadOverlayProgress{background:var(--dsw-alias-border-l2);border-radius:3px;height:6px;overflow:hidden}.-\\30 d5ia_uploadOverlayProgressFill{background:var(--dsw-alias-interactive-bg-hover-accent);height:100%;transition:width .15s var(--ds-ease-in-out);border-radius:3px}.-\\30 d5ia_uploadOverlayStatus{min-height:1em;font:var(--dsw-font-xxs-12);font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.-\\30 d5ia_uploadOverlayCancel{border:1px solid var(--dsw-alias-border-l2);height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;background:0 0;border-radius:8px;align-self:flex-end;padding:0 14px}.-\\30 d5ia_uploadOverlayCancel:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-border-l2)}.-\\30 d5ia_uploadOverlayCancel:disabled{opacity:.4;cursor:default}.-\\30 d5ia_editor{flex-direction:column;flex:1;min-height:0;display:flex}.-\\30 d5ia_editorHeader{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:6px;padding:6px 8px;display:flex}.-\\30 d5ia_editorTitle{min-width:0;font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-secondary);text-overflow:ellipsis;white-space:nowrap;flex:1;overflow:hidden}.-\\30 d5ia_editorPathInput{box-sizing:border-box;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.-\\30 d5ia_editorPathInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.-\\30 d5ia_editorTreeToggleActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active)}.-\\30 d5ia_editorBody{flex:1;min-height:0;display:flex}.-\\30 d5ia_editorMain{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex}.-\\30 d5ia_editorTreeDock{border-left:1px solid var(--dsw-alias-border-l1);flex:none;min-height:0;display:flex;position:relative}.-\\30 d5ia_editorTreeResize{cursor:col-resize;touch-action:none;z-index:3;width:6px;position:absolute;top:0;bottom:0;left:0}.-\\30 d5ia_editorTreeResize:hover{background:var(--dsw-alias-border-l2)}.-\\30 d5ia_editorTreePanel{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;position:relative}.-\\30 d5ia_editorTreePanelFull{flex:1}.-\\30 d5ia_editorTreeSearch{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:6px;padding:6px 8px;display:flex}.-\\30 d5ia_editorSearchInput{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:26px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.-\\30 d5ia_editorSearchInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.-\\30 d5ia_editorSearchHint{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);padding:8px 12px}.-\\30 d5ia_editorSearchResult{width:100%;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);text-align:left;cursor:pointer;text-overflow:ellipsis;white-space:nowrap;background:0 0;border:none;border-radius:6px;padding:4px 8px;display:block;overflow:hidden}.-\\30 d5ia_editorSearchResult:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_editorStatus{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary)}.-\\30 d5ia_editorStatusError{color:var(--dsw-alias-state-error-primary)}.-\\30 d5ia_dirtyDot{background:var(--dsw-alias-state-warn-primary);border-radius:50%;flex:none;width:7px;height:7px}.-\\30 d5ia_editorPlaceholder{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;flex:1;justify-content:center;align-items:center;padding:16px;display:flex}.-\\30 d5ia_orphanedType{opacity:.7;overflow-wrap:anywhere;margin-top:8px;font-size:12px;display:block}.-\\30 d5ia_editorBinary{text-align:center;flex-direction:column;flex:1;justify-content:center;align-items:center;gap:12px;padding:24px 16px;display:flex}.-\\30 d5ia_editorBinaryNotice{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.-\\30 d5ia_editorDownloadLink{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out), border-color var(--ds-transition-duration-slow) var(--ds-ease-in-out);border-radius:6px;align-items:center;gap:6px;padding:6px 14px;text-decoration:none;display:inline-flex}.-\\30 d5ia_editorDownloadLink:hover{background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-border-l2)}.-\\30 d5ia_editorError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);padding:12px 16px}.-\\30 d5ia_editorBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;padding:4px 8px}.-\\30 d5ia_sandboxStatus{font:var(--dsw-font-xxxs-11);flex:none;align-items:center;gap:8px;padding:4px 10px;display:flex}.-\\30 d5ia_sandboxStatusOn{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:1px solid var(--dsw-alias-border-l1)}.-\\30 d5ia_sandboxStatusOff{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 10%, transparent);border-bottom:1px solid color-mix(in srgb, var(--dsw-alias-state-error-primary) 45%, transparent)}.-\\30 d5ia_sandboxDot{background:var(--dsw-alias-state-success-primary);border-radius:50%;flex:none;width:6px;height:6px}.-\\30 d5ia_sandboxStatusOff .-\\30 d5ia_sandboxDot{background:var(--dsw-alias-state-error-primary)}.-\\30 d5ia_sandboxStatusText{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.-\\30 d5ia_sandboxAction{border:1px solid var(--dsw-alias-border-l2);font:inherit;color:inherit;cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:2px 8px}.-\\30 d5ia_sandboxAction:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_editorHtml{background:var(--dsw-alias-bg-base);border:none;flex:1;width:100%;min-height:0}.-\\30 d5ia_browser{flex-direction:column;flex:1;min-height:0;display:flex}.-\\30 d5ia_browserBar{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:4px;padding:6px 8px;display:flex}.-\\30 d5ia_browserInput{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.-\\30 d5ia_browserInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.-\\30 d5ia_browserMessage{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;padding:4px 12px}.-\\30 d5ia_browserFrame{background:var(--dsw-alias-bg-base);border:none;flex:1;width:100%;min-height:0}.-\\30 d5ia_browserStart{text-align:center;min-height:0;font:var(--dsw-font-xs-13);color:var(--dsw-alias-label-tertiary);flex:1;justify-content:center;align-items:center;padding:20px;display:flex}.-\\30 d5ia_browserBlocked{text-align:center;min-height:0;color:var(--dsw-alias-state-warn-primary);flex-direction:column;flex:1;justify-content:center;align-items:center;gap:6px;padding:24px;display:flex}.-\\30 d5ia_browserBlockedTitle{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_browserBlockedDesc{max-width:280px;font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-secondary)}.-\\30 d5ia_browserBlockedActions{gap:8px;margin-top:6px;display:flex}.-\\30 d5ia_browserBlockedButton{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxxs-11);cursor:pointer;border-radius:6px;padding:4px 12px}.-\\30 d5ia_browserBlockedButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_editorCm{background:0 0;flex:1;min-height:0;overflow:hidden}.-\\30 d5ia_editorCmHidden{display:none}.-\\30 d5ia_editorCm .cm-editor{height:100%}.-\\30 d5ia_editorCm .cm-scroller{padding:12px 16px}.-\\30 d5ia_editorCm .cm-editor.cm-focused{outline:none}.-\\30 d5ia_editorModeToggle{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);border-radius:6px;flex:none;align-items:center;gap:2px;padding:2px;display:inline-flex}.-\\30 d5ia_editorModeButton{color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);cursor:pointer;background:0 0;border:none;border-radius:4px;padding:2px 8px}.-\\30 d5ia_editorModeButton:hover{color:var(--dsw-alias-label-primary)}.-\\30 d5ia_editorModeActive{background:var(--dsw-alias-bg-base);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_editorImageWrap{flex:1;justify-content:center;align-items:center;min-height:0;padding:12px;display:flex;overflow:auto}.-\\30 d5ia_editorImage{object-fit:contain;max-width:100%;max-height:100%}.-\\30 d5ia_editorMd{min-height:0;font:var(--dsw-font-xs-13);flex:1;padding:12px 16px;overflow-y:auto}.-\\30 d5ia_mermaidWrap{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);border-radius:6px;margin:6px 0;overflow:hidden}.-\\30 d5ia_mermaidHeader{border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);justify-content:space-between;align-items:center;gap:6px;padding:4px 8px;display:flex}.-\\30 d5ia_mermaidInfo{font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-tertiary)}.-\\30 d5ia_mermaidCopy{height:20px;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxxs-11);cursor:pointer;background:0 0;border:none;border-radius:4px;align-items:center;gap:4px;padding:0 6px;display:inline-flex}.-\\30 d5ia_mermaidCopy:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_mermaidBody{cursor:zoom-in;justify-content:center;padding:10px;display:flex;overflow:auto}.-\\30 d5ia_mermaidBody svg{max-width:100%;height:auto}.-\\30 d5ia_mermaidError{border-bottom:1px solid var(--dsw-alias-border-l1);color:var(--dsw-alias-state-error-primary);font:var(--dsw-font-xxxs-11);padding:6px 10px}.-\\30 d5ia_mermaidCode{font:var(--dsw-font-xxxs-11);margin:0;padding:8px 10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto}.-\\30 d5ia_mermaidMarkdown .md-code-block[data-mermaid-processed]{display:contents}.-\\30 d5ia_mermaidModal{z-index:1000;background:var(--dsw-alias-bg-mask-1);backdrop-filter:blur(2px);flex-direction:column;justify-content:center;align-items:center;display:flex;position:fixed;inset:0}.-\\30 d5ia_mermaidModalToolbar{z-index:10;gap:8px;display:flex;position:absolute;top:16px;right:16px}.-\\30 d5ia_mermaidModalButton{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);width:36px;height:36px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xs-strong-13);cursor:pointer;border-radius:8px;justify-content:center;align-items:center;display:inline-flex}.-\\30 d5ia_mermaidModalButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_mermaidModalStage{justify-content:center;align-items:center;width:90vw;height:80vh;display:flex;position:relative;overflow:hidden}.-\\30 d5ia_mermaidModalStage svg{cursor:grab;transform-origin:50%;user-select:none;-webkit-user-drag:none;background:var(--dsw-alias-bg-layer-1);border-radius:12px;max-width:none;max-height:none;padding:16px}.-\\30 d5ia_mermaidModalStage svg:active{cursor:grabbing}.-\\30 d5ia_mermaidModalHint{color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);pointer-events:none;position:absolute;bottom:16px;left:50%;transform:translate(-50%)}.-\\30 d5ia_selectionPopup{z-index:60;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxxs-strong-11);white-space:nowrap;cursor:pointer;border-radius:6px;align-items:center;padding:0 10px;display:inline-flex;position:fixed;transform:translate(-50%,calc(-100% - 8px))}.-\\30 d5ia_selectionPopup:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_editorPdf{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-height:0;display:flex}.-\\30 d5ia_editorPdfToolbar{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;justify-content:flex-end;padding:6px 8px;display:flex}.-\\30 d5ia_editorPdfStage{flex:1;min-height:0;display:flex;position:relative}.-\\30 d5ia_editorPdfFrame{background:var(--dsw-alias-bg-base);border:none;flex:1;width:100%;min-height:0}.-\\30 d5ia_editorPdfFrameBlocked{pointer-events:none}.-\\30 d5ia_editorPdfDragShield{z-index:4;pointer-events:none;background:0 0;position:absolute;inset:0}.-\\30 d5ia_editorPdfDragShieldActive{pointer-events:auto}body[data-dsh-tab-dragging] .-\\30 d5ia_editorPdfFrame{pointer-events:none!important}body[data-dsh-tab-dragging] .-\\30 d5ia_editorPdfDragShield{pointer-events:auto!important}.-\\30 d5ia_terminalWrap{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-height:0;display:flex;position:relative}.-\\30 d5ia_terminal{flex:1;min-height:0;padding:6px 4px 6px 8px}.-\\30 d5ia_terminal .xterm{height:100%}.-\\30 d5ia_terminalBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex-wrap:wrap;flex:none;align-items:center;gap:8px;padding:3px 10px;display:flex}.-\\30 d5ia_terminalBannerUrl{word-break:break-all;opacity:.85;flex-basis:100%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.-\\30 d5ia_boundaryError{z-index:50;background:var(--dsw-alias-bg-layer-1);border-left:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);flex-direction:column;align-items:flex-start;gap:8px;padding:16px;display:flex;position:fixed;top:0;bottom:0;right:0;overflow:auto}.-\\30 d5ia_terminalRetry{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxxs-strong-11);cursor:pointer;border-radius:999px;flex:none;padding:1px 8px}.-\\30 d5ia_terminalRetry:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_terminalDepsBanner{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex-direction:column;flex:none;gap:6px;padding:10px;display:flex}.-\\30 d5ia_terminalDepsTitle{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-state-warn-primary)}.-\\30 d5ia_terminalDepsHint{opacity:.9}.-\\30 d5ia_terminalDepsCommandRow{align-items:flex-start;gap:8px;display:flex}.-\\30 d5ia_terminalRepairCommand{white-space:pre-wrap;word-break:break-all;user-select:text;min-width:0;color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2);border:1px solid var(--dsw-alias-border-l2);border-radius:4px;flex:1;max-height:160px;margin:0;padding:6px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;overflow:auto}.-\\30 d5ia_terminalDepsNote{opacity:.85}.-\\30 d5ia_terminalDepsActions{align-items:center;gap:8px;display:flex}.-\\30 d5ia_tabBoundaryError{min-height:0;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);flex-direction:column;flex:1;align-items:flex-start;gap:8px;padding:12px 16px;display:flex;overflow:auto}.-\\30 d5ia_git{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden auto}.-\\30 d5ia_gitHeader{flex:none;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.-\\30 d5ia_gitWorktreeRow{flex:none;align-items:center;gap:8px;padding:6px 8px 0 12px;display:flex}.-\\30 d5ia_gitWorktreeLabel{color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);flex:none}.-\\30 d5ia_gitBranchSelect{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-base);min-width:0;height:26px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 6px}.-\\30 d5ia_gitSection{border-top:1px solid var(--dsw-alias-border-l1)}.-\\30 d5ia_gitSectionHeader{font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-tertiary);text-transform:uppercase;justify-content:space-between;align-items:center;padding:6px 12px 4px;display:flex}.-\\30 d5ia_gitLink{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-brand-primary);cursor:pointer;background:0 0;border:none;padding:0}.-\\30 d5ia_gitLink:hover:not(:disabled){text-decoration:underline}.-\\30 d5ia_gitLink:disabled{opacity:.4;cursor:default}.-\\30 d5ia_gitRow{min-height:34px;animation:-\\30 d5ia_dsh-row-in .15s var(--ds-ease-in-out);border-radius:8px;align-items:center;gap:6px;margin:0 6px;padding:0 8px;display:flex}.-\\30 d5ia_gitRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_gitRowSelected{background:var(--dsw-alias-interactive-bg-active)}.-\\30 d5ia_gitRowMain{cursor:pointer;text-align:left;background:0 0;border:none;flex:1;align-items:center;gap:8px;min-width:0;padding:3px 0;display:flex}.-\\30 d5ia_gitBadge{width:20px;height:16px;font:var(--dsw-font-xxxs-strong-11);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary);border-radius:4px;flex:none;justify-content:center;align-items:center;display:inline-flex}.-\\30 d5ia_gitName{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.-\\30 d5ia_gitEmpty{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);padding:4px 12px 8px}.-\\30 d5ia_gitPlaceholder{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;padding:16px}.-\\30 d5ia_gitError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);white-space:pre-wrap;padding:8px 12px}.-\\30 d5ia_gitDiff{border-top:1px solid var(--dsw-alias-border-l1);padding:8px}.-\\30 d5ia_gitDiffTab{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden auto}.-\\30 d5ia_gitDiffTabHeader{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.-\\30 d5ia_gitDiffTabTitle{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.-\\30 d5ia_gitDiffFile{width:100%;color:inherit;text-align:left;cursor:pointer;background:0 0;border:0;align-items:baseline;gap:6px;padding:8px 2px 2px;display:flex}.-\\30 d5ia_gitDiffFile:disabled{cursor:default}.-\\30 d5ia_gitDiffFile:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_gitDiffFileChevron{color:var(--dsw-alias-label-tertiary);flex:none;transform:rotate(0)}.-\\30 d5ia_gitDiffFileChevronExpanded{transform:rotate(90deg)}.-\\30 d5ia_gitDiffFilePath{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary);text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.-\\30 d5ia_gitDiffFileOld{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);text-overflow:ellipsis;white-space:nowrap;flex:none;max-width:40%;overflow:hidden}.-\\30 d5ia_gitDiffFileTag{border:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-secondary);border-radius:999px;flex:none;padding:0 6px}.-\\30 d5ia_gitDiffHunk{font:var(--dsw-font-markdown-code-block-small);color:var(--dsw-alias-label-tertiary);gap:8px;padding:3px 2px;display:flex}.-\\30 d5ia_gitDiffHunkHeader{color:var(--dsw-alias-label-secondary);flex:none}.-\\30 d5ia_gitDiffHunkSection{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.-\\30 d5ia_gitDiffLine{font:var(--dsw-font-markdown-code-block-small);white-space:pre-wrap;overflow-wrap:anywhere;align-items:stretch;min-width:0;line-height:20px;display:flex}.-\\30 d5ia_gitDiffNum{text-align:right;width:36px;color:var(--dsw-alias-label-tertiary);user-select:none;flex:none;padding-right:8px}.-\\30 d5ia_gitDiffCode{flex:1;min-width:0;overflow:visible}.-\\30 d5ia_gitDiffCtx{color:var(--dsw-alias-label-primary)}.-\\30 d5ia_gitDiffDel{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent)}.-\\30 d5ia_gitDiffAdd{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 12%, transparent)}.-\\30 d5ia_gitDiffMeta{padding-left:2px}.-\\30 d5ia_gitDiffMetaText{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);font-style:italic}.-\\30 d5ia_gitDiffExpand{width:100%;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-brand-primary);cursor:pointer;text-align:center;background:0 0;border:none;margin:4px 0;display:block}.-\\30 d5ia_gitDiffExpand:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_gitConfirmDesc{font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);white-space:pre-wrap;margin:0}.-\\30 d5ia_gitCommit{border-top:1px solid var(--dsw-alias-border-l1);align-items:center;gap:6px;padding:8px 12px;display:flex}.-\\30 d5ia_gitCommitInput{flex:1;min-width:0}.-\\30 d5ia_gitCommitButton{background:var(--dsw-alias-button-primary-fill);height:26px;color:var(--dsw-alias-label-primary-inverted);font:var(--dsw-font-xxs-strong-12);cursor:pointer;border:none;border-radius:6px;flex:none;padding:0 12px}.-\\30 d5ia_gitCommitButton:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}.-\\30 d5ia_gitCommitButton:disabled{opacity:.45;cursor:default}.-\\30 d5ia_gitLogRow{cursor:pointer;border-radius:8px;flex-direction:column;gap:2px;padding:5px 12px;display:flex}.-\\30 d5ia_gitLogRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.-\\30 d5ia_gitLogLine1{align-items:baseline;gap:8px;min-width:0;display:flex}.-\\30 d5ia_gitLogHash{font:var(--dsw-font-markdown-code-block-small);color:var(--dsw-alias-label-tertiary);flex:none}.-\\30 d5ia_gitLogLine2{flex-wrap:wrap;align-items:center;gap:6px;min-width:0;display:flex}.-\\30 d5ia_gitLogRef{border:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-brand-primary);white-space:nowrap;border-radius:999px;flex:none;padding:0 5px}.-\\30 d5ia_gitLogSubject{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.-\\30 d5ia_gitLogMeta{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary)}.-\\30 d5ia_gitLogMore{border:1px solid var(--dsw-alias-border-l2);width:calc(100% - 24px);font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border-radius:6px;margin:4px 12px 8px;padding:6px 0;display:block}.-\\30 d5ia_gitLogMore:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_gitLogMore:disabled{opacity:.5;cursor:default}.-\\30 d5ia_producedRow{flex-wrap:wrap;align-items:center;gap:8px;padding:4px 0;display:flex}.-\\30 d5ia_producedLabel{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.-\\30 d5ia_producedChip{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);max-width:200px;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-12);cursor:pointer;border-radius:999px;align-items:center;gap:4px;padding:2px 8px;display:inline-flex;overflow:hidden}.-\\30 d5ia_producedChip:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_producedChip span{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.-\\30 d5ia_producedMore{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.-\\30 d5ia_toggleButton:focus-visible,.-\\30 d5ia_bottomClose:focus-visible,.-\\30 d5ia_iconButton:focus-visible,.-\\30 d5ia_tab:focus-visible,.-\\30 d5ia_tabClose:focus-visible,.-\\30 d5ia_tabBarPlus:focus-visible,.-\\30 d5ia_paneCard:focus-visible,.-\\30 d5ia_explorerRow:focus-visible,.-\\30 d5ia_explorerRef:focus-visible,.-\\30 d5ia_gitRowMain:focus-visible,.-\\30 d5ia_gitLink:focus-visible,.-\\30 d5ia_gitCommitButton:focus-visible,.-\\30 d5ia_gitLogRow:focus-visible,.-\\30 d5ia_gitLogMore:focus-visible,.-\\30 d5ia_gitDiffFile:focus-visible,.-\\30 d5ia_gitDiffExpand:focus-visible,.-\\30 d5ia_terminalRetry:focus-visible,.-\\30 d5ia_editorModeButton:focus-visible,.-\\30 d5ia_editorDownloadLink:focus-visible,.-\\30 d5ia_editorPptxButton:focus-visible,.-\\30 d5ia_editorDocxZoomRange:focus-visible{outline:2px solid var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}@media (prefers-reduced-motion:reduce){.-\\30 d5ia_panel,.-\\30 d5ia_panelHidden,.-\\30 d5ia_bottomPanel,.-\\30 d5ia_bottomPanelHidden,.-\\30 d5ia_toggleCluster,.-\\30 d5ia_toggleButton,.-\\30 d5ia_tab,.-\\30 d5ia_tabBarPlus,.-\\30 d5ia_paneCard,.-\\30 d5ia_explorerRow,.-\\30 d5ia_gitRow,.-\\30 d5ia_divider,.-\\30 d5ia_dividerRow:after,.-\\30 d5ia_dividerCol:after{transition:none;animation:none}}@media (width<=767px){.-\\30 d5ia_panel:not(.-\\30 d5ia_panelHidden) .-\\30 d5ia_tabBar{padding-right:40px}.-\\30 d5ia_tab{min-width:48px;max-width:128px}}.-\\30 d5ia_openWithLabel{align-items:center;gap:8px;width:100%;min-width:0;display:flex}.-\\30 d5ia_openWithName{text-overflow:ellipsis;white-space:nowrap;flex:auto;min-width:0;overflow:hidden}.-\\30 d5ia_openWithChevron{color:var(--dsw-alias-label-tertiary);flex:none}.-\\30 d5ia_openWithPin{width:20px;height:20px;color:var(--dsw-alias-label-tertiary);cursor:pointer;border-radius:6px;flex:none;justify-content:center;align-items:center;display:inline-flex}.-\\30 d5ia_openWithPin:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_openWithPinActive{color:var(--dsw-alias-state-business-primary)}.-\\30 d5ia_editorHtmlBlock{margin:8px 0}.-\\30 d5ia_editorHtmlBlock img,.-\\30 d5ia_editorHtmlBlock video{max-width:100%}.-\\30 d5ia_editorHtmlBlock details{margin:4px 0;padding:4px 0}.-\\30 d5ia_editorHtmlBlock summary{cursor:pointer}.-\\30 d5ia_tocBar{z-index:3;pointer-events:none;justify-content:flex-end;height:0;display:flex;position:sticky;top:0}.-\\30 d5ia_tocButton{pointer-events:auto;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);width:26px;height:26px;color:var(--dsw-alias-label-secondary);cursor:pointer;border-radius:6px;justify-content:center;align-items:center;margin:4px 2px 0 0;padding:0;display:inline-flex}.-\\30 d5ia_tocButton:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_tocPanel{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);width:min(300px,82%);max-height:60vh;box-shadow:var(--dsw-shadow-lv2);pointer-events:auto;border-radius:8px;flex-direction:column;padding:4px;display:flex;position:absolute;top:32px;right:2px;overflow-y:auto}.-\\30 d5ia_tocItem{min-width:0;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-12);text-align:left;cursor:pointer;background:0 0;border:none;border-radius:6px;align-items:baseline;gap:8px;padding:4px 8px;display:flex}.-\\30 d5ia_tocItem:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.-\\30 d5ia_tocItem[data-level=\"2\"]{padding-left:18px}.-\\30 d5ia_tocItem[data-level=\"3\"]{padding-left:28px}.-\\30 d5ia_tocItem[data-level=\"4\"]{padding-left:38px}.-\\30 d5ia_tocItem[data-level=\"5\"]{padding-left:48px}.-\\30 d5ia_tocItem[data-level=\"6\"]{padding-left:58px}.-\\30 d5ia_tocItemLevel{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);flex:none}.-\\30 d5ia_tocItemText{text-overflow:ellipsis;white-space:nowrap;flex:auto;min-width:0;overflow:hidden}@keyframes -\\30 d5ia_dsh-toc-flash{0%,60%{background:var(--dsw-alias-interactive-bg-hover)}to{background:0 0}}.-\\30 d5ia_tocFlash{border-radius:4px;animation:1.2s ease-out -\\30 d5ia_dsh-toc-flash}";
 	const tagId = "dsh-better-sidebar/sidebar.module.css";
 	if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId) + "]") === null) {
 		const tag = document.createElement("style");
@@ -200101,247 +200120,247 @@ ${prefix}${Math.round(value * 100) / 100}${suffix}`;
 		document.head.appendChild(tag);
 	}
 	var sidebar_module_css_default = {
-		"mermaidCode": "_3Lqp1a_mermaidCode",
-		"tabActive": "_3Lqp1a_tabActive",
-		"paneDrop": "_3Lqp1a_paneDrop",
-		"tocPanel": "_3Lqp1a_tocPanel",
-		"terminalBannerUrl": "_3Lqp1a_terminalBannerUrl",
-		"gitLink": "_3Lqp1a_gitLink",
-		"browserFrame": "_3Lqp1a_browserFrame",
-		"editorPdfFrame": "_3Lqp1a_editorPdfFrame",
-		"uploadOverlayProgressFill": "_3Lqp1a_uploadOverlayProgressFill",
-		"editorPdfFrameBlocked": "_3Lqp1a_editorPdfFrameBlocked",
-		"gitWorktreeLabel": "_3Lqp1a_gitWorktreeLabel",
-		"floatDropHintLabel": "_3Lqp1a_floatDropHintLabel",
-		"tabBadge": "_3Lqp1a_tabBadge",
-		"bottomPanelHidden": "_3Lqp1a_bottomPanelHidden",
-		"mermaidModal": "_3Lqp1a_mermaidModal",
-		"gitDiffCtx": "_3Lqp1a_gitDiffCtx",
-		"explorer": "_3Lqp1a_explorer",
-		"uploadDropZone": "_3Lqp1a_uploadDropZone",
-		"openWithPin": "_3Lqp1a_openWithPin",
-		"mermaidModalStage": "_3Lqp1a_mermaidModalStage",
-		"editorSearchHint": "_3Lqp1a_editorSearchHint",
-		"gitLogLine2": "_3Lqp1a_gitLogLine2",
-		"panelResize": "_3Lqp1a_panelResize",
-		"gitRowMain": "_3Lqp1a_gitRowMain",
-		"editorHtml": "_3Lqp1a_editorHtml",
-		"panel": "_3Lqp1a_panel",
-		"openWithLabel": "_3Lqp1a_openWithLabel",
-		"explorerRowDropTarget": "_3Lqp1a_explorerRowDropTarget",
-		"pinnedTab": "_3Lqp1a_pinnedTab",
-		"terminalDepsCommandRow": "_3Lqp1a_terminalDepsCommandRow",
-		"editorModeToggle": "_3Lqp1a_editorModeToggle",
-		"editorPdfDragShield": "_3Lqp1a_editorPdfDragShield",
-		"editorPdfDragShieldActive": "_3Lqp1a_editorPdfDragShieldActive",
-		"uploadOverlayProgress": "_3Lqp1a_uploadOverlayProgress",
-		"gitBranchSelect": "_3Lqp1a_gitBranchSelect",
-		"editorStatusError": "_3Lqp1a_editorStatusError",
-		"terminalRepairCommand": "_3Lqp1a_terminalRepairCommand",
-		"tocButton": "_3Lqp1a_tocButton",
-		"editorTreeSearch": "_3Lqp1a_editorTreeSearch",
-		"mermaidMarkdown": "_3Lqp1a_mermaidMarkdown",
-		"panelBody": "_3Lqp1a_panelBody",
-		"editorModeActive": "_3Lqp1a_editorModeActive",
-		"dividerRow": "_3Lqp1a_dividerRow",
-		"editorModeButton": "_3Lqp1a_editorModeButton",
-		"terminalRetry": "_3Lqp1a_terminalRetry",
-		"divider": "_3Lqp1a_divider",
-		"dropDown": "_3Lqp1a_dropDown",
-		"tabList": "_3Lqp1a_tabList",
-		"browserBlockedDesc": "_3Lqp1a_browserBlockedDesc",
-		"floatResize": "_3Lqp1a_floatResize",
-		"editorBinary": "_3Lqp1a_editorBinary",
-		"editorPdf": "_3Lqp1a_editorPdf",
-		"gitDiffFilePath": "_3Lqp1a_gitDiffFilePath",
-		"gitDiffCode": "_3Lqp1a_gitDiffCode",
-		"sandboxStatusOn": "_3Lqp1a_sandboxStatusOn",
-		"editorPptxButton": "_3Lqp1a_editorPptxButton",
-		"gitDiff": "_3Lqp1a_gitDiff",
-		"tabBar": "_3Lqp1a_tabBar",
-		"paneEmptyCards": "_3Lqp1a_paneEmptyCards",
-		"uploadOverlayCancel": "_3Lqp1a_uploadOverlayCancel",
-		"editorBanner": "_3Lqp1a_editorBanner",
-		"mermaidCopy": "_3Lqp1a_mermaidCopy",
-		"tocFlash": "_3Lqp1a_tocFlash",
-		"gitName": "_3Lqp1a_gitName",
-		"browserBlockedTitle": "_3Lqp1a_browserBlockedTitle",
-		"paneCard": "_3Lqp1a_paneCard",
-		"editorImageWrap": "_3Lqp1a_editorImageWrap",
-		"tabTitle": "_3Lqp1a_tabTitle",
-		"gitHeader": "_3Lqp1a_gitHeader",
-		"openWithName": "_3Lqp1a_openWithName",
-		"dropRight": "_3Lqp1a_dropRight",
-		"terminalWrap": "_3Lqp1a_terminalWrap",
-		"terminalDepsActions": "_3Lqp1a_terminalDepsActions",
-		"browserBar": "_3Lqp1a_browserBar",
-		"terminal": "_3Lqp1a_terminal",
-		"tocItemLevel": "_3Lqp1a_tocItemLevel",
-		"mermaidModalButton": "_3Lqp1a_mermaidModalButton",
-		"editorImage": "_3Lqp1a_editorImage",
-		"editorHeader": "_3Lqp1a_editorHeader",
-		"editorStatus": "_3Lqp1a_editorStatus",
-		"sandboxAction": "_3Lqp1a_sandboxAction",
-		"explorerEmpty": "_3Lqp1a_explorerEmpty",
-		"gitRowSelected": "_3Lqp1a_gitRowSelected",
-		"dividerActive": "_3Lqp1a_dividerActive",
-		"gitWorktreeRow": "_3Lqp1a_gitWorktreeRow",
-		"tabBoundaryError": "_3Lqp1a_tabBoundaryError",
-		"dsh-row-in": "_3Lqp1a_dsh-row-in",
-		"editor": "_3Lqp1a_editor",
-		"gitCommitButton": "_3Lqp1a_gitCommitButton",
-		"explorerBroken": "_3Lqp1a_explorerBroken",
-		"floatWindow": "_3Lqp1a_floatWindow",
-		"uploadDropChatCard": "_3Lqp1a_uploadDropChatCard",
-		"editorDownloadLink": "_3Lqp1a_editorDownloadLink",
-		"editorCm": "_3Lqp1a_editorCm",
-		"gitDiffExpand": "_3Lqp1a_gitDiffExpand",
-		"producedMore": "_3Lqp1a_producedMore",
-		"bottomClose": "_3Lqp1a_bottomClose",
-		"toggleCluster": "_3Lqp1a_toggleCluster",
-		"gitSectionHeader": "_3Lqp1a_gitSectionHeader",
-		"gitLogRef": "_3Lqp1a_gitLogRef",
-		"floatWindowDragging": "_3Lqp1a_floatWindowDragging",
-		"explorerBody": "_3Lqp1a_explorerBody",
-		"gitDiffHunkHeader": "_3Lqp1a_gitDiffHunkHeader",
-		"editorBody": "_3Lqp1a_editorBody",
-		"editorMd": "_3Lqp1a_editorMd",
-		"bottomResize": "_3Lqp1a_bottomResize",
-		"uploadDropZoneText": "_3Lqp1a_uploadDropZoneText",
-		"gitDiffLine": "_3Lqp1a_gitDiffLine",
-		"dropCenter": "_3Lqp1a_dropCenter",
-		"iconButton": "_3Lqp1a_iconButton",
-		"gitDiffMeta": "_3Lqp1a_gitDiffMeta",
-		"explorerSymlink": "_3Lqp1a_explorerSymlink",
-		"gitDiffTab": "_3Lqp1a_gitDiffTab",
-		"browserBlocked": "_3Lqp1a_browserBlocked",
-		"gitDiffDel": "_3Lqp1a_gitDiffDel",
-		"gitRow": "_3Lqp1a_gitRow",
-		"sandboxStatusOff": "_3Lqp1a_sandboxStatusOff",
-		"explorerDir": "_3Lqp1a_explorerDir",
-		"tabBarDrop": "_3Lqp1a_tabBarDrop",
-		"editorTreeResize": "_3Lqp1a_editorTreeResize",
-		"uploadOverlayCard": "_3Lqp1a_uploadOverlayCard",
-		"sandboxStatus": "_3Lqp1a_sandboxStatus",
-		"explorerRoot": "_3Lqp1a_explorerRoot",
-		"explorerRef": "_3Lqp1a_explorerRef",
-		"split": "_3Lqp1a_split",
-		"workbench": "_3Lqp1a_workbench",
-		"gitDiffMetaText": "_3Lqp1a_gitDiffMetaText",
-		"bottomPanel": "_3Lqp1a_bottomPanel",
-		"browserMessage": "_3Lqp1a_browserMessage",
-		"browserStart": "_3Lqp1a_browserStart",
-		"gitLogSubject": "_3Lqp1a_gitLogSubject",
-		"floatHeader": "_3Lqp1a_floatHeader",
-		"explorerRowRevealed": "_3Lqp1a_explorerRowRevealed",
-		"gitDiffFile": "_3Lqp1a_gitDiffFile",
-		"tabBarPlus": "_3Lqp1a_tabBarPlus",
-		"explorerHeader": "_3Lqp1a_explorerHeader",
-		"mermaidWrap": "_3Lqp1a_mermaidWrap",
-		"mermaidModalToolbar": "_3Lqp1a_mermaidModalToolbar",
-		"mermaidHeader": "_3Lqp1a_mermaidHeader",
-		"floatClose": "_3Lqp1a_floatClose",
-		"editorMain": "_3Lqp1a_editorMain",
-		"terminalDepsNote": "_3Lqp1a_terminalDepsNote",
-		"editorCmHidden": "_3Lqp1a_editorCmHidden",
-		"dropLeft": "_3Lqp1a_dropLeft",
-		"toggleButton": "_3Lqp1a_toggleButton",
-		"splitChild": "_3Lqp1a_splitChild",
-		"panelHidden": "_3Lqp1a_panelHidden",
-		"gitPlaceholder": "_3Lqp1a_gitPlaceholder",
-		"panelResizeActive": "_3Lqp1a_panelResizeActive",
-		"openWithChevron": "_3Lqp1a_openWithChevron",
-		"openWithPinActive": "_3Lqp1a_openWithPinActive",
-		"dsh-toc-flash": "_3Lqp1a_dsh-toc-flash",
-		"gitDiffTabHeader": "_3Lqp1a_gitDiffTabHeader",
-		"dirtyDot": "_3Lqp1a_dirtyDot",
-		"gitDiffFileOld": "_3Lqp1a_gitDiffFileOld",
-		"floatDropHint": "_3Lqp1a_floatDropHint",
-		"gitLogHash": "_3Lqp1a_gitLogHash",
-		"pane": "_3Lqp1a_pane",
-		"floatTitle": "_3Lqp1a_floatTitle",
-		"explorerHidden": "_3Lqp1a_explorerHidden",
-		"mermaidModalHint": "_3Lqp1a_mermaidModalHint",
-		"tocBar": "_3Lqp1a_tocBar",
-		"gitDiffFileTag": "_3Lqp1a_gitDiffFileTag",
-		"editorTreeToggleActive": "_3Lqp1a_editorTreeToggleActive",
-		"dropUp": "_3Lqp1a_dropUp",
-		"paneTabHidden": "_3Lqp1a_paneTabHidden",
-		"editorPlaceholder": "_3Lqp1a_editorPlaceholder",
-		"uploadDropChatHint": "_3Lqp1a_uploadDropChatHint",
-		"browser": "_3Lqp1a_browser",
-		"git": "_3Lqp1a_git",
-		"mermaidBody": "_3Lqp1a_mermaidBody",
-		"gitDiffFileChevronExpanded": "_3Lqp1a_gitDiffFileChevronExpanded",
-		"editorSearchResult": "_3Lqp1a_editorSearchResult",
-		"mermaidError": "_3Lqp1a_mermaidError",
-		"uploadOverlay": "_3Lqp1a_uploadOverlay",
-		"paneContent": "_3Lqp1a_paneContent",
-		"cornerHandle": "_3Lqp1a_cornerHandle",
-		"paneTab": "_3Lqp1a_paneTab",
-		"explorerName": "_3Lqp1a_explorerName",
-		"splitCol": "_3Lqp1a_splitCol",
-		"uploadOverlayStatus": "_3Lqp1a_uploadOverlayStatus",
-		"gitSection": "_3Lqp1a_gitSection",
-		"explorerError": "_3Lqp1a_explorerError",
-		"browserBlockedButton": "_3Lqp1a_browserBlockedButton",
-		"gitBadge": "_3Lqp1a_gitBadge",
-		"uploadDropHero": "_3Lqp1a_uploadDropHero",
-		"editorPathInput": "_3Lqp1a_editorPathInput",
-		"gitEmpty": "_3Lqp1a_gitEmpty",
-		"floatContent": "_3Lqp1a_floatContent",
-		"editorTitle": "_3Lqp1a_editorTitle",
-		"tab": "_3Lqp1a_tab",
-		"editorHtmlBlock": "_3Lqp1a_editorHtmlBlock",
-		"editorError": "_3Lqp1a_editorError",
-		"dropOverlay": "_3Lqp1a_dropOverlay",
-		"editorTreePanelFull": "_3Lqp1a_editorTreePanelFull",
-		"gitDiffHunk": "_3Lqp1a_gitDiffHunk",
-		"terminalBanner": "_3Lqp1a_terminalBanner",
-		"selectionPopup": "_3Lqp1a_selectionPopup",
-		"editorPdfToolbar": "_3Lqp1a_editorPdfToolbar",
-		"gitLogMeta": "_3Lqp1a_gitLogMeta",
-		"bottomResizeActive": "_3Lqp1a_bottomResizeActive",
-		"uploadDropZonePill": "_3Lqp1a_uploadDropZonePill",
-		"tocItemText": "_3Lqp1a_tocItemText",
-		"gitDiffTabTitle": "_3Lqp1a_gitDiffTabTitle",
-		"gitCommit": "_3Lqp1a_gitCommit",
-		"explorerRow": "_3Lqp1a_explorerRow",
-		"explorerCopied": "_3Lqp1a_explorerCopied",
-		"browserBlockedActions": "_3Lqp1a_browserBlockedActions",
-		"terminalDepsTitle": "_3Lqp1a_terminalDepsTitle",
-		"gitDiffNum": "_3Lqp1a_gitDiffNum",
-		"producedLabel": "_3Lqp1a_producedLabel",
-		"tocItem": "_3Lqp1a_tocItem",
-		"gitLogMore": "_3Lqp1a_gitLogMore",
-		"editorDocxZoomRange": "_3Lqp1a_editorDocxZoomRange",
-		"gitLogRow": "_3Lqp1a_gitLogRow",
-		"sandboxDot": "_3Lqp1a_sandboxDot",
-		"terminalDepsHint": "_3Lqp1a_terminalDepsHint",
-		"tabClose": "_3Lqp1a_tabClose",
-		"boundaryError": "_3Lqp1a_boundaryError",
-		"terminalDepsBanner": "_3Lqp1a_terminalDepsBanner",
-		"gitDiffAdd": "_3Lqp1a_gitDiffAdd",
-		"gitDiffHunkSection": "_3Lqp1a_gitDiffHunkSection",
-		"editorTreePanel": "_3Lqp1a_editorTreePanel",
-		"uploadOverlayTitle": "_3Lqp1a_uploadOverlayTitle",
-		"orphanedType": "_3Lqp1a_orphanedType",
-		"gitLogLine1": "_3Lqp1a_gitLogLine1",
-		"splitRow": "_3Lqp1a_splitRow",
-		"editorBinaryNotice": "_3Lqp1a_editorBinaryNotice",
-		"editorPdfStage": "_3Lqp1a_editorPdfStage",
-		"editorSearchInput": "_3Lqp1a_editorSearchInput",
-		"producedChip": "_3Lqp1a_producedChip",
-		"dividerCol": "_3Lqp1a_dividerCol",
-		"gitDiffFileChevron": "_3Lqp1a_gitDiffFileChevron",
-		"sandboxStatusText": "_3Lqp1a_sandboxStatusText",
-		"editorTreeDock": "_3Lqp1a_editorTreeDock",
-		"browserInput": "_3Lqp1a_browserInput",
-		"gitCommitInput": "_3Lqp1a_gitCommitInput",
-		"mermaidInfo": "_3Lqp1a_mermaidInfo",
-		"gitConfirmDesc": "_3Lqp1a_gitConfirmDesc",
-		"producedRow": "_3Lqp1a_producedRow",
-		"gitError": "_3Lqp1a_gitError"
+		"dividerRow": "-0d5ia_dividerRow",
+		"dropCenter": "-0d5ia_dropCenter",
+		"terminalRetry": "-0d5ia_terminalRetry",
+		"uploadOverlayCancel": "-0d5ia_uploadOverlayCancel",
+		"gitDiffCtx": "-0d5ia_gitDiffCtx",
+		"editorCm": "-0d5ia_editorCm",
+		"explorerBroken": "-0d5ia_explorerBroken",
+		"gitDiffMeta": "-0d5ia_gitDiffMeta",
+		"uploadOverlayProgress": "-0d5ia_uploadOverlayProgress",
+		"editorMain": "-0d5ia_editorMain",
+		"sandboxStatusText": "-0d5ia_sandboxStatusText",
+		"dropOverlay": "-0d5ia_dropOverlay",
+		"gitSectionHeader": "-0d5ia_gitSectionHeader",
+		"editorModeActive": "-0d5ia_editorModeActive",
+		"uploadOverlay": "-0d5ia_uploadOverlay",
+		"gitRowMain": "-0d5ia_gitRowMain",
+		"dropRight": "-0d5ia_dropRight",
+		"editorDocxZoomRange": "-0d5ia_editorDocxZoomRange",
+		"editorPdfFrame": "-0d5ia_editorPdfFrame",
+		"editorHtml": "-0d5ia_editorHtml",
+		"floatDropHintLabel": "-0d5ia_floatDropHintLabel",
+		"mermaidModalButton": "-0d5ia_mermaidModalButton",
+		"dividerCol": "-0d5ia_dividerCol",
+		"editorSearchResult": "-0d5ia_editorSearchResult",
+		"browserStart": "-0d5ia_browserStart",
+		"floatWindow": "-0d5ia_floatWindow",
+		"editorCmHidden": "-0d5ia_editorCmHidden",
+		"mermaidModalStage": "-0d5ia_mermaidModalStage",
+		"floatClose": "-0d5ia_floatClose",
+		"pinnedTab": "-0d5ia_pinnedTab",
+		"gitLogLine2": "-0d5ia_gitLogLine2",
+		"tabBarPlus": "-0d5ia_tabBarPlus",
+		"explorerEmpty": "-0d5ia_explorerEmpty",
+		"mermaidCode": "-0d5ia_mermaidCode",
+		"mermaidBody": "-0d5ia_mermaidBody",
+		"uploadOverlayStatus": "-0d5ia_uploadOverlayStatus",
+		"orphanedType": "-0d5ia_orphanedType",
+		"splitCol": "-0d5ia_splitCol",
+		"gitBranchSelect": "-0d5ia_gitBranchSelect",
+		"tocPanel": "-0d5ia_tocPanel",
+		"gitDiffTabHeader": "-0d5ia_gitDiffTabHeader",
+		"tocItemText": "-0d5ia_tocItemText",
+		"floatContent": "-0d5ia_floatContent",
+		"uploadOverlayTitle": "-0d5ia_uploadOverlayTitle",
+		"editorMd": "-0d5ia_editorMd",
+		"editorPdfToolbar": "-0d5ia_editorPdfToolbar",
+		"gitDiffDel": "-0d5ia_gitDiffDel",
+		"terminalDepsHint": "-0d5ia_terminalDepsHint",
+		"explorerDir": "-0d5ia_explorerDir",
+		"uploadOverlayProgressFill": "-0d5ia_uploadOverlayProgressFill",
+		"sandboxStatus": "-0d5ia_sandboxStatus",
+		"editorStatusError": "-0d5ia_editorStatusError",
+		"pane": "-0d5ia_pane",
+		"gitBadge": "-0d5ia_gitBadge",
+		"editorPdf": "-0d5ia_editorPdf",
+		"dropDown": "-0d5ia_dropDown",
+		"mermaidWrap": "-0d5ia_mermaidWrap",
+		"editorPdfFrameBlocked": "-0d5ia_editorPdfFrameBlocked",
+		"openWithName": "-0d5ia_openWithName",
+		"editorPdfDragShieldActive": "-0d5ia_editorPdfDragShieldActive",
+		"producedMore": "-0d5ia_producedMore",
+		"gitDiffFile": "-0d5ia_gitDiffFile",
+		"dropUp": "-0d5ia_dropUp",
+		"editorTitle": "-0d5ia_editorTitle",
+		"gitDiffHunk": "-0d5ia_gitDiffHunk",
+		"editorTreePanel": "-0d5ia_editorTreePanel",
+		"editorError": "-0d5ia_editorError",
+		"explorer": "-0d5ia_explorer",
+		"explorerCopied": "-0d5ia_explorerCopied",
+		"editorImage": "-0d5ia_editorImage",
+		"editorPdfDragShield": "-0d5ia_editorPdfDragShield",
+		"tabClose": "-0d5ia_tabClose",
+		"browserBlockedDesc": "-0d5ia_browserBlockedDesc",
+		"gitRow": "-0d5ia_gitRow",
+		"gitRowSelected": "-0d5ia_gitRowSelected",
+		"editorTreeResize": "-0d5ia_editorTreeResize",
+		"browserMessage": "-0d5ia_browserMessage",
+		"paneCard": "-0d5ia_paneCard",
+		"gitCommitInput": "-0d5ia_gitCommitInput",
+		"tocBar": "-0d5ia_tocBar",
+		"editorTreePanelFull": "-0d5ia_editorTreePanelFull",
+		"editorBinary": "-0d5ia_editorBinary",
+		"explorerBody": "-0d5ia_explorerBody",
+		"mermaidHeader": "-0d5ia_mermaidHeader",
+		"dirtyDot": "-0d5ia_dirtyDot",
+		"terminalBannerUrl": "-0d5ia_terminalBannerUrl",
+		"tabBadge": "-0d5ia_tabBadge",
+		"uploadOverlayCard": "-0d5ia_uploadOverlayCard",
+		"editorBody": "-0d5ia_editorBody",
+		"sandboxStatusOn": "-0d5ia_sandboxStatusOn",
+		"gitHeader": "-0d5ia_gitHeader",
+		"tabTitle": "-0d5ia_tabTitle",
+		"floatHeader": "-0d5ia_floatHeader",
+		"toggleButton": "-0d5ia_toggleButton",
+		"sandboxStatusOff": "-0d5ia_sandboxStatusOff",
+		"sandboxDot": "-0d5ia_sandboxDot",
+		"editor": "-0d5ia_editor",
+		"gitDiffLine": "-0d5ia_gitDiffLine",
+		"editorPdfStage": "-0d5ia_editorPdfStage",
+		"paneEmptyCards": "-0d5ia_paneEmptyCards",
+		"panelResizeActive": "-0d5ia_panelResizeActive",
+		"dsh-row-in": "-0d5ia_dsh-row-in",
+		"floatTitle": "-0d5ia_floatTitle",
+		"panel": "-0d5ia_panel",
+		"gitWorktreeLabel": "-0d5ia_gitWorktreeLabel",
+		"bottomResizeActive": "-0d5ia_bottomResizeActive",
+		"divider": "-0d5ia_divider",
+		"editorSearchInput": "-0d5ia_editorSearchInput",
+		"gitLogLine1": "-0d5ia_gitLogLine1",
+		"gitName": "-0d5ia_gitName",
+		"explorerRowDropTarget": "-0d5ia_explorerRowDropTarget",
+		"gitLogMeta": "-0d5ia_gitLogMeta",
+		"terminalDepsNote": "-0d5ia_terminalDepsNote",
+		"dsh-toc-flash": "-0d5ia_dsh-toc-flash",
+		"boundaryError": "-0d5ia_boundaryError",
+		"editorDownloadLink": "-0d5ia_editorDownloadLink",
+		"editorBinaryNotice": "-0d5ia_editorBinaryNotice",
+		"explorerSymlink": "-0d5ia_explorerSymlink",
+		"selectionPopup": "-0d5ia_selectionPopup",
+		"paneTab": "-0d5ia_paneTab",
+		"uploadDropZoneText": "-0d5ia_uploadDropZoneText",
+		"browserBlockedTitle": "-0d5ia_browserBlockedTitle",
+		"iconButton": "-0d5ia_iconButton",
+		"explorerHeader": "-0d5ia_explorerHeader",
+		"mermaidCopy": "-0d5ia_mermaidCopy",
+		"tabBoundaryError": "-0d5ia_tabBoundaryError",
+		"editorModeButton": "-0d5ia_editorModeButton",
+		"explorerName": "-0d5ia_explorerName",
+		"terminal": "-0d5ia_terminal",
+		"explorerRef": "-0d5ia_explorerRef",
+		"producedRow": "-0d5ia_producedRow",
+		"producedChip": "-0d5ia_producedChip",
+		"producedLabel": "-0d5ia_producedLabel",
+		"uploadDropChatHint": "-0d5ia_uploadDropChatHint",
+		"terminalWrap": "-0d5ia_terminalWrap",
+		"gitDiffFileChevron": "-0d5ia_gitDiffFileChevron",
+		"openWithPin": "-0d5ia_openWithPin",
+		"gitLogRow": "-0d5ia_gitLogRow",
+		"gitDiffMetaText": "-0d5ia_gitDiffMetaText",
+		"git": "-0d5ia_git",
+		"gitDiffFileChevronExpanded": "-0d5ia_gitDiffFileChevronExpanded",
+		"floatDropHint": "-0d5ia_floatDropHint",
+		"splitRow": "-0d5ia_splitRow",
+		"tabActive": "-0d5ia_tabActive",
+		"browserInput": "-0d5ia_browserInput",
+		"terminalDepsTitle": "-0d5ia_terminalDepsTitle",
+		"terminalDepsCommandRow": "-0d5ia_terminalDepsCommandRow",
+		"terminalRepairCommand": "-0d5ia_terminalRepairCommand",
+		"explorerRowRevealed": "-0d5ia_explorerRowRevealed",
+		"bottomClose": "-0d5ia_bottomClose",
+		"paneTabHidden": "-0d5ia_paneTabHidden",
+		"gitLogRef": "-0d5ia_gitLogRef",
+		"bottomPanel": "-0d5ia_bottomPanel",
+		"gitDiff": "-0d5ia_gitDiff",
+		"gitDiffAdd": "-0d5ia_gitDiffAdd",
+		"floatResize": "-0d5ia_floatResize",
+		"tab": "-0d5ia_tab",
+		"editorTreeSearch": "-0d5ia_editorTreeSearch",
+		"split": "-0d5ia_split",
+		"explorerRoot": "-0d5ia_explorerRoot",
+		"explorerError": "-0d5ia_explorerError",
+		"gitDiffFileTag": "-0d5ia_gitDiffFileTag",
+		"openWithChevron": "-0d5ia_openWithChevron",
+		"editorPptxButton": "-0d5ia_editorPptxButton",
+		"floatWindowDragging": "-0d5ia_floatWindowDragging",
+		"editorStatus": "-0d5ia_editorStatus",
+		"editorPlaceholder": "-0d5ia_editorPlaceholder",
+		"panelBody": "-0d5ia_panelBody",
+		"gitDiffFileOld": "-0d5ia_gitDiffFileOld",
+		"paneDrop": "-0d5ia_paneDrop",
+		"bottomResize": "-0d5ia_bottomResize",
+		"mermaidMarkdown": "-0d5ia_mermaidMarkdown",
+		"gitConfirmDesc": "-0d5ia_gitConfirmDesc",
+		"workbench": "-0d5ia_workbench",
+		"tocItem": "-0d5ia_tocItem",
+		"gitEmpty": "-0d5ia_gitEmpty",
+		"tocItemLevel": "-0d5ia_tocItemLevel",
+		"terminalBanner": "-0d5ia_terminalBanner",
+		"panelHidden": "-0d5ia_panelHidden",
+		"gitWorktreeRow": "-0d5ia_gitWorktreeRow",
+		"mermaidInfo": "-0d5ia_mermaidInfo",
+		"gitCommitButton": "-0d5ia_gitCommitButton",
+		"gitDiffNum": "-0d5ia_gitDiffNum",
+		"openWithLabel": "-0d5ia_openWithLabel",
+		"gitLink": "-0d5ia_gitLink",
+		"dividerActive": "-0d5ia_dividerActive",
+		"browserFrame": "-0d5ia_browserFrame",
+		"tocButton": "-0d5ia_tocButton",
+		"gitPlaceholder": "-0d5ia_gitPlaceholder",
+		"gitDiffTab": "-0d5ia_gitDiffTab",
+		"browserBlockedButton": "-0d5ia_browserBlockedButton",
+		"gitDiffHunkHeader": "-0d5ia_gitDiffHunkHeader",
+		"gitDiffTabTitle": "-0d5ia_gitDiffTabTitle",
+		"gitDiffFilePath": "-0d5ia_gitDiffFilePath",
+		"splitChild": "-0d5ia_splitChild",
+		"cornerHandle": "-0d5ia_cornerHandle",
+		"sandboxAction": "-0d5ia_sandboxAction",
+		"openWithPinActive": "-0d5ia_openWithPinActive",
+		"explorerHidden": "-0d5ia_explorerHidden",
+		"browserBlockedActions": "-0d5ia_browserBlockedActions",
+		"mermaidError": "-0d5ia_mermaidError",
+		"editorTreeToggleActive": "-0d5ia_editorTreeToggleActive",
+		"editorHeader": "-0d5ia_editorHeader",
+		"tabBar": "-0d5ia_tabBar",
+		"mermaidModalHint": "-0d5ia_mermaidModalHint",
+		"gitError": "-0d5ia_gitError",
+		"editorTreeDock": "-0d5ia_editorTreeDock",
+		"uploadDropZone": "-0d5ia_uploadDropZone",
+		"paneContent": "-0d5ia_paneContent",
+		"browser": "-0d5ia_browser",
+		"mermaidModalToolbar": "-0d5ia_mermaidModalToolbar",
+		"toggleCluster": "-0d5ia_toggleCluster",
+		"uploadDropZonePill": "-0d5ia_uploadDropZonePill",
+		"editorPathInput": "-0d5ia_editorPathInput",
+		"terminalDepsBanner": "-0d5ia_terminalDepsBanner",
+		"explorerRow": "-0d5ia_explorerRow",
+		"gitDiffExpand": "-0d5ia_gitDiffExpand",
+		"editorHtmlBlock": "-0d5ia_editorHtmlBlock",
+		"gitLogHash": "-0d5ia_gitLogHash",
+		"gitCommit": "-0d5ia_gitCommit",
+		"gitSection": "-0d5ia_gitSection",
+		"terminalDepsActions": "-0d5ia_terminalDepsActions",
+		"bottomPanelHidden": "-0d5ia_bottomPanelHidden",
+		"browserBar": "-0d5ia_browserBar",
+		"tabBarDrop": "-0d5ia_tabBarDrop",
+		"uploadDropChatCard": "-0d5ia_uploadDropChatCard",
+		"editorSearchHint": "-0d5ia_editorSearchHint",
+		"editorBanner": "-0d5ia_editorBanner",
+		"tocFlash": "-0d5ia_tocFlash",
+		"browserBlocked": "-0d5ia_browserBlocked",
+		"panelResize": "-0d5ia_panelResize",
+		"dropLeft": "-0d5ia_dropLeft",
+		"tabList": "-0d5ia_tabList",
+		"mermaidModal": "-0d5ia_mermaidModal",
+		"editorModeToggle": "-0d5ia_editorModeToggle",
+		"gitLogMore": "-0d5ia_gitLogMore",
+		"editorImageWrap": "-0d5ia_editorImageWrap",
+		"gitDiffHunkSection": "-0d5ia_gitDiffHunkSection",
+		"gitLogSubject": "-0d5ia_gitLogSubject",
+		"gitDiffCode": "-0d5ia_gitDiffCode",
+		"uploadDropHero": "-0d5ia_uploadDropHero"
 	};
 	//#endregion
 	//#region src/client/mermaid.tsx
