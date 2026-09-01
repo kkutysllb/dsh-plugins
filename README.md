@@ -21,6 +21,7 @@ dsh-language-bundle / dsh-skills-bundle / dsh-stats-panel / dsh-terminal）
 | [dsh-language-bundle](./dsh-language-bundle) | 「强制中文回答」system-prompt section 开关包（默认 disabled，home patch 层热切换） |
 | [dsh-skills-bundle](./dsh-skills-bundle) | 方法论技能包（适配自 KSkills，dsh 兼容清洗后物化） |
 | [dsh-super-ppts](./dsh-super-ppts) | 演示文稿超级插件（开发真源 kkutysllb/dsh-super-ppts 的分发镜像，由其 scripts/sync-to-dsh-plugins.mjs 同步，--check 对账）：可编辑 PPTX（pptx-designer 引擎+渲染验收闭环）与 HTML 在线演示（8 形态）双交付线 + 「演示文稿专家」Agent 预设 |
+| [dsh-animations](./dsh-animations) | 动效技能包（开发真源 kkutysllb/dsh-animations 的分发镜像，由其 scripts/sync-to-dsh-plugins.mjs 同步，--check 对账）：8 个 HTML 动画技能（PPT 翻页 / 流程图 / 协议可视化 / 架构图 / 学霸笔记 / 卡片剧场 / 视频分镜 / 手机 UI）注册为 runtime skill + 「动画演示专家」Agent 预设，案例画廊随 docs/ 分发 |
 
 ## 安装
 
