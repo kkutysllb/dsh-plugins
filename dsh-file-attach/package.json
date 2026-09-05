@@ -1,7 +1,7 @@
 {
-  "name": "@kkutysllb/dsh-terminal",
+  "name": "@kkutysllb/dsh-file-attach",
   "version": "1.0.1",
-  "description": "dsh-external in-box dsh bundle: embedded terminal panel (node-pty backed multi-tab shells, per-workspace buckets, xterm.js UI) as a bottom dock inside the dsh web page, replacing the retired Electron host terminal-panel.",
+  "description": "dsh file attachment plugin: attach files and folders to conversation via a locate-then-reference chain (browser file picker + server-side locate RPC), injecting [attachment] path lines into the prompt. Images stay fully native — paste/drop of images is never touched.",
   "license": "MIT",
   "type": "module",
   "main": "entry.js",
@@ -14,7 +14,6 @@
   "files": [
     "entry.js",
     "client.js",
-    "vendor",
     "cordis.patch.yml",
     "README.md"
   ],
@@ -31,6 +30,7 @@
     }
   },
   "scripts": {
+    "test": "node tests/run-tests.mjs",
     "smoke": "node scripts/smoke-plugin.mjs",
     "sync:mirror": "node scripts/sync-to-dsh-plugins.mjs",
     "sync:check": "node scripts/sync-to-dsh-plugins.mjs --check",
@@ -38,7 +38,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kkutysllb/dsh-terminal.git"
+    "url": "git+https://github.com/kkutysllb/dsh-file-attach.git"
   },
   "publishConfig": {
     "access": "public"

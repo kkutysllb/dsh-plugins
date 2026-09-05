@@ -3,7 +3,7 @@
 个人维护的 dsh（deepseek-harness）插件集合。monorepo 布局：一个子目录 =
 一个独立可安装的 dsh bundle 包。
 
-自研包（dsh-coding-sidebar / dsh-file-review-kcoder / dsh-git-panel /
+自研包（dsh-coding-sidebar / dsh-file-attach / dsh-file-review-kcoder / dsh-git-panel /
 dsh-language-bundle / dsh-skills-bundle / dsh-stats-panel / dsh-terminal）
 均为**独立仓的分发镜像**：开发真源在 kkutysllb 下同名独立仓，由各仓的
 `scripts/sync-to-dsh-plugins.mjs` 单向同步落盘（`--check` 对账断言）。
@@ -14,6 +14,7 @@ dsh-language-bundle / dsh-skills-bundle / dsh-stats-panel / dsh-terminal）
 | 插件 | 说明 |
 |---|---|
 | [dsh-coding-sidebar](./dsh-coding-sidebar) | 侧边栏工作台自立包（fork 自 DSH-better-sidebar 0.17.2，底面板移除）：文件树 / CM6 编辑器 / 图片·MD 预览 / 子代理，服务化扩展点；包型产物（lib/），KCoder 预置牵引依赖树 |
+| [dsh-file-attach](./dsh-file-attach)（npm: @kkutysllb/dsh-file-attach） | 文件/文件夹附件：浏览器选文件 + server 定位链（会话 cwd 下搜索还原真实路径）+ 发送注入 [附件]name|path 路径行（agent 按路径读取），气泡渲染附件卡片；图片链路零参与（粘贴/拖拽/发送全走原生） |
 | [dsh-file-review-kcoder](./dsh-file-review-kcoder) | 改动审查（血缘 left0ver/dsh-file-review，MIT 署名保留，完全自立维护）：行级红绿 diff + undo 审查 agent 产物，chat turn-tail 行 + coding-sidebar 标签页；tsdown 构建型，lib 产物随仓提交 |
 | [dsh-git-panel](./dsh-git-panel)（npm: @kkutysllb/dsh-git-panel） | 独立 git 工作区浮动面板：变更统计 + Codex 风格环境信息区（变更文件列表 / 工作位置·worktree 切换 / 分支选择器 / 提交或推送 / 比较分支外链）+ 任务计划列表 |
 | [dsh-stats-panel](./dsh-stats-panel) | 会话统计图表面板：hover 输入框下方 StatsLine 缩略条 → 底部弹出自绘图表（轮/步、首 token 平均、解码速度、LLM/工具调用耗时、Token 用量、缓存命中率环），zh/en 双时长格式解析 |
