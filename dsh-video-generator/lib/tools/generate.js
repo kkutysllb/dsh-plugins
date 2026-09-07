@@ -1,0 +1,181 @@
+/** vgen_generate / vgen_status：推进非 LLM 段 + run 概览。
+ *  确认语义（规格 §4.4）：估价未知/超阈值且未带 confirm → confirm-required 信封（会话模型向用户转述成本后带 confirm 重调）。
+ */
+import { fetchPricing, estimateCny } from "../pricing.js";
+import { SpendLedger } from "../spend.js";
+import { providerForModel } from "../registry.js";
+import { advanceRun, ManualGateError, AskGateRejectedError } from "../pipeline/machine.js";
+import { isStage } from "../stages.js";
+import { locateFfmpeg } from "../finalcut/render-ffmpeg.js";
+import { HandoffError } from "../schema/handoff.js";
+function mapTarget(target) {
+    if (target === 'assets')
+        return 'shot-assets';
+    if (target === 'video')
+        return 'video';
+    return 'final-cut';
+}
+export function buildGenerateTools(ctx) {
+    const env = ctx.env ?? process.env;
+    const ledger = SpendLedger.open(env);
+    return {
+        generate: {
+            execute: async (args) => {
+                let denied = 0;
+                try {
+                    const runId = String(args['runId'] ?? '');
+                    if (!ctx.runs.get(runId))
+                        return { ok: false, error: { code: 'not-found', message: `run 不存在: ${runId}` } };
+                    let argGates;
+                    if (args['gates'] !== undefined) {
+                        const g = args['gates'];
+                        if (typeof g !== 'object' || g === null || Array.isArray(g))
+                            return { ok: false, error: { code: 'bad-request', message: 'gates 须为对象 {段名: auto|ask|manual}' } };
+                        argGates = {};
+                        for (const [k, v] of Object.entries(g)) {
+                            if (!isStage(k))
+                                return { ok: false, error: { code: 'bad-request', message: `gates 键须为合法段名: ${k}` } };
+                            if (v !== 'auto' && v !== 'ask' && v !== 'manual')
+                                return { ok: false, error: { code: 'bad-request', message: `gates[${k}] 须为 auto|ask|manual: ${String(v)}` } };
+                            argGates[k] = v;
+                        }
+                        ctx.runs.setGates(runId, argGates);
+                    }
+                    const MEDIA_STAGES = ['master-asset', 'shot-assets', 'video', 'final-cut'];
+                    if (args['rerunStage'] !== undefined) {
+                        const rs = String(args['rerunStage']);
+                        if (!MEDIA_STAGES.includes(rs))
+                            return { ok: false, error: { code: 'bad-request', message: `rerunStage 须为媒体段（${MEDIA_STAGES.join('|')}）: ${rs}` } };
+                        ctx.runs.setStage(runId, rs, 'pending');
+                    }
+                    const recGates = ctx.runs.get(runId)?.gates ?? {};
+                    const effectiveGates = { ...ctx.vault.getGateDefaults(), ...recGates };
+                    const approvals = Array.isArray(args['gateApprovals']) ? args['gateApprovals'].filter((s) => typeof s === 'string') : [];
+                    const channel = ctx.channel();
+                    let pricingMaybe = ctx.pricing;
+                    if (pricingMaybe === undefined)
+                        pricingMaybe = await fetchPricing(channel, undefined, 15000).catch(() => null);
+                    const pricing = pricingMaybe;
+                    const r = await advanceRun({
+                        runs: ctx.runs,
+                        runId,
+                        target: mapTarget(String(args['target'] ?? 'final')),
+                        channel,
+                        gates: effectiveGates,
+                        ask: async (stage) => approvals.includes(stage),
+                        providers: {
+                            forModel: (model, opts) => ctx.providersOverride
+                                ? ctx.providersOverride.forModel(model, opts)
+                                : providerForModel(channel, model, {
+                                    fetchImpl: opts?.fetchImpl,
+                                    estimate: pricing ? (m) => estimateCny(m, pricing) : undefined,
+                                }),
+                        },
+                        pricing: pricing,
+                        confirmer: async (est) => {
+                            if (ctx.confirmer)
+                                return ctx.confirmer(est);
+                            if (args['confirm'] === true)
+                                return true;
+                            denied++;
+                            return false;
+                        },
+                        ffmpeg: locateFfmpeg(env),
+                        // 视频模型覆盖：上游分组饱和时换档（如 happyhorse→wan2.6-i2v），缺省走 machine 内置
+                        videoModel: env['VGEN_VIDEO_MODEL'] || undefined,
+                        tts: ctx.tts ?? (env['VGEN_TTS_MODEL'] ? { baseUrl: channel.baseUrl, apiKey: channel.apiKey, model: env['VGEN_TTS_MODEL'], voice: env['VGEN_TTS_VOICE'] || undefined, instructions: env['VGEN_TTS_INSTRUCTIONS'] || undefined } : undefined),
+                        concurrency: typeof args['concurrency'] === 'number' ? args['concurrency'] : undefined,
+                        fetchImpl: ctx.fetchImpl,
+                    });
+                    ledger.totals(); // 触碰记账文件，保证 open 语义生效（空读容错）
+                    return {
+                        ok: true,
+                        value: {
+                            runId: r.runId,
+                            stages: r.stages,
+                            shots: r.shotImages?.length ?? 0,
+                            clips: r.clipFiles?.length ?? 0,
+                            finalOutput: r.finalOutput ?? null,
+                        },
+                    };
+                }
+                catch (err) {
+                    if (denied > 0) {
+                        return {
+                            ok: false,
+                            error: {
+                                code: 'confirm-required',
+                                message: `有 ${denied} 笔消费需要确认（估价见 run 记账事件）。向用户转述成本后，携带 confirm:true 重新调用 vgen_generate 继续。`,
+                            },
+                        };
+                    }
+                    if (err instanceof ManualGateError) {
+                        return { ok: false, error: { code: 'manual-gate', message: `${err.message}。用法：vgen_provide { runId, stage, files: [{ path, shot?, name? }] }` } };
+                    }
+                    if (err instanceof AskGateRejectedError) {
+                        return { ok: false, error: { code: 'gate-approval', message: `${err.message}。请与用户确认该段执行，然后携带 gateApprovals（如 ["master-asset"]）重新调用；或改 gates 为 auto/manual。` } };
+                    }
+                    if (err instanceof HandoffError)
+                        return { ok: false, error: { code: err.code, message: err.message } };
+                    return { ok: false, error: { code: 'internal', message: err instanceof Error ? err.message : String(err) } };
+                }
+            },
+        },
+        status: {
+            execute: async (args) => {
+                const record = ctx.runs.get(String(args?.['runId'] ?? ''));
+                if (!record)
+                    return { ok: false, error: { code: 'not-found', message: `run 不存在: ${args?.['runId']}` } };
+                return {
+                    ok: true,
+                    value: {
+                        id: record.id, title: record.title, status: record.status, stages: record.stages,
+                        gates: record.gates ?? {}, reviews: record.reviews ?? {},
+                        recentEvents: record.events.slice(-5),
+                    },
+                };
+            },
+        },
+    };
+}
+/** vgen_generate / vgen_status 的 DshToolDefinition（对齐 handoffToolDefs 形态）。 */
+export function generateToolDefs(tools) {
+    const jsonRender = (_args, value) => [
+        { type: 'text', text: JSON.stringify(value) },
+    ];
+    return [
+        {
+            name: 'vgen_generate',
+            description: '推进 run 的非 LLM 段：target=assets 生成角色三视图/场景主图/逐镜参考图；target=video 逐镜图生视频；target=final 配音并渲染成片 mp4+SRT。' +
+                '首次调用不带 confirm；若返回 confirm-required，先向用户转述成本，再携带 confirm:true 重新调用。',
+            parameters: {
+                type: 'object',
+                properties: {
+                    runId: { type: 'string', description: 'run id（vgen_story 返回）' },
+                    target: { type: 'string', enum: ['assets', 'video', 'final'], description: '推进目标段（含其前序段）' },
+                    confirm: { type: 'boolean', description: '成本确认；仅在向用户转述成本后置 true' },
+                    concurrency: { type: 'number', description: '并发数，默认 2' },
+                    gates: { type: 'object', description: '可选：每段 gate 模式 {段名: "auto"|"ask"|"manual"}，持久化进 run.json' },
+                    gateApprovals: { type: 'array', description: '可选：ask 段本次放行清单（用户已批准后携带）' },
+                    rerunStage: { type: 'string', enum: ['master-asset', 'shot-assets', 'video', 'final-cut'], description: '可选：重置该媒体段为 pending 后重跑' },
+                },
+                required: ['runId', 'target'],
+            },
+            output: { schema: { type: 'object' }, render: jsonRender },
+            timeoutMs: 600000,
+            execute: (args) => tools.generate.execute(args),
+        },
+        {
+            name: 'vgen_status',
+            description: '查询 run 进度：各段状态、最近事件。随时可用。',
+            parameters: {
+                type: 'object',
+                properties: { runId: { type: 'string', description: 'run id' } },
+                required: ['runId'],
+            },
+            output: { schema: { type: 'object' }, render: jsonRender },
+            timeoutMs: 10000,
+            execute: (args) => tools.status.execute(args),
+        },
+    ];
+}

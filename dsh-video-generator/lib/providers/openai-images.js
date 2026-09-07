@@ -1,0 +1,40 @@
+/** OpenAI 兼容图像适配器（契约：规格附录 B.3）。同步 API → jobId = 图片 URL 短路。 */
+import { postJson, RelayError } from "./relay-http.js";
+import { assertProvider } from "../provider.js";
+export function createOpenaiImagesProvider(ch, fetchImpl = fetch) {
+    const base = ch.baseUrl.trim().replace(/\/+$/, '');
+    const provider = {
+        id: `openai-images:${ch.model}`,
+        capabilities: { image: true, qualityTier: 5 },
+        async quote(_stage) {
+            const est = ch.estimate?.(ch.model) ?? null;
+            return { qualityTier: 5, costEstimate: est ?? 0, currency: 'CNY' };
+        },
+        async submit(_stage, spec) {
+            // prompt 缺省时不本地预校验：交给服务端 400 校验，错误消息按 RelayError 透传。
+            const prompt = String(spec['prompt'] ?? '');
+            const body = { model: ch.model, n: 1 };
+            if (prompt)
+                body['prompt'] = prompt;
+            if (typeof spec['size'] === 'string')
+                body['size'] = spec['size'];
+            // 拓扑契约（附录 B.3）：通道 baseUrl = 站点根；OpenAI 兼容端点固定挂 /v1。其他站点拓扑不同时走 channel 覆盖（backlog）。
+            const json = await postJson(`${base}/v1/images/generations`, ch.apiKey, body, fetchImpl);
+            const url = json.data?.[0]?.url;
+            if (!url)
+                throw new RelayError(500, '图像响应缺少 data[0].url');
+            return { jobId: url };
+        },
+        async status(jobId) {
+            // 同步 API：jobId 即成品 URL，无异步态。
+            return /^https?:\/\//.test(jobId) ? { state: 'done', progress: 100 } : { state: 'unknown', progress: null, error: 'not-a-url' };
+        },
+        async fetch(jobId) {
+            return { outputs: [jobId] };
+        },
+        async health() {
+            return { ok: true, quotaRemaining: null };
+        },
+    };
+    return assertProvider(provider);
+}

@@ -1,0 +1,380 @@
+/** 七段流水线状态机：run.json 事实源推进 + 断点续跑 + gate(auto/ask/manual) + 并发泵 + 记账（规格 §5）。
+ *  已知限制：断点续跑从事件流恢复的 shot 参考图为签名 URL（7 天有效）；过期导致 video 段失败时，
+ *  将 run.json 中 shot-assets 段状态改回 pending 重推即可重新生成。
+ */
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { execFile } from 'node:child_process';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { estimateCny } from "../pricing.js";
+import { buildCharacterSheetPrompt, buildScenePrompt, buildShotPrompt } from "../prompts.js";
+import { STAGES } from "../stages.js";
+import { retryTransient } from "../poll.js";
+import { RelayError } from "../providers/relay-http.js";
+import { generateShotClip, saveUrl, SHOT_MOTION_PROMPT } from "./shot-clip.js";
+import { buildTimeline, writeSrt, Timeline } from "../finalcut/timeline.js";
+import { renderTimeline, probeDurationSec } from "../finalcut/render-ffmpeg.js";
+import { resolveVoice, buildMacSayCommand, buildSapiScript, synthesizeCloudSpeech } from "../finalcut/voice.js";
+const IMAGE_MODEL_DEFAULT = 'doubao-seedream-4-0-250828';
+export const VIDEO_MODEL_DEFAULT = 'happyhorse-1.1-i2v';
+/** 9:16 画布用竖版参考图（2:3 为中转普遍支持的最接近竖档，渲染端 crop 归一化消黑边）。 */
+const IMAGE_SIZE_PORTRAIT = '1024x1536';
+/** 角色三视图卡：横向并排三视图，横版构图。 */
+const IMAGE_SIZE_LANDSCAPE = '1536x1024';
+/** size 透传 + 服务端 400 单次降级（部分上游不认 size 参数；429/5xx 走外层 retryTransient）。 */
+async function submitImageWithSize(p, stage, prompt, size, onFallback) {
+    if (!size)
+        return (await p.submit(stage, { prompt })).jobId;
+    try {
+        return (await p.submit(stage, { prompt, size })).jobId;
+    }
+    catch (err) {
+        if (err instanceof RelayError && err.status === 400) {
+            onFallback();
+            return (await p.submit(stage, { prompt })).jobId;
+        }
+        throw err;
+    }
+}
+/** manual gate 拦截（工具层转 manual-gate 信封，指引 vgen_provide）。 */
+export class ManualGateError extends Error {
+}
+/** ask gate 被拒（工具层转 gate-approval 信封，指引 gateApprovals 重调）。 */
+export class AskGateRejectedError extends Error {
+}
+function runExec(cmd, args) {
+    return new Promise((resolve, reject) => {
+        execFile(cmd, args, { timeout: 120000, maxBuffer: 8 * 1024 * 1024 }, (err) => (err ? reject(err) : resolve()));
+    });
+}
+function readJson(runs, runId, name) {
+    return JSON.parse(readFileSync(join(runs.rootDir, runId, `${name}.json`), 'utf8'));
+}
+/** 最新一条同类型事件（事件流取尾，兼容旧 lib 无 findLast）。 */
+function lastEvent(events, type) {
+    const hits = events.filter((e) => e.type === type);
+    return hits.length ? hits[hits.length - 1] : undefined;
+}
+/** 简单并发泵：按 index 顺序发起，至多 limit 个在飞；任一失败即熔断（在飞任务自然完成，不再取新任务）。 */
+async function pump(items, limit, worker) {
+    let next = 0;
+    let stopped = false;
+    const runners = Array.from({ length: Math.min(Math.max(1, limit), items.length) }, async () => {
+        for (;;) {
+            if (stopped)
+                return;
+            const i = next++;
+            if (i >= items.length)
+                return;
+            try {
+                await worker(items[i], i);
+            }
+            catch (err) {
+                stopped = true;
+                throw err;
+            }
+        }
+    });
+    await Promise.all(runners);
+}
+/** mac say 文本防护：以 - 开头的文本会被 say 当参数解析，改走临时文本文件 -f 注入（voice.ts 契约）。 */
+function sayArgs(text, aiff) {
+    const cmd = buildMacSayCommand(text, aiff);
+    if (!text.startsWith('-'))
+        return cmd.args;
+    return ['-v', 'Tingting', '-o', aiff, '-f', writeSayTextFile(text)];
+}
+function writeSayTextFile(text) {
+    const file = join(tmpdir(), `vgen-say-${Date.now()}-${Math.random().toString(36).slice(2)}.txt`);
+    writeFileSync(file, text, { mode: 0o600 });
+    return file;
+}
+/** TimelineData -> Timeline 实例（按线性顺序 addClip 保序保位；渲染通道需要 Timeline 实例）。 */
+function toTimeline(d) {
+    const t = new Timeline(d.canvas);
+    for (const c of d.clips)
+        t.addClip(c.src, c.durationUs, c.volume);
+    for (const s of d.subtitles)
+        t.addSubtitle(s.text, s.startUs, s.endUs);
+    for (const a of d.audio)
+        t.addAudio(a.src, a.startUs, a.durationUs, a.volume);
+    return t;
+}
+export async function advanceRun(deps) {
+    const { runs, runId } = deps;
+    const fetchImpl = deps.fetchImpl ?? fetch;
+    const record = runs.get(runId);
+    if (!record)
+        throw new Error(`run 不存在: ${runId}`);
+    const targetIdx = STAGES.indexOf(deps.target);
+    const result = { runId, stages: { ...record.stages } };
+    const gates = deps.gates ?? {};
+    const ensureGate = async (stage, info) => {
+        const mode = gates[stage] ?? 'auto';
+        if (mode === 'manual')
+            throw new ManualGateError(`段 ${stage} 为 manual 模式：请先在会话中提供该段产物（文件/JSON）后再推进`);
+        if (mode === 'ask') {
+            if (!deps.ask)
+                throw new Error(`段 ${stage} 需要审批，但未提供 ask 通道`);
+            const ok = await deps.ask(stage, info);
+            if (ok !== true)
+                throw new AskGateRejectedError(`段 ${stage} 在 ask 审批中被拒绝`);
+        }
+    };
+    const begin = (st) => {
+        runs.setStage(runId, st, 'running');
+        runs.appendEvent(runId, 'stage-start', { stage: st });
+    };
+    const done = (st) => {
+        runs.setStage(runId, st, 'done');
+        runs.appendEvent(runId, 'stage-done', { stage: st });
+    };
+    // ---- 段执行器（story/script/storyboard 由交接工具负责；machine 从 master-asset 起）----
+    if (targetIdx >= STAGES.indexOf('master-asset')) {
+        const st = 'master-asset';
+        if (runs.get(runId).stages[st] !== 'done') {
+            await ensureGate(st, '生成角色三视图与场景主图');
+            const script = readJson(runs, runId, 'script');
+            const assetDir = join(runs.rootDir, runId, 'assets');
+            mkdirSync(assetDir, { recursive: true });
+            const imageModel = deps.imageModel ?? IMAGE_MODEL_DEFAULT;
+            const p = deps.providers.forModel(imageModel, { fetchImpl });
+            const jobs = [
+                ...script.characters.map((c) => ({
+                    file: join(assetDir, `char-${c.id}.png`),
+                    prompt: buildCharacterSheetPrompt({ name: c.name, appearance: c.appearance, style: script.style }).positive,
+                    size: IMAGE_SIZE_LANDSCAPE,
+                })),
+                ...script.scenes.map((sc) => ({
+                    file: join(assetDir, `scene-${sc.id}.png`),
+                    prompt: buildScenePrompt({ name: sc.name, description: sc.description, style: script.style }).positive,
+                    size: IMAGE_SIZE_PORTRAIT,
+                })),
+            ];
+            const urls = [];
+            try {
+                begin(st);
+                await pump(jobs, deps.concurrency ?? 2, async (job) => {
+                    const est = deps.pricing ? estimateCny(imageModel, deps.pricing) : null;
+                    if (!(await deps.confirmer(est, 'image')))
+                        throw new Error(`用户取消（${st} 段，预测 ${est ?? 'unknown'}）`);
+                    const url = await retryTransient(() => submitImageWithSize(p, st, job.prompt, job.size, () => runs.appendEvent(runId, 'size-fallback', { stage: st, size: job.size })));
+                    runs.appendEvent(runId, 'spend', { stage: st, model: imageModel, estCny: est, jobId: String(url).slice(0, 80) });
+                    await saveUrl(fetchImpl, url, job.file);
+                    urls.push({ key: job.file, url });
+                });
+                done(st);
+            }
+            catch (err) {
+                runs.setStage(runId, st, 'failed');
+                throw err;
+            }
+        }
+    }
+    if (targetIdx >= STAGES.indexOf('shot-assets')) {
+        const st = 'shot-assets';
+        const current = runs.get(runId).stages;
+        if (current[st] !== 'done') {
+            await ensureGate(st, '逐镜参考图变体');
+            const script = readJson(runs, runId, 'script');
+            const sb = readJson(runs, runId, 'storyboard');
+            const shotsDir = join(runs.rootDir, runId, 'shots');
+            mkdirSync(shotsDir, { recursive: true });
+            const imageModel = deps.imageModel ?? IMAGE_MODEL_DEFAULT;
+            const p = deps.providers.forModel(imageModel, { fetchImpl });
+            const shotImages = [];
+            try {
+                begin(st);
+                await pump(sb.shots, deps.concurrency ?? 2, async (shot) => {
+                    const anchors = shot.characterIds.map((cid) => {
+                        const c = script.characters.find((x) => x.id === cid);
+                        return c ? `${c.name}（${c.appearance}）` : cid;
+                    });
+                    const merged = buildShotPrompt({
+                        line: shot.prompt,
+                        characterAnchors: anchors,
+                        camera: shot.camera,
+                        style: script.style,
+                        referenceHint: shot.characterIds.length ? '画面主体与服饰严格参考参考图中的角色形象' : undefined,
+                    });
+                    const est = deps.pricing ? estimateCny(imageModel, deps.pricing) : null;
+                    if (!(await deps.confirmer(est, 'image')))
+                        throw new Error(`用户取消（shot ${shot.index}）`);
+                    const url = await retryTransient(() => submitImageWithSize(p, st, merged.positive, IMAGE_SIZE_PORTRAIT, () => runs.appendEvent(runId, 'size-fallback', { stage: st, size: IMAGE_SIZE_PORTRAIT })));
+                    runs.appendEvent(runId, 'spend', { stage: st, model: imageModel, estCny: est, shot: shot.index, jobId: String(url).slice(0, 80) });
+                    const file = join(shotsDir, `shot-${String(shot.index).padStart(3, '0')}.png`);
+                    await saveUrl(fetchImpl, url, file);
+                    shotImages.push({ index: shot.index, url, file });
+                });
+                shotImages.sort((a, b) => a.index - b.index);
+                result.shotImages = shotImages;
+                runs.appendEvent(runId, 'shot-urls', { urls: shotImages });
+                done(st);
+            }
+            catch (err) {
+                runs.setStage(runId, st, 'failed');
+                throw err;
+            }
+        }
+        else {
+            // 断点续跑：从事件流恢复 shot-urls（i2v 输入）
+            const ev = lastEvent(runs.get(runId).events, 'shot-urls');
+            const urls = ev?.detail?.urls;
+            if (urls)
+                result.shotImages = [...urls].sort((a, b) => a.index - b.index);
+        }
+    }
+    if (targetIdx >= STAGES.indexOf('video')) {
+        const st = 'video';
+        const current = runs.get(runId).stages;
+        if (current[st] !== 'done') {
+            await ensureGate(st, '逐镜图生视频');
+            const sb = readJson(runs, runId, 'storyboard');
+            const ev = lastEvent(runs.get(runId).events, 'shot-urls');
+            const shotUrls = ev?.detail?.urls ?? result.shotImages;
+            if (!shotUrls?.length)
+                throw new Error('缺少 shot 参考图 URL：请先完成 shot-assets 段');
+            const clipsDir = join(runs.rootDir, runId, 'clips');
+            mkdirSync(clipsDir, { recursive: true });
+            const videoModel = deps.videoModel ?? VIDEO_MODEL_DEFAULT;
+            const p = deps.providers.forModel(videoModel, { fetchImpl });
+            const clipFiles = [];
+            try {
+                begin(st);
+                await pump(shotUrls, deps.concurrency ?? 2, async (shot) => {
+                    const durationSec = sb.shots.find((s) => s.index === shot.index)?.durationSec ?? 5;
+                    const est = deps.pricing ? estimateCny(videoModel, deps.pricing) : null;
+                    if (!(await deps.confirmer(est, 'video')))
+                        throw new Error(`用户取消（shot ${shot.index}）`);
+                    const file = join(clipsDir, `shot-${String(shot.index).padStart(3, '0')}.mp4`);
+                    try {
+                        await generateShotClip({
+                            provider: p,
+                            fetchImpl,
+                            imageUrl: shot.url,
+                            prompt: SHOT_MOTION_PROMPT,
+                            durationSec,
+                            outFile: file,
+                            pollDelayMs: deps.pollDelayMs,
+                            onSubmit: (jobId) => {
+                                runs.appendEvent(runId, 'spend', { stage: st, model: videoModel, estCny: est, shot: shot.index, jobId: jobId.slice(0, 80) });
+                            },
+                        });
+                    }
+                    catch (err) {
+                        // 保留 shot 上下文前缀（原实现的判别性消息形态）
+                        throw new Error(`shot ${shot.index}: ${err instanceof Error ? err.message : String(err)}`);
+                    }
+                    clipFiles.push(file);
+                });
+                clipFiles.sort();
+                result.clipFiles = clipFiles;
+                runs.appendEvent(runId, 'clips', { files: clipFiles });
+                done(st);
+            }
+            catch (err) {
+                runs.setStage(runId, st, 'failed');
+                throw err;
+            }
+        }
+        else {
+            // 断点续跑：从事件流恢复 clips 清单
+            const ev = lastEvent(runs.get(runId).events, 'clips');
+            result.clipFiles = ev?.detail?.files;
+        }
+    }
+    if (targetIdx >= STAGES.indexOf('final-cut')) {
+        const st = 'final-cut';
+        const current = runs.get(runId).stages;
+        if (current[st] !== 'done') {
+            await ensureGate(st, '配音与成片渲染');
+            if (!deps.ffmpeg)
+                throw new Error('未找到 ffmpeg，无法成片（可设 VGEN_FFMPEG）');
+            const sb = readJson(runs, runId, 'storyboard');
+            const clipsDir = join(runs.rootDir, runId, 'clips');
+            const ev = lastEvent(runs.get(runId).events, 'clips');
+            const clipFiles = ev?.detail?.files ?? result.clipFiles ?? [];
+            try {
+                begin(st);
+                const timelineShots = [];
+                for (const shot of sb.shots) {
+                    const clip = join(clipsDir, `shot-${String(shot.index).padStart(3, '0')}.mp4`);
+                    if (!existsSync(clip))
+                        throw new Error(`final-cut 缺少视频片段: ${clip}`);
+                    const durSec = (await probeDurationSec(clip, deps.ffmpeg)) ?? shot.durationSec ?? 5;
+                    const text = shot.voiceHint ?? '';
+                    let voice = resolveVoice({ voiceFile: shot.voiceFile, voiceHint: text }, process.platform);
+                    let audio;
+                    let audioDurUs;
+                    if (deps.tts && text && voice?.kind !== 'file') {
+                        // 云端优先：失败回退本地（say/SAPI），事件留痕
+                        try {
+                            const mp3 = join(clipsDir, `voice-cloud-${shot.index}.mp3`);
+                            const bytes = await retryTransient(() => synthesizeCloudSpeech(deps.tts, text, fetchImpl), 3, 3000);
+                            writeFileSync(mp3, bytes, { mode: 0o600 });
+                            audio = mp3;
+                            audioDurUs = Math.round(((await probeDurationSec(mp3, deps.ffmpeg)) ?? 0) * 1e6);
+                            voice = null;
+                        }
+                        catch (err) {
+                            runs.appendEvent(runId, 'tts-fallback', { shot: shot.index, reason: err instanceof Error ? err.message : String(err) });
+                            voice = resolveVoice({ voiceHint: text }, process.platform);
+                        }
+                    }
+                    if (voice?.kind === 'say') {
+                        const aiff = join(clipsDir, `voice-${shot.index}.aiff`);
+                        const mp3 = join(clipsDir, `voice-${shot.index}.mp3`);
+                        await runExec('say', sayArgs(voice.text, aiff));
+                        await runExec(deps.ffmpeg, ['-y', '-i', aiff, '-codec:a', 'libmp3lame', mp3]);
+                        audio = mp3;
+                        audioDurUs = Math.round(((await probeDurationSec(mp3, deps.ffmpeg)) ?? 0) * 1e6);
+                    }
+                    else if (voice?.kind === 'sapi') {
+                        // Windows SAPI：写临时 .ps1（0600）后 powershell -File 执行（不得 -Command 内联，防引号剥离重开解析面）。
+                        // 真机验证 SKIPPED：开发平台 mac，Windows 端到端验证留待 Windows 机器。
+                        const ps1 = join(clipsDir, `voice-${shot.index}.ps1`);
+                        const wav = join(clipsDir, `voice-${shot.index}.wav`);
+                        writeFileSync(ps1, buildSapiScript(voice.text, wav), { mode: 0o600 });
+                        await runExec('powershell', ['-NoProfile', '-File', ps1]);
+                        audio = wav;
+                        audioDurUs = Math.round(((await probeDurationSec(wav, deps.ffmpeg)) ?? 0) * 1e6);
+                    }
+                    else if (voice?.kind === 'file') {
+                        audio = voice.src;
+                        audioDurUs = Math.round(((await probeDurationSec(voice.src, deps.ffmpeg)) ?? 0) * 1e6);
+                    }
+                    else {
+                        // 无配音（voiceHint/voiceFile 均缺）：字幕保留 line，事件透明化
+                        runs.appendEvent(runId, 'tts-skip', { shot: shot.index });
+                    }
+                    const subtitle = shot.voiceHint ?? shot.line ?? '';
+                    timelineShots.push({
+                        video: clip,
+                        durationUs: Math.round(durSec * 1e6),
+                        subtitle,
+                        audio,
+                        audioDurationUs: audioDurUs,
+                    });
+                }
+                const data = buildTimeline({ canvas: { width: 1080, height: 1920, fps: 24 }, shots: timelineShots });
+                const timeline = toTimeline(data);
+                const finalPath = join(runs.rootDir, runId, 'final.mp4');
+                const r = await renderTimeline(timeline, finalPath, { subtitles: true, ffmpeg: deps.ffmpeg });
+                if (!r.ok)
+                    throw new Error(`渲染失败: ${r.error}`);
+                const srtPath = join(runs.rootDir, runId, 'final.srt');
+                writeFileSync(srtPath, writeSrt(timeline.subtitles), { mode: 0o600 });
+                result.finalOutput = finalPath;
+                runs.appendEvent(runId, 'final', { output: finalPath, srt: srtPath });
+                done(st);
+                runs.setStatus(runId, 'done');
+            }
+            catch (err) {
+                runs.setStage(runId, st, 'failed');
+                throw err;
+            }
+        }
+    }
+    result.stages = runs.get(runId).stages;
+    return result;
+}
