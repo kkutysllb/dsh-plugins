@@ -86,6 +86,24 @@ window.__ModuleLoader__.load({
 			testFail: "探测失败：{err}",
 			adopt: "导入枚举模型",
 			adopted: "已导入 {n} 个模型（kind 按内置目录推断）",
+			pickerSearch: "搜索模型名",
+			pickerFilterKind: "按类型筛选",
+			pickerFilterAll: "全部",
+			pickerSelectAll: "全选",
+			pickerDeselectAll: "取消全选",
+			pickerSave: "保存选中",
+			pickerEmpty: "没有模型可显示——先测试通道以枚举模型。",
+			pickerLabelConfigured: "已配置",
+			pickerLabelNew: "新",
+			pickerKindImage: "图像",
+			pickerKindVideo: "视频",
+			pickerKindTts: "语音",
+			pickerTitle: "模型清单",
+			pickerCountUnit: " 个",
+			pickerCheckedHintPrefix: "· 已勾选",
+			pickerStatCheckedPrefix: "已选",
+			pickerStatKeepPrefix: "未勾选",
+			pickerSaved: "已保存 {n} 个模型",
 			deleteCh: "删除",
 			deleteConfirm: "确定删除通道「{name}」？此操作不可撤销。",
 			budget: "预算与 gate",
@@ -148,6 +166,24 @@ window.__ModuleLoader__.load({
 			testFail: "Probe failed: {err}",
 			adopt: "Import enumerated models",
 			adopted: "Imported {n} models (kind inferred from built-in catalog)",
+			pickerSearch: "Search models",
+			pickerFilterKind: "Filter by kind",
+			pickerFilterAll: "All",
+			pickerSelectAll: "Select all",
+			pickerDeselectAll: "Deselect all",
+			pickerSave: "Save selected",
+			pickerEmpty: "No models to show — probe the channel first.",
+			pickerLabelConfigured: "configured",
+			pickerLabelNew: "new",
+			pickerKindImage: "image",
+			pickerKindVideo: "video",
+			pickerKindTts: "tts",
+			pickerTitle: "Models",
+			pickerCountUnit: "",
+			pickerCheckedHintPrefix: "· checked",
+			pickerStatCheckedPrefix: "Selected",
+			pickerStatKeepPrefix: "Unchanged",
+			pickerSaved: "Saved {n} models",
 			deleteCh: "Delete",
 			deleteConfirm: "Delete channel \"{name}\"? This cannot be undone.",
 			budget: "Budget & gates",
@@ -212,9 +248,14 @@ window.__ModuleLoader__.load({
 			".vg-btn{border:1px solid var(--sl-color-neutral-400,#555);background:transparent;color:inherit;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;}",
 			".vg-btn:hover{border-color:var(--sl-color-primary-500,#7aa2f7);color:var(--sl-color-primary-500,#7aa2f7);}",
 			".vg-btn[disabled]{opacity:.45;cursor:not-allowed;}",
-			".vg-btn-primary{background:var(--sl-color-primary-600,#3b5fd9);border-color:var(--sl-color-primary-600,#3b5fd9);color:#fff;}",
-			".vg-btn-primary:hover{color:#fff;}",
 			".vg-btn-danger:hover{border-color:#e5484d;color:#e5484d;}",
+			// 主按钮渐变蓝 + 发光；次级 mini 按钮紧凑灰边（picker 面板专用）
+			".vg-btn-primary{background:linear-gradient(180deg,#7aa2f7 0%,#5b82d7 100%);border:1px solid #7aa2f7;color:#0c0d10;font-weight:600;box-shadow:0 2px 8px rgba(122,162,247,.25);}",
+			".vg-btn-primary:hover{color:#0c0d10;box-shadow:0 4px 14px rgba(122,162,247,.4);transform:translateY(-1px);}",
+			".vg-btn-primary[disabled]{background:rgba(255,255,255,.025);border-color:var(--sl-color-neutral-300,#2a2a2a);color:rgba(255,255,255,.4);box-shadow:none;cursor:not-allowed;transform:none;}",
+			".vg-btn-mini{border:1px solid rgba(255,255,255,.16);background:transparent;color:rgba(255,255,255,.55);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;}",
+			".vg-btn-mini:hover{border-color:#7aa2f7;color:#7aa2f7;}",
+			".vg-btn-mini[disabled]{opacity:.4;cursor:not-allowed;}",
 			".vg-field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}",
 			".vg-field label{font-size:12px;opacity:.75;}",
 			".vg-input,.vg-select,.vg-textarea{border:1px solid var(--sl-color-neutral-400,#555);border-radius:6px;background:transparent;color:inherit;padding:5px 8px;font-size:13px;}",
@@ -240,6 +281,49 @@ window.__ModuleLoader__.load({
 			".vg-probe{font-size:12px;margin-top:6px;}",
 			".vg-probe-ok{color:#3fa76a;}",
 			".vg-probe-err{color:#e5484d;}",
+			// 模型勾选面板（PickerPanel）：卡片化 + 顶渐变边 + 自定义 checkbox + 三色 chip + 选中行光带
+			".vg-pick{margin-top:12px;background:linear-gradient(180deg,rgba(122,162,247,.04) 0%,transparent 60%);border:1px solid var(--sl-color-neutral-300,#2a2a2a);border-radius:12px;padding:14px 16px;box-shadow:0 2px 12px rgba(0,0,0,.32);position:relative;overflow:hidden;}",
+			".vg-pick::before{content:'';position:absolute;top:0;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent 0%,#7aa2f7 50%,transparent 100%);opacity:.5;}",
+			".vg-pick-title{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:rgba(255,255,255,.55);text-transform:uppercase;margin-bottom:12px;}",
+			".vg-pick-title-count{margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;opacity:.4;}",
+			".vg-pick-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}",
+			".vg-pick-search{flex:1;min-width:160px;background:rgba(255,255,255,.025);border:1px solid var(--sl-color-neutral-300,#2a2a2a);color:inherit;border-radius:8px;padding:6px 10px 6px 30px;font-size:12px;transition:border-color .15s,background .15s;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:10px center;}",
+			".vg-pick-search:focus{outline:none;border-color:#7aa2f7;background-color:rgba(255,255,255,.045);}",
+			".vg-pick-search::placeholder{color:rgba(255,255,255,.4);}",
+			".vg-pick-filter{display:flex;gap:2px;padding:2px;background:rgba(255,255,255,.025);border-radius:8px;border:1px solid var(--sl-color-neutral-300,#2a2a2a);}",
+			".vg-pick-filter button{background:transparent;border:none;color:rgba(255,255,255,.55);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;}",
+			".vg-pick-filter button:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.045);}",
+			".vg-pick-filter button.active{color:#7aa2f7;background:rgba(122,162,247,.16);}",
+			".vg-pick-filter button .count{font-size:10px;opacity:.6;}",
+			".vg-pick-list{display:flex;flex-direction:column;gap:1px;max-height:280px;overflow-y:auto;border:1px solid var(--sl-color-neutral-300,#2a2a2a);border-radius:8px;padding:3px;background:rgba(0,0,0,.18);}",
+			".vg-pick-list::-webkit-scrollbar{width:6px;}",
+			".vg-pick-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}",
+			".vg-pick-row{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 10px;font-size:12px;border-radius:6px;cursor:pointer;transition:background .12s;position:relative;}",
+			".vg-pick-row:hover{background:rgba(255,255,255,.045);}",
+			".vg-pick-row.checked{background:rgba(122,162,247,.10);}",
+			".vg-pick-row.checked::before{content:'';position:absolute;left:-3px;top:50%;width:2px;height:60%;transform:translateY(-50%);background:#7aa2f7;border-radius:1px;}",
+			".vg-pick-row.is-new:not(.checked){background:rgba(63,167,106,.05);}",
+			".vg-pick-check{appearance:none;width:16px;height:16px;border:1.5px solid rgba(255,255,255,.16);border-radius:4px;background:transparent;cursor:pointer;position:relative;flex-shrink:0;transition:all .15s;margin:0;}",
+			".vg-pick-check:hover{border-color:#7aa2f7;}",
+			".vg-pick-check:checked{background:#7aa2f7;border-color:#7aa2f7;}",
+			".vg-pick-check:checked::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #0c0d10;border-width:0 2px 2px 0;transform:rotate(45deg);}",
+			".vg-pick-name{flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}",
+			".vg-pick-row.checked .vg-pick-name{color:#fff;font-weight:500;}",
+			".vg-pick-kind{display:flex;gap:1px;padding:1px;background:rgba(0,0,0,.32);border-radius:5px;border:1px solid var(--sl-color-neutral-300,#2a2a2a);flex-shrink:0;}",
+			".vg-pick-kind button{background:transparent;border:none;color:rgba(255,255,255,.4);font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.02em;}",
+			".vg-pick-kind button:hover{color:rgba(255,255,255,.65);}",
+			".vg-pick-kind button[data-kind='image'].active{background:rgba(63,167,106,.14);color:#3fa76a;box-shadow:0 0 0 1px rgba(63,167,106,.35);}",
+			".vg-pick-kind button[data-kind='video'].active{background:rgba(181,140,242,.14);color:#b58cf2;box-shadow:0 0 0 1px rgba(181,140,242,.35);}",
+			".vg-pick-kind button[data-kind='tts'].active{background:rgba(240,179,94,.14);color:#f0b35e;box-shadow:0 0 0 1px rgba(240,179,94,.35);}",
+			".vg-pick-tag{font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;flex-shrink:0;min-width:44px;text-align:center;}",
+			".vg-pick-tag.configured{background:rgba(122,162,247,.16);color:#7aa2f7;}",
+			".vg-pick-tag.new{background:rgba(63,167,106,.14);color:#3fa76a;}",
+			".vg-pick-actions{display:flex;gap:8px;margin-top:10px;align-items:center;justify-content:space-between;}",
+			".vg-pick-stat{font-size:11.5px;color:rgba(255,255,255,.55);display:flex;gap:12px;align-items:center;}",
+			".vg-pick-stat strong{color:rgba(255,255,255,.9);font-weight:600;}",
+			".vg-pick-stat .sep{width:1px;height:12px;background:rgba(255,255,255,.16);}",
+			".vg-pick-actions-right{display:flex;gap:6px;}",
+			".vg-pick-empty{color:rgba(255,255,255,.4);font-size:12px;padding:24px;text-align:center;}",
 			"@media (max-width:640px){.vg-grid{grid-template-columns:1fr;}}",
 			// 设置页导航图标替换：DSH 0.1.x 的 settings.section 契约只投影
 			// id/order/label，壳层对外部分区一律渲染通用齿轮。这里只对本插件
@@ -301,6 +385,41 @@ window.__ModuleLoader__.load({
 		/** run-<毫秒>-<hex> → 剥前缀后前 8 位短 id（毫秒时间戳前缀，展示去重足够） */
 		function shortId(id) {
 			return String(id || "").replace(/^run-/, "").slice(0, 8);
+		}
+
+		// 注：lib/client.js 是手写 bundle（不在 tsc 构建链）；assemblePickerRows 的逻辑就地复用，
+		//     保证行为与 src/picker/assemble.ts 一致——后者跑 node:test，前者由 client-bundle.test.ts 守护。
+		function assemblePickerRowsPublic(existingModels, enumerated) {
+			var seen = Object.create(null);
+			var rows = [];
+			for (var i = 0; i < (existingModels || []).length; i++) {
+				var m = existingModels[i];
+				if (seen[m.model]) continue;
+				seen[m.model] = true;
+				rows.push({ model: m.model, kind: m.kind, isConfigured: true, isNew: false });
+			}
+			for (var j = 0; j < (enumerated || []).length; j++) {
+				var name = enumerated[j];
+				if (seen[name]) continue;
+				seen[name] = true;
+				rows.push({ model: name, kind: inferKindByName(name), isConfigured: false, isNew: true });
+			}
+			return rows;
+		}
+
+		// 内置目录精简版（与 src/model-catalog.ts BUILTIN_CATALOG 同构；M5 维护时改两处）
+		function inferKindByName(name) {
+			var n = String(name || "").toLowerCase();
+			if (n.indexOf("tts") !== -1 || n.indexOf("speech") !== -1 || n.indexOf("voice") !== -1) return "tts";
+			if (n.indexOf("seedance") !== -1 || n.indexOf("kling") !== -1 || n.indexOf("wan-x") !== -1 ||
+				n.indexOf("hailuo") !== -1 || n.indexOf("sora") !== -1 || n.indexOf("vidu") !== -1 ||
+				n.indexOf("pixverse") !== -1 || n.indexOf("happyhorse") !== -1 ||
+				n.indexOf("video") !== -1 || n.indexOf("i2v") !== -1 || n.indexOf("t2v") !== -1) return "video";
+			if (n.indexOf("seedream") !== -1 || n.indexOf("flux") !== -1 || n.indexOf("mj") !== -1 ||
+				n.indexOf("midjourney") !== -1 || n.indexOf("dall") !== -1 || n.indexOf("sd3") !== -1 ||
+				n.indexOf("image") !== -1 || n.indexOf("banana") !== -1 || n.indexOf("t2i") !== -1 ||
+				n.indexOf("wanx") !== -1) return "image";
+			return "video"; // unknown 兜底与 resolveModel 一致
 		}
 
 		var STATE_KEY = { pending: "statePending", running: "stateRunning", done: "stateDone", failed: "stateFailed" };
@@ -473,6 +592,151 @@ window.__ModuleLoader__.load({
 
 		/* ── 通道管理视图：通道行 / 添加通道 / 预算与 gate ──── */
 
+		/**
+		 * 模型勾选面板（PickerPanel）：紧贴 ChannelRow 探测成功行下方。
+		 * 数据形态：picker = { rows: [{model, kind, isConfigured, isNew}], checked: Set<model>, search, kindFilter, busy }
+		 * 交互：搜索 / 按 kind 筛选 / 行内 checkbox / 行内 kind 选择器 / 全选反选 / 保存选中。
+		 * 所有变更走 onChange（合并回 probe[id].picker）；保存走 onSave（ChannelRow → ChannelsView → Stateful）。
+		 */
+		function PickerPanel(props) {
+			var t = props.t;
+			var picker = props.picker;
+			if (!picker) return null;
+			var rows = picker.rows;
+			var search = picker.search;
+			var kindFilter = picker.kindFilter;
+			var checked = picker.checked;
+			var q = search.toLowerCase();
+			var filtered = rows.filter(function (r) {
+				if (kindFilter !== "all" && r.kind !== kindFilter) return false;
+				if (q && r.model.toLowerCase().indexOf(q) === -1) return false;
+				return true;
+			});
+			var toggleCheck = function (model) {
+				var next = new Set(checked);
+				if (next.has(model)) next.delete(model); else next.add(model);
+				props.onChange(Object.assign({}, picker, { checked: next }));
+			};
+			var setKind = function (model, kind) {
+				var nextRows = rows.map(function (r) { return r.model === model ? Object.assign({}, r, { kind: kind }) : r; });
+				props.onChange(Object.assign({}, picker, { rows: nextRows }));
+			};
+			var setSearch = function (v) { props.onChange(Object.assign({}, picker, { search: v })); };
+			var setKindFilter = function (v) { props.onChange(Object.assign({}, picker, { kindFilter: v })); };
+			var allChecked = filtered.every(function (r) { return checked.has(r.model); }) && filtered.length > 0;
+			var selectAll = function () {
+				var next = new Set(checked);
+				filtered.forEach(function (r) { next.add(r.model); });
+				props.onChange(Object.assign({}, picker, { checked: next }));
+			};
+			var deselectAll = function () {
+				var next = new Set(checked);
+				filtered.forEach(function (r) { next.delete(r.model); });
+				props.onChange(Object.assign({}, picker, { checked: next }));
+			};
+			return React.createElement("div", { className: "vg-pick" },
+				React.createElement("div", { className: "vg-pick-title" },
+					React.createElement("span", null, t("pickerTitle")),
+					React.createElement("span", { className: "vg-pick-title-count" },
+						String(rows.length) + t("pickerCountUnit") + " · " + t("pickerCheckedHintPrefix") + " ",
+						React.createElement("strong", { style: { color: "rgba(255,255,255,.9)", fontWeight: 600 } }, String(checked.size))),
+				),
+				React.createElement("div", { className: "vg-pick-toolbar" },
+					React.createElement("input", {
+						className: "vg-pick-search", placeholder: t("pickerSearch"), value: search,
+						onChange: function (e) { setSearch(e.target.value); },
+					}),
+					React.createElement("div", { className: "vg-pick-filter" },
+						React.createElement("button", {
+							className: kindFilter === "all" ? "active" : "",
+							onClick: function () { setKindFilter("all"); },
+						}, t("pickerFilterAll"), React.createElement("span", { className: "count" }, rows.length)),
+						React.createElement("button", {
+							className: kindFilter === "image" ? "active" : "",
+							onClick: function () { setKindFilter("image"); },
+						}, t("pickerKindImage"), React.createElement("span", { className: "count" }, rows.filter(function (r) { return r.kind === "image"; }).length)),
+						React.createElement("button", {
+							className: kindFilter === "video" ? "active" : "",
+							onClick: function () { setKindFilter("video"); },
+						}, t("pickerKindVideo"), React.createElement("span", { className: "count" }, rows.filter(function (r) { return r.kind === "video"; }).length)),
+						React.createElement("button", {
+							className: kindFilter === "tts" ? "active" : "",
+							onClick: function () { setKindFilter("tts"); },
+						}, t("pickerKindTts"), React.createElement("span", { className: "count" }, rows.filter(function (r) { return r.kind === "tts"; }).length)),
+					),
+				),
+				rows.length === 0
+					? React.createElement("div", { className: "vg-pick-empty" }, t("pickerEmpty"))
+					: filtered.length === 0
+						? React.createElement("div", { className: "vg-pick-empty" }, t("pickerEmpty"))
+						: React.createElement("div", { className: "vg-pick-list" },
+							filtered.map(function (r) {
+								var isChecked = checked.has(r.model);
+								var rowClasses = "vg-pick-row" + (isChecked ? " checked" : "") + (r.isNew && !isChecked ? " is-new" : "");
+								return React.createElement("div", {
+									key: r.model,
+									className: rowClasses,
+									onClick: function () { toggleCheck(r.model); },
+								},
+									React.createElement("input", {
+										type: "checkbox", className: "vg-pick-check",
+										checked: isChecked,
+										onChange: function () { toggleCheck(r.model); },
+										onClick: function (e) { e.stopPropagation(); },
+									}),
+									React.createElement("span", { className: "vg-pick-name", title: r.model }, r.model),
+									React.createElement("div", { className: "vg-pick-kind", onClick: function (e) { e.stopPropagation(); } },
+										React.createElement("button", {
+											"data-kind": "image",
+											className: r.kind === "image" ? "active" : "",
+											onClick: function (e) { e.stopPropagation(); setKind(r.model, "image"); },
+										}, t("pickerKindImage")),
+										React.createElement("button", {
+											"data-kind": "video",
+											className: r.kind === "video" ? "active" : "",
+											onClick: function (e) { e.stopPropagation(); setKind(r.model, "video"); },
+										}, t("pickerKindVideo")),
+										React.createElement("button", {
+											"data-kind": "tts",
+											className: r.kind === "tts" ? "active" : "",
+											onClick: function (e) { e.stopPropagation(); setKind(r.model, "tts"); },
+										}, t("pickerKindTts")),
+									),
+									r.isConfigured
+										? React.createElement("span", { className: "vg-pick-tag configured" }, t("pickerLabelConfigured"))
+										: React.createElement("span", { className: "vg-pick-tag new" }, t("pickerLabelNew")),
+								);
+							}),
+						),
+				React.createElement("div", { className: "vg-pick-actions" },
+					React.createElement("div", { className: "vg-pick-stat" },
+						// 注：fill() 强制 String() 化参数，故直接拼字符串 + 嵌入 React 元素
+						React.createElement("span", null,
+							t("pickerStatCheckedPrefix"), " ",
+							React.createElement("strong", null, String(checked.size)), " / ",
+							String(rows.length)),
+						React.createElement("span", { className: "sep" }),
+						React.createElement("span", null,
+							t("pickerStatKeepPrefix"), " ",
+							React.createElement("strong", null, String(rows.length - checked.size))),
+					),
+					React.createElement("div", { className: "vg-pick-actions-right" },
+						React.createElement("button", {
+							className: "vg-btn vg-btn-mini", disabled: picker.busy,
+							onClick: function () {
+								if (allChecked) deselectAll(); else selectAll();
+							},
+						}, allChecked ? t("pickerDeselectAll") : t("pickerSelectAll")),
+						React.createElement("button", {
+							className: "vg-btn vg-btn-primary",
+							disabled: picker.busy || checked.size === 0,
+							onClick: function () { props.onSave(); },
+						}, t("pickerSave")),
+					),
+				),
+			);
+		}
+
 		function ChannelRow(props) {
 			var t = props.t;
 			var ch = props.ch;
@@ -507,14 +771,19 @@ window.__ModuleLoader__.load({
 			if (probe.message) {
 				children.push(React.createElement("div", { key: "probe", className: "vg-probe " + (probe.ok ? "vg-probe-ok" : "vg-probe-err") },
 					probe.message,
-					probe.ok && probe.models && probe.models.length > 0
-						? React.createElement("div", null,
-							React.createElement("div", { className: "vg-tpl-meta" }, probe.models.slice(0, 5).join(", ")),
-							React.createElement("div", { style: { marginTop: 4 } },
-								Btn({ disabled: props.busy, onClick: function () { props.onAdoptModels(ch.id); } }, t("adopt"))),
-						)
-						: null,
 				));
+			}
+			if (probe.picker) {
+				children.push(React.createElement(PickerPanel, {
+					key: "picker",
+					t: t,
+					picker: probe.picker,
+					onChange: function (next) {
+						// 把 next 合并回 probe[id].picker；ChannelsView 暴露 onPickerChange 回调
+						props.onPickerChange(ch.id, next);
+					},
+					onSave: function () { props.onPickerSave(ch.id); },
+				}));
 			}
 			return React.createElement("div", { className: "vg-tpl", style: { padding: "10px 0", borderTop: "1px solid var(--sl-color-neutral-300,#2a2a2a)" } }, children);
 		}
@@ -547,7 +816,8 @@ window.__ModuleLoader__.load({
 								onToggleEnabled: props.onToggleEnabled,
 								onSetDefault: props.onSetDefault,
 								onTestChannel: props.onTestChannel,
-								onAdoptModels: props.onAdoptModels,
+								onPickerChange: props.onPickerChange,
+								onPickerSave: props.onPickerSave,
 								onDeleteChannel: props.onDeleteChannel,
 							});
 						}),
@@ -676,7 +946,8 @@ window.__ModuleLoader__.load({
 						onToggleEnabled: props.onToggleEnabled,
 						onSetDefault: props.onSetDefault,
 						onTestChannel: props.onTestChannel,
-						onAdoptModels: props.onAdoptModels,
+						onPickerChange: props.onPickerChange,
+						onPickerSave: props.onPickerSave,
 						onDeleteChannel: props.onDeleteChannel,
 						onSaveBudget: props.onSaveBudget,
 					}),
@@ -808,31 +1079,75 @@ window.__ModuleLoader__.load({
 				};
 
 				var onTestChannel = function (id) {
-					setProbeEntry(id, { busy: true, ok: false, message: "" });
+					setProbeEntry(id, { busy: true, ok: false, message: "", picker: undefined });
 					api("channels.test", { id: id }).then(function (value) {
 						var p = (value && value.probe) || {};
 						if (p.ok) {
+							// 从 chans 拿该通道详情，取其 models[]（已脱敏，不含 apiKey 明文）
+							var ch = (chansState[0] && chansState[0].channels || []).find(function (c) { return c.id === id; });
+							var existing = (ch && ch.models) || [];
+							var enumerated = p.models || [];
+							// 前端 union + 去重（已配置优先）
+							var rows = assemblePickerRowsPublic(existing, enumerated);
+							var checked = new Set(rows.map(function (r) { return r.model; })); // 全部默认勾选
 							setProbeEntry(id, {
 								busy: false, ok: true,
-								message: fill(t("testOk"), { n: (p.models || []).length }),
-								models: p.models || [],
+								message: fill(t("testOk"), { n: enumerated.length }),
+								models: enumerated,
+								picker: { rows: rows, checked: checked, search: "", kindFilter: "all", busy: false },
 							});
 						} else {
-							setProbeEntry(id, {
-								busy: false, ok: false,
-								message: fill(t("testFail"), { err: p.error || "unknown" }),
-								models: null,
-							});
+							setProbeEntry(id, { busy: false, ok: false, message: fill(t("testFail"), { err: p.error || "unknown" }), models: null, picker: undefined });
 						}
 					}).catch(function (e) {
-						setProbeEntry(id, { busy: false, ok: false, message: fill(t("testFail"), { err: String(e.message || e) }), models: null });
+						setProbeEntry(id, { busy: false, ok: false, message: fill(t("testFail"), { err: String(e.message || e) }), models: null, picker: undefined });
 					});
 				};
 
-				var onAdoptModels = function (id) {
-					var entry = probe[id] || {};
-					if (!entry.models || entry.models.length === 0) return;
-					run(api("channels.adoptModels", { id: id, models: entry.models }), fill(t("adopted"), { n: entry.models.length }));
+				// 新增 picker 状态管理回调
+				var onPickerChange = function (id, nextPicker) {
+					setProbeEntry(id, Object.assign({}, probeState[0][id], { picker: nextPicker }));
+				};
+
+				var onPickerSave = function (id) {
+					var entry = probeState[0][id] || {};
+					var picker = entry.picker;
+					if (!picker || entry.busy) return;
+					// 收集所有应当提交的 models：
+					// - 勾选且 panel 内（已配置 + 新枚举）：rows[].kind（用户改过的优先）
+					// - 未勾选但已配置：保留 ch.models 既有 kind
+					var ch = (chansState[0] && chansState[0].channels || []).find(function (c) { return c.id === id; });
+					var existing = (ch && ch.models) || [];
+					var rowsByName = {};
+					picker.rows.forEach(function (r) { rowsByName[r.model] = r; });
+					// 提交列表 = (勾选的 panel rows) ∪ (未勾选的已配置项)
+					var submittedNames = [];
+					var submitted = [];
+					picker.rows.forEach(function (r) {
+						if (picker.checked.has(r.model)) {
+							submitted.push({ model: r.model, kind: rowsByName[r.model].kind });
+							submittedNames.push(r.model);
+						}
+					});
+					existing.forEach(function (m) {
+						if (picker.checked.has(m.model)) return; // 已在勾选列表里
+						submitted.push({ model: m.model, kind: m.kind });
+						submittedNames.push(m.model);
+					});
+					// 标记 picker 进入 busy；run() 不管理子级 busy，须自行重置
+					setProbeEntry(id, Object.assign({}, entry, { picker: Object.assign({}, picker, { busy: true }) }));
+					var resetPickerBusy = function () {
+						var cur = probeState[0][id];
+						if (!cur || !cur.picker) return;
+						setProbeEntry(id, Object.assign({}, cur, { picker: Object.assign({}, cur.picker, { busy: false }) }));
+					};
+					setBusy(true);
+					api("channels.update", { id: id, patch: { models: submitted } })
+						.then(function () { flash(fill(t("pickerSaved"), { n: submittedNames.length })); })
+						.catch(function (e) { flash("", String(e.message || e)); })
+						.then(function () { return refreshChannels(); })
+						.then(function () { setBusy(false); resetPickerBusy(); })
+						.catch(function () { setBusy(false); resetPickerBusy(); });
 				};
 
 				var onSaveBudget = function () {
@@ -859,7 +1174,8 @@ window.__ModuleLoader__.load({
 					onToggleEnabled: onToggleEnabled,
 					onSetDefault: onSetDefault,
 					onTestChannel: onTestChannel,
-					onAdoptModels: onAdoptModels,
+					onPickerChange: onPickerChange,
+					onPickerSave: onPickerSave,
 					onDeleteChannel: onDeleteChannel,
 					onSaveBudget: onSaveBudget,
 				});
