@@ -5,5 +5,7 @@ export interface DashscopeChannel {
     apiKey: string;
     model: string;
     estimate?: (model: string) => number | null;
+    /** Explicit channel kind can identify a custom i2v model absent from the catalog. */
+    imageToVideo?: boolean;
 }
 export declare function createDashscopeRelayProvider(ch: DashscopeChannel, fetchImpl?: typeof fetch): Provider;

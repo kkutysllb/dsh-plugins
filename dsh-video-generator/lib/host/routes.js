@@ -8,7 +8,7 @@ import { collectArtifacts } from "./artifacts.js";
 import { resolveModel } from "../model-catalog.js";
 import { isStage } from "../stages.js";
 export const PLUGIN_ID = 'dsh-video-generator';
-export const PLUGIN_VERSION = '1.0.2';
+export const PLUGIN_VERSION = '1.0.4';
 // 仅精确 loopback 名（'127.0.0.1' 的 URL hostname 形态已剥括号，故 '::1'/'[::1]' 双收录无害）
 const TRUSTED_LOCAL = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 // DNS-rebind / 跨站防御（非认证）：Host 头存在即权威精确匹配；remote 仅在 Host 缺失时兜底——

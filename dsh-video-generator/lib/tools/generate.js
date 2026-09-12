@@ -8,6 +8,19 @@ import { advanceRun, ManualGateError, AskGateRejectedError } from "../pipeline/m
 import { isStage } from "../stages.js";
 import { locateFfmpeg } from "../finalcut/render-ffmpeg.js";
 import { HandoffError } from "../schema/handoff.js";
+import { ModelUnavailableError } from "../model-selection.js";
+export function configuredCloudTts(channel, env = process.env) {
+    const model = channel.models?.find((entry) => entry.kind === 'tts' && entry.model.trim());
+    if (!model)
+        return undefined;
+    return {
+        baseUrl: channel.baseUrl,
+        apiKey: channel.apiKey,
+        model: model.model.trim(),
+        voice: env['VGEN_TTS_VOICE'] || undefined,
+        instructions: env['VGEN_TTS_INSTRUCTIONS'] || undefined,
+    };
+}
 function mapTarget(target) {
     if (target === 'assets')
         return 'shot-assets';
@@ -81,9 +94,8 @@ export function buildGenerateTools(ctx) {
                             return false;
                         },
                         ffmpeg: locateFfmpeg(env),
-                        // 视频模型覆盖：上游分组饱和时换档（如 happyhorse→wan2.6-i2v），缺省走 machine 内置
-                        videoModel: env['VGEN_VIDEO_MODEL'] || undefined,
-                        tts: ctx.tts ?? (env['VGEN_TTS_MODEL'] ? { baseUrl: channel.baseUrl, apiKey: channel.apiKey, model: env['VGEN_TTS_MODEL'], voice: env['VGEN_TTS_VOICE'] || undefined, instructions: env['VGEN_TTS_INSTRUCTIONS'] || undefined } : undefined),
+                        // 生产模型只来自当前默认通道 models[]；videoModel 仅保留 MachineDeps 的内部测试注入字段。
+                        tts: ctx.tts ?? configuredCloudTts(channel, env),
                         concurrency: typeof args['concurrency'] === 'number' ? args['concurrency'] : undefined,
                         fetchImpl: ctx.fetchImpl,
                     });
@@ -100,6 +112,9 @@ export function buildGenerateTools(ctx) {
                     };
                 }
                 catch (err) {
+                    if (err instanceof ModelUnavailableError) {
+                        return { ok: false, error: { code: err.code, message: err.message } };
+                    }
                     if (denied > 0) {
                         return {
                             ok: false,

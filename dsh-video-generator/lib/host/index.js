@@ -11,6 +11,7 @@ import { buildGenerateTools, generateToolDefs } from "../tools/generate.js";
 import { buildProvideTools, provideToolDefs } from "../tools/provide.js";
 import { buildReviewTools, reviewToolDefs } from "../tools/review.js";
 import { buildChannelsTools, channelsToolDefs } from "../tools/channels.js";
+import { modelUnavailableFrom } from "../model-selection.js";
 import { PLUGIN_ID, handleApi, healthPayload, isLoopbackRequest, resolveMediaPath, mediaContentType } from "./routes.js";
 export const name = PLUGIN_ID;
 /** cordis 依赖声明：这些服务就绪后才 apply（对齐 super-ppts 的模块级 inject 约定）。 */
@@ -80,9 +81,18 @@ export function apply(ctx) {
     const resolveChannel = () => {
         const d = vault.load().defaultChannelId;
         const c = d ? vault.getChannel(d) : null;
-        if (!c)
-            throw new Error('未配置生成通道：请先在设置页「通道管理」添加通道');
-        return { id: c.id, baseUrl: c.baseUrl, apiKey: c.apiKey };
+        if (!c) {
+            const missingId = d ?? 'default';
+            throw modelUnavailableFrom({ id: missingId, label: d ?? '默认通道', models: [] }, 'image/video/tts', null, '当前默认通道不存在');
+        }
+        return {
+            id: c.id,
+            label: c.label,
+            baseUrl: c.baseUrl,
+            apiKey: c.apiKey,
+            // 旧 vault 可能没有 models 字段：不迁移文件，运行时按空列表兼容。
+            models: Array.isArray(c.models) ? c.models : [],
+        };
     };
     const generateTools = buildGenerateTools({ vault, runs, channel: resolveChannel });
     const provideTools = buildProvideTools({ runs, env: process.env });

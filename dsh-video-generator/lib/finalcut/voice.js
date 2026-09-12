@@ -1,5 +1,6 @@
 /** 配音：voiceFile 外挂优先（云 TTS/真人录音）；否则 macOS say / Windows SAPI 本地合成。 */
 // voiceFile 的存在性由调用方探测；SAPI 脚本必须写临时 .ps1 后用 powershell -File 执行（不得 -Command 内联，防引号剥离重开解析面）；say 的 text 以 - 开头时执行层需自行防护。
+import { RelayError } from "../providers/relay-http.js";
 export function resolveVoice(intent, platform) {
     if (intent.voiceFile)
         return { kind: 'file', src: intent.voiceFile };
@@ -53,7 +54,7 @@ export async function synthesizeCloudSpeech(cfg, text, fetchImpl = fetch, timeou
                 msg = j?.error?.message ?? (typeof j?.message === 'string' ? j.message : msg);
             }
             catch { /* 非 JSON 错误体 */ }
-            throw new Error(`云端 TTS 失败: ${msg}`);
+            throw new RelayError(res.status, `云端 TTS 失败: ${msg}`);
         }
         return Buffer.from(await res.arrayBuffer());
     }

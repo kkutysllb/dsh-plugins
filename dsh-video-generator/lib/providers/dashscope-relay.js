@@ -15,7 +15,7 @@ function mapState(s) {
 }
 export function createDashscopeRelayProvider(ch, fetchImpl = fetch) {
     const base = ch.baseUrl.trim().replace(/\/+$/, '');
-    const isI2v = ch.model.toLowerCase().includes('i2v');
+    const isI2v = ch.imageToVideo ?? ch.model.toLowerCase().includes('i2v');
     const provider = {
         id: `dashscope-relay:${ch.model}`,
         capabilities: { textToVideo: !isI2v, imageToVideo: isI2v, maxDurationSec: 10, qualityTier: 5 },

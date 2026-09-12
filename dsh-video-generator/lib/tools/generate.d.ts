@@ -24,9 +24,10 @@ export interface GenerateContext {
     };
     /** 测试注入：下载用 fetch。 */
     fetchImpl?: typeof fetch;
-    /** 测试注入：云端 TTS 配置。生产路径从 env（VGEN_TTS_MODEL/VGEN_TTS_VOICE/VGEN_TTS_INSTRUCTIONS）解析。 */
+    /** 测试注入：云端 TTS 配置；生产路径按当前通道 models[] 动态选择。 */
     tts?: CloudTtsConfig;
 }
+export declare function configuredCloudTts(channel: ChannelRef, env?: NodeJS.ProcessEnv): CloudTtsConfig | undefined;
 export interface GenerateArgs {
     runId: string;
     target: 'assets' | 'video' | 'final';

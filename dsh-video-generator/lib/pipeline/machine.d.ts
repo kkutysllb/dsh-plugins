@@ -33,7 +33,6 @@ export interface MachineDeps {
     /** 状态轮询基础间隔（ms），默认 1000。 */
     pollDelayMs?: number;
 }
-export declare const VIDEO_MODEL_DEFAULT = "happyhorse-1.1-i2v";
 /** manual gate 拦截（工具层转 manual-gate 信封，指引 vgen_provide）。 */
 export declare class ManualGateError extends Error {
 }

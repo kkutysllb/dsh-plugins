@@ -7,21 +7,46 @@ import { createOpenaiImagesProvider } from "./providers/openai-images.js";
 import { createDashscopeRelayProvider } from "./providers/dashscope-relay.js";
 import { createKlingCompatProvider } from "./providers/kling-compat.js";
 /** 附录 B.4 协议地图：模型名 -> 视频协议族。 */
-function videoProtocolFamily(model) {
+function videoProtocolFamily(model, configured) {
+    const profile = configured?.endpointProfile?.trim().toLowerCase();
+    if (profile?.includes('kling'))
+        return 'kling';
+    if (profile?.includes('dashscope') || profile?.includes('wan'))
+        return 'dashscope';
     const id = model.toLowerCase();
     if (id.includes('wan') || id.includes('happyhorse'))
         return 'dashscope';
-    return 'kling';
+    if (id.includes('kling'))
+        return 'kling';
+    // A configured video kind is the user's explicit modality contract.
+    // Unknown names therefore use the existing i2v relay adapter instead of
+    // silently falling into Kling's text-to-video-only capability.
+    return configured?.kind === 'video' ? 'dashscope' : 'kling';
+}
+function capabilitiesForKind(kind) {
+    if (kind === 'image')
+        return { image: true, qualityTier: 5 };
+    if (kind === 'video')
+        return { imageToVideo: true, textToVideo: true, qualityTier: 5 };
+    return { tts: true, qualityTier: 5 };
 }
 export function providerForModel(channel, model, opts = {}) {
     const fetchImpl = opts.fetchImpl ?? fetch;
-    const { entry } = resolveModel(model);
+    const configured = channel.models?.find((candidate) => candidate.model === model);
+    const override = configured ? { kind: configured.kind, capabilities: capabilitiesForKind(configured.kind) } : undefined;
+    const { entry } = resolveModel(model, override);
     if (entry.kind === 'image') {
         return createOpenaiImagesProvider({ baseUrl: channel.baseUrl, apiKey: channel.apiKey, model, estimate: opts.estimate }, fetchImpl);
     }
     if (entry.kind === 'video') {
-        if (videoProtocolFamily(model) === 'dashscope') {
-            return createDashscopeRelayProvider({ baseUrl: channel.baseUrl, apiKey: channel.apiKey, model, estimate: opts.estimate }, fetchImpl);
+        if (videoProtocolFamily(model, configured) === 'dashscope') {
+            return createDashscopeRelayProvider({
+                baseUrl: channel.baseUrl,
+                apiKey: channel.apiKey,
+                model,
+                estimate: opts.estimate,
+                imageToVideo: configured?.kind === 'video' && !/(?:t2v|text2video)/i.test(model),
+            }, fetchImpl);
         }
         return createKlingCompatProvider({ baseUrl: channel.baseUrl, apiKey: channel.apiKey, model, estimate: opts.estimate }, fetchImpl);
     }

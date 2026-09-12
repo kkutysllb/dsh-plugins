@@ -11,12 +11,29 @@ import { buildCharacterSheetPrompt, buildScenePrompt, buildShotPrompt } from "..
 import { STAGES } from "../stages.js";
 import { retryTransient } from "../poll.js";
 import { RelayError } from "../providers/relay-http.js";
+import { isExplicitModelUnavailable, ModelUnavailableError, modelUnavailableFrom, selectConfiguredModel } from "../model-selection.js";
 import { generateShotClip, saveUrl, SHOT_MOTION_PROMPT } from "./shot-clip.js";
 import { buildTimeline, writeSrt, Timeline } from "../finalcut/timeline.js";
 import { renderTimeline, probeDurationSec } from "../finalcut/render-ffmpeg.js";
 import { resolveVoice, buildMacSayCommand, buildSapiScript, synthesizeCloudSpeech } from "../finalcut/voice.js";
-const IMAGE_MODEL_DEFAULT = 'doubao-seedream-4-0-250828';
-export const VIDEO_MODEL_DEFAULT = 'happyhorse-1.1-i2v';
+function selectStageModel(deps, kind, injected) {
+    return injected ?? selectConfiguredModel(deps.channel, kind);
+}
+function requireCapability(channel, kind, model, provider) {
+    const capability = kind === 'image' ? 'image' : 'imageToVideo';
+    if (!provider.capabilities[capability]) {
+        const readableCapability = kind === 'image' ? 'image' : 'image-to-video';
+        throw modelUnavailableFrom(channel, kind, model, `Provider ${provider.id} 不支持 ${readableCapability}`);
+    }
+}
+function wrapExplicitModelError(channel, kind, model, err) {
+    if (err instanceof ModelUnavailableError)
+        return err;
+    if (isExplicitModelUnavailable(err)) {
+        return modelUnavailableFrom(channel, kind, model, err instanceof Error ? err.message : String(err));
+    }
+    return err instanceof Error ? err : new Error(String(err));
+}
 /** 9:16 画布用竖版参考图（2:3 为中转普遍支持的最接近竖档，渲染端 crop 归一化消黑边）。 */
 const IMAGE_SIZE_PORTRAIT = '1024x1536';
 /** 角色三视图卡：横向并排三视图，横版构图。 */
@@ -29,7 +46,7 @@ async function submitImageWithSize(p, stage, prompt, size, onFallback) {
         return (await p.submit(stage, { prompt, size })).jobId;
     }
     catch (err) {
-        if (err instanceof RelayError && err.status === 400) {
+        if (err instanceof RelayError && err.status === 400 && !isExplicitModelUnavailable(err)) {
             onFallback();
             return (await p.submit(stage, { prompt })).jobId;
         }
@@ -109,6 +126,12 @@ export async function advanceRun(deps) {
     const targetIdx = STAGES.indexOf(deps.target);
     const result = { runId, stages: { ...record.stages } };
     const gates = deps.gates ?? {};
+    // 先校验后序 video 模型，避免前序 image 阶段确认后才发现模型不可用。
+    if (targetIdx >= STAGES.indexOf('video') && record.stages['video'] !== 'done') {
+        const videoModel = selectStageModel(deps, 'video', deps.videoModel);
+        const videoProvider = deps.providers.forModel(videoModel, { fetchImpl });
+        requireCapability(deps.channel, 'video', videoModel, videoProvider);
+    }
     const ensureGate = async (stage, info) => {
         const mode = gates[stage] ?? 'auto';
         if (mode === 'manual')
@@ -137,8 +160,9 @@ export async function advanceRun(deps) {
             const script = readJson(runs, runId, 'script');
             const assetDir = join(runs.rootDir, runId, 'assets');
             mkdirSync(assetDir, { recursive: true });
-            const imageModel = deps.imageModel ?? IMAGE_MODEL_DEFAULT;
+            const imageModel = selectStageModel(deps, 'image', deps.imageModel);
             const p = deps.providers.forModel(imageModel, { fetchImpl });
+            requireCapability(deps.channel, 'image', imageModel, p);
             const jobs = [
                 ...script.characters.map((c) => ({
                     file: join(assetDir, `char-${c.id}.png`),
@@ -167,7 +191,7 @@ export async function advanceRun(deps) {
             }
             catch (err) {
                 runs.setStage(runId, st, 'failed');
-                throw err;
+                throw wrapExplicitModelError(deps.channel, 'image', imageModel, err);
             }
         }
     }
@@ -180,8 +204,9 @@ export async function advanceRun(deps) {
             const sb = readJson(runs, runId, 'storyboard');
             const shotsDir = join(runs.rootDir, runId, 'shots');
             mkdirSync(shotsDir, { recursive: true });
-            const imageModel = deps.imageModel ?? IMAGE_MODEL_DEFAULT;
+            const imageModel = selectStageModel(deps, 'image', deps.imageModel);
             const p = deps.providers.forModel(imageModel, { fetchImpl });
+            requireCapability(deps.channel, 'image', imageModel, p);
             const shotImages = [];
             try {
                 begin(st);
@@ -213,7 +238,7 @@ export async function advanceRun(deps) {
             }
             catch (err) {
                 runs.setStage(runId, st, 'failed');
-                throw err;
+                throw wrapExplicitModelError(deps.channel, 'image', imageModel, err);
             }
         }
         else {
@@ -236,8 +261,9 @@ export async function advanceRun(deps) {
                 throw new Error('缺少 shot 参考图 URL：请先完成 shot-assets 段');
             const clipsDir = join(runs.rootDir, runId, 'clips');
             mkdirSync(clipsDir, { recursive: true });
-            const videoModel = deps.videoModel ?? VIDEO_MODEL_DEFAULT;
+            const videoModel = selectStageModel(deps, 'video', deps.videoModel);
             const p = deps.providers.forModel(videoModel, { fetchImpl });
+            requireCapability(deps.channel, 'video', videoModel, p);
             const clipFiles = [];
             try {
                 begin(st);
@@ -262,6 +288,9 @@ export async function advanceRun(deps) {
                         });
                     }
                     catch (err) {
+                        if (isExplicitModelUnavailable(err) || err instanceof ModelUnavailableError) {
+                            throw wrapExplicitModelError(deps.channel, 'video', videoModel, err);
+                        }
                         // 保留 shot 上下文前缀（原实现的判别性消息形态）
                         throw new Error(`shot ${shot.index}: ${err instanceof Error ? err.message : String(err)}`);
                     }
@@ -317,6 +346,9 @@ export async function advanceRun(deps) {
                             voice = null;
                         }
                         catch (err) {
+                            if (isExplicitModelUnavailable(err)) {
+                                throw modelUnavailableFrom(deps.channel, 'tts', deps.tts.model, err instanceof Error ? err.message : String(err));
+                            }
                             runs.appendEvent(runId, 'tts-fallback', { shot: shot.index, reason: err instanceof Error ? err.message : String(err) });
                             voice = resolveVoice({ voiceHint: text }, process.platform);
                         }

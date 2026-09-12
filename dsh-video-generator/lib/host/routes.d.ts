@@ -6,7 +6,7 @@ import type { VaultStore } from '../store/vault.ts';
 import type { RunStore } from '../store/runs.ts';
 import type { probeChannel } from '../probe.ts';
 export declare const PLUGIN_ID = "dsh-video-generator";
-export declare const PLUGIN_VERSION = "1.0.2";
+export declare const PLUGIN_VERSION = "1.0.4";
 export interface ApiContext {
     vault: VaultStore;
     runs: RunStore;
