@@ -212,6 +212,14 @@ export const api = {
     call<FsTextResult | FsBinaryResult>('fs.read', scopePayload(scope, { path }), signal),
   fsWrite: (scope: SessionScope, path: string, content: string) =>
     call<{ ok: true }>('fs.write', scopePayload(scope, { path, content })),
+  /** Rename one tree row within its directory (single-segment name; a
+   *  destination-existence clash is a 409; symlink rows rename the link). */
+  fsRename: (scope: SessionScope, path: string, name: string) =>
+    call<{ path: string }>('fs.rename', scopePayload(scope, { path, name })),
+  /** Delete one tree row permanently (recursive for directories; a symlink
+   *  row unlinks the link only). */
+  fsRemove: (scope: SessionScope, path: string) =>
+    call<{ path: string }>('fs.remove', scopePayload(scope, { path })),
   /** Upload one file's raw bytes into `dir` (keeps the folder tree via
    *  `relativePath`); the host streams it under the session workspace. */
   uploadFile: (scope: SessionScope, dir: string, relativePath: string, body: Blob, signal?: AbortSignal) =>
@@ -241,6 +249,14 @@ export const api = {
   /** Full patch text of one commit (diff display for the history rows). */
   gitCommitDiff: (scope: SessionScope, hash: string, worktree?: string, signal?: AbortSignal) =>
     call<{ diff: string }>('git.commit-diff', gitPayload(scope, worktree, { hash }), signal),
+  /** Both sides' full file contents for a diff-fold expansion; a missing
+   *  side is null (untracked / deleted) and the view degrades the fold. */
+  gitFoldContents: (scope: SessionScope, opts: { path: string; staged?: boolean; hash?: string }, worktree?: string, signal?: AbortSignal) =>
+    call<{ old: string | null; new: string | null }>('git.fold-contents', gitPayload(scope, worktree, {
+      path: opts.path,
+      ...(opts.staged !== undefined ? { staged: opts.staged } : {}),
+      ...(opts.hash !== undefined ? { hash: opts.hash } : {}),
+    }), signal),
   /** Discard the worktree changes of one file (the index is untouched). */
   gitDiscard: (scope: SessionScope, path: string, worktree?: string) =>
     call<{ ok: true }>('git.discard', gitPayload(scope, worktree, { path })),
@@ -258,6 +274,10 @@ export const api = {
   /** Release an agent terminal by uuid (tab closed while WS was down). */
   agentPtyClose: (uuid: string) =>
     call<{ ok: true }>('agent-pty.close', { uuid }),
+  /** Skip every active terminal_wait_for on one agent terminal (the wait
+   *  banner's skip button). Idempotent: {skipped:0} when none is active. */
+  agentSkipWait: (uuid: string) =>
+    call<{ ok: true; skipped: number }>('agent-pty.skip-wait', { uuid }),
   /** Terminal dependency status (issue #140): after a WS close 1011 with
    *  reason `pty-deps-missing` the view fetches the full repair details here
    *  (the close reason itself is capped at 123 bytes). */

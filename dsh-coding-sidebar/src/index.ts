@@ -30,7 +30,7 @@ import {
   type SidebarPrefs,
 } from './config.ts'
 import { parentOf, requireAbsolute, listDirectory, rootLabel } from './fs-tree.ts'
-import { writeWorkspaceUpload } from './fs-operations.ts'
+import { removeWorkspaceEntry, renameWorkspaceEntry, writeWorkspaceUpload } from './fs-operations.ts'
 import { ensureWorkspacePath, ensureWorkspaceWritePath } from './path-security.ts'
 import { searchFiles } from './fs-search.ts'
 import { extractFrameAncestors } from './browser-probe.ts'
@@ -351,6 +351,26 @@ function buildApi(
       }
       return { ok: true }
     },
+    // The tree row's rename: single-segment name, destination-existence and
+    // workspace-root refusals, link-aware (renames the row, not its target).
+    // fs-operations.ts owns the containment and shape rules.
+    'fs.rename': async (payload) => {
+      const { cwd } = await cwdOf(payload)
+      return renameWorkspaceEntry({
+        cwd,
+        path: requireString(payload, 'path'),
+        name: requireString(payload, 'name'),
+      })
+    },
+    // The tree row's delete (permanent — the host has no trash): recursive
+    // for directories, unlinks a symlink row without touching its target.
+    'fs.remove': async (payload) => {
+      const { cwd } = await cwdOf(payload)
+      return removeWorkspaceEntry({
+        cwd,
+        path: requireString(payload, 'path'),
+      })
+    },
     'git.worktrees': async (payload) => {
       const { cwd } = await gitCwdOf(payload)
       const selected = selectedRepoOf(payload)
@@ -438,6 +458,19 @@ function buildApi(
       const rev = requireString(payload, 'rev')
       return { content: await git.show(cwd, rev, path, repoRoot) }
     },
+    // Diff-fold expansion data: both sides' full file contents so the client
+    // can materialize the hidden context rows a -U3 hunk gap omitted. The
+    // sides resolve per diff kind (commit hash / staged / unstaged) inside
+    // git.foldContents; a missing side is null and the client degrades.
+    'git.fold-contents': async (payload) => {
+      const { cwd } = await gitCwdOf(payload)
+      const repoRoot = selectedRepoOf(payload)
+      const record = payload as { path?: unknown; staged?: unknown; hash?: unknown }
+      const path = await resolveGitPath(cwd, requireString(record, 'path'), repoRoot)
+      const staged = record.staged === true
+      const hash = typeof record.hash === 'string' ? record.hash : undefined
+      return await git.foldContents(cwd, path, { staged, hash }, repoRoot)
+    },
     // Release a terminal immediately. The WebSocket close frame already does
     // this while the socket is open; this route covers the tab-close that
     // happens while the socket is down (reconnect loop), so a closed tab can
@@ -458,6 +491,15 @@ function buildApi(
       const uuid = requireString(payload, 'uuid')
       agentPtyRegistry?.close(uuid)
       return { ok: true }
+    },
+    // The sidebar wait banner's skip button: abort every active
+    // terminal_wait_for on one agent terminal. Idempotent — 0 when nothing
+    // is waiting (a stale banner racing a wait that already resolved).
+    // Degraded mode (node-pty unavailable) has no registry and no waits: an
+    // honest ok.
+    'agent-pty.skip-wait': (payload) => {
+      const uuid = requireString(payload, 'uuid')
+      return { ok: true, skipped: agentPtyRegistry?.skipWait(uuid) ?? 0 }
     },
     // Terminal dependency status (issue #140): after a WS close 1011 with
     // reason `pty-deps-missing` the client fetches the full repair details

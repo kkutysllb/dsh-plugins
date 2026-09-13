@@ -194,7 +194,8 @@ window.__ModuleLoader__.load({
 				expanded: [],
 				revealed: [],
 				splits: leaf,
-				floats: []
+				floats: [],
+				agentWaits: {}
 			};
 		}
 		/** Whether a tree node (or any descendant) carries the given pane/split id. */
@@ -809,6 +810,19 @@ window.__ModuleLoader__.load({
 		function agentTabId(uuid) {
 			return `${AGENT_TAB_PREFIX}${uuid}`;
 		}
+		/** Shallow equality of two agent-wait maps (same keys, same needle+since). */
+		function sameAgentWaits(a, b) {
+			if (a === void 0) return Object.keys(b).length === 0;
+			const aKeys = Object.keys(a);
+			if (aKeys.length !== Object.keys(b).length) return false;
+			for (const key of aKeys) {
+				const av = a[key];
+				const bv = b[key];
+				if (av === void 0 || bv === void 0) return false;
+				if (av.needle !== bv.needle || av.since !== bv.since) return false;
+			}
+			return true;
+		}
 		/**
 		* Reconcile the sidebar's agent-terminal tabs with the host's live list.
 		* The host pushes the current list of agent terminals (created by the model
@@ -827,7 +841,12 @@ window.__ModuleLoader__.load({
 			const serverUuids = new Set(agentTerminals.map((t) => t.uuid));
 			const toAdd = agentTerminals.filter((t) => !existingUuids.has(t.uuid));
 			const toRemove = existingAgentTabs.filter((tab) => !serverUuids.has(agentUuidOf(tab.id)) && tab.pin === void 0);
-			if (toAdd.length === 0 && toRemove.length === 0) return state;
+			const serverWaits = {};
+			for (const terminal of agentTerminals) if (terminal.waiting !== void 0 && terminal.waiting !== null) serverWaits[terminal.uuid] = {
+				needle: terminal.waiting.needle,
+				since: terminal.waiting.since
+			};
+			if (toAdd.length === 0 && toRemove.length === 0 && sameAgentWaits(state.agentWaits, serverWaits)) return state;
 			let splits = state.splits;
 			let floats = state.floats;
 			for (const tab of toRemove) {
@@ -841,7 +860,8 @@ window.__ModuleLoader__.load({
 			let next = {
 				...state,
 				splits,
-				floats
+				floats,
+				agentWaits: serverWaits
 			};
 			for (const terminal of toAdd) {
 				const tab = {
@@ -993,7 +1013,8 @@ window.__ModuleLoader__.load({
 				expanded: record.expanded,
 				revealed: [],
 				splits: migratedSplits,
-				floats
+				floats,
+				agentWaits: {}
 			};
 		}
 		/** Collapse persisted split panes left empty after ephemeral diff tabs are dropped. */
@@ -1468,7 +1489,7 @@ window.__ModuleLoader__.load({
 				if (claimed) return tab;
 			}
 		}
-		const SIDEBAR_SERVICE_VERSION = "1.0.8";
+		const SIDEBAR_SERVICE_VERSION = "1.0.9";
 		/**
 		* Monotonic capability list consumers use to gate new API usage (features
 		* are never removed). Each string names a v0.12.0+ capability:
@@ -2084,6 +2105,18 @@ window.__ModuleLoader__.load({
 			producedOpen: "在侧边栏中打开",
 			showInFolder: "在文件夹中显示",
 			disconnected: "终端连接断开，重连中…",
+			terminalWaitBanner: "Agent 正在等待 {needle}",
+			terminalSkipWait: "跳过等待",
+			gitFoldExpand: "展开 {count} 行上下文",
+			gitFoldLoading: "展开中…",
+			gitFoldFailed: "展开失败",
+			rename: "重命名",
+			renameInvalid: "名称不能为空，且不能包含路径分隔符。",
+			delete: "删除",
+			deleteTitle: "删除「{name}」？",
+			deleteDescFile: "将永久删除该文件，此操作不可撤销。",
+			deleteDescDir: "将永久删除该目录及其全部内容，此操作不可撤销。",
+			dismiss: "关闭",
 			exited: "终端进程已退出",
 			noSession: "选择一个会话以使用侧边栏",
 			pluginNotLoaded: "插件未加载，标签页暂不可用：",
@@ -2420,6 +2453,18 @@ window.__ModuleLoader__.load({
 			producedOpen: "Open in sidebar",
 			showInFolder: "Show in folder",
 			disconnected: "Terminal disconnected, reconnecting…",
+			terminalWaitBanner: "Agent is waiting for {needle}",
+			terminalSkipWait: "Skip wait",
+			gitFoldExpand: "Expand {count} context lines",
+			gitFoldLoading: "Expanding…",
+			gitFoldFailed: "Failed to expand",
+			rename: "Rename",
+			renameInvalid: "The name cannot be empty or contain path separators.",
+			delete: "Delete",
+			deleteTitle: "Delete \"{name}\"?",
+			deleteDescFile: "This permanently deletes the file. This cannot be undone.",
+			deleteDescDir: "This permanently deletes the directory and everything inside it. This cannot be undone.",
+			dismiss: "Dismiss",
 			exited: "Terminal process exited",
 			noSession: "Select a conversation to use the sidebar",
 			pluginNotLoaded: "Plugin not loaded; tab unavailable:",
@@ -2954,7 +2999,7 @@ window.__ModuleLoader__.load({
 		}
 		//#endregion
 		//#region \0dsh-css:/Users/libing/kk_Projects/dsh-coding-sidebar/src/client/sidebar.module.css.mjs
-		const css$4 = "[data-dsh-panel-host]{z-index:25;pointer-events:none;position:fixed;inset:0;overflow:hidden}[data-dsh-panel-host][data-dsh-panel-host-degraded]{position:absolute;top:0;left:0}.S5HVoW_toggleCluster{top:calc(3px + env(safe-area-inset-top));z-index:45;pointer-events:auto;flex-direction:row;gap:4px;display:flex;position:absolute;right:10px}.S5HVoW_panel:not(.S5HVoW_panelHidden) .S5HVoW_tabBar{padding-right:72px}.S5HVoW_toggleButton{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out), color var(--ds-transition-duration-slow) var(--ds-ease-in-out);background:0 0;border:none;border-radius:50%;justify-content:center;align-items:center;display:flex}.S5HVoW_toggleButton:hover:not(:disabled):not([aria-disabled=true]){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_toggleButton:disabled,.S5HVoW_toggleButton[aria-disabled=true]{opacity:.4;cursor:default}.S5HVoW_panel{box-sizing:border-box;z-index:40;pointer-events:auto;background:var(--dsw-alias-bg-layer-1);border-left:1px solid var(--dsw-alias-border-l2);padding-bottom:env(safe-area-inset-bottom);transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), width var(--ds-transition-duration-slow) var(--ds-ease-in-out);flex-direction:column;display:flex;position:absolute;top:0;bottom:0;right:0}.S5HVoW_panelHidden{pointer-events:none;visibility:hidden;transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), width var(--ds-transition-duration-slow) var(--ds-ease-in-out), visibility 0s linear var(--ds-transition-duration-slow);transform:translate(102%)}.S5HVoW_panel[data-dragging]{transition:none}.S5HVoW_panelResize{cursor:col-resize;z-index:2;touch-action:none;width:8px;position:absolute;top:0;bottom:0;left:-4px}.S5HVoW_panelResizeActive{background:var(--dsw-alias-interactive-bg-hover-accent)}.S5HVoW_panelBody{flex:1;min-width:0;min-height:0;display:flex}.S5HVoW_panel{contain:layout style}body[data-dsh-sidebar-dragging] .S5HVoW_panel{will-change:transform}.S5HVoW_floatWindow{z-index:42;pointer-events:auto;background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);box-shadow:var(--dsw-shadow-lv3);contain:layout style;border-radius:8px;flex-direction:column;display:flex;position:absolute;overflow:hidden}.S5HVoW_floatWindowDragging{will-change:left, top, width, height}.S5HVoW_floatHeader{height:34px;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:1px solid var(--dsw-alias-border-l1);cursor:grab;user-select:none;flex:none;align-items:center;gap:4px;padding:0 4px 0 10px;display:flex}.S5HVoW_floatWindowDragging .S5HVoW_floatHeader{cursor:grabbing}.S5HVoW_floatTitle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.S5HVoW_floatClose{width:18px;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:none;border-radius:4px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.S5HVoW_floatClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_floatContent{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden}.S5HVoW_floatResize{z-index:2;cursor:nwse-resize;touch-action:none;width:14px;height:14px;position:absolute;bottom:0;right:0}.S5HVoW_floatResize:hover{background:var(--dsw-alias-interactive-bg-hover-accent)}.S5HVoW_pane[data-dsh-float-dock-over]{outline:2px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-2px}.S5HVoW_floatDropHint{z-index:46;pointer-events:none;border:2px dashed var(--dsw-alias-interactive-bg-hover-accent);background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover-accent) 12%, transparent);border-radius:8px;justify-content:center;align-items:center;display:flex;position:absolute}.S5HVoW_floatDropHintLabel{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);border-radius:999px;padding:4px 12px}.S5HVoW_toggleCluster,.S5HVoW_toggleButton,.S5HVoW_tabBar,.S5HVoW_floatHeader{-webkit-app-region:no-drag}body[data-dsh-title-bar-compat] .S5HVoW_toggleCluster{top:calc(var(--dsh-title-bar-strip,40px) + 3px)}body[data-dsh-title-bar-compat] .S5HVoW_panel{padding-top:var(--dsh-title-bar-strip,40px)}.S5HVoW_iconButton{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:none;border-radius:50%;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.S5HVoW_iconButton:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_iconButton:disabled{opacity:.4;cursor:default}.S5HVoW_workbench,.S5HVoW_split{flex:1;min-width:0;min-height:0;display:flex}.S5HVoW_splitRow{flex-direction:row}.S5HVoW_splitCol{flex-direction:column}.S5HVoW_splitChild{display:flex;position:relative;overflow:hidden}.S5HVoW_divider{z-index:3;touch-action:none;flex:none;position:relative}.S5HVoW_dividerRow:after,.S5HVoW_dividerCol:after{content:\"\";background:var(--dsw-alias-border-l2);transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out);position:absolute}.S5HVoW_dividerRow{cursor:col-resize;width:7px;margin:0 -2px}.S5HVoW_dividerRow:after{width:1px;top:0;bottom:0;left:50%;transform:translate(-50%)}.S5HVoW_dividerCol{cursor:row-resize;height:7px;margin:-2px 0}.S5HVoW_dividerCol:after{height:1px;top:50%;left:0;right:0;transform:translateY(-50%)}.S5HVoW_divider:hover:after,.S5HVoW_dividerActive:after{background:var(--dsw-alias-interactive-bg-hover-accent)}.S5HVoW_pane{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;position:relative}.S5HVoW_paneDrop{outline:1px solid var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.S5HVoW_dropOverlay{z-index:6;pointer-events:none;background:var(--dsw-alias-interactive-bg-hover-accent);opacity:.5;position:absolute}.S5HVoW_dropLeft{width:25%;top:0;bottom:0;left:0}.S5HVoW_dropRight{width:25%;top:0;bottom:0;right:0}.S5HVoW_dropUp{height:25%;top:0;left:0;right:0}.S5HVoW_dropDown{height:25%;bottom:0;left:0;right:0}.S5HVoW_dropCenter{outline:2px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-2px;background:0 0;inset:25%}.S5HVoW_paneContent{flex-direction:column;flex:1;min-height:0;display:flex;overflow:hidden}.S5HVoW_paneTab{flex-direction:column;flex:1;min-height:0;display:flex}.S5HVoW_paneTabHidden{display:none}.S5HVoW_paneEmptyCards{flex:1;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));align-content:start;gap:8px;min-height:0;padding:12px;display:grid;overflow:hidden}.S5HVoW_paneCard{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;text-align:center;border-radius:8px;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:12px 8px;display:flex}.S5HVoW_paneCard:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-border-l2)}.S5HVoW_paneCard:disabled{opacity:.45;cursor:default}.S5HVoW_tabBar{border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);flex:none;align-items:stretch;height:34px;display:flex}.S5HVoW_tabBarDrop{outline:1px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.S5HVoW_tabList{scrollbar-width:none;flex:1;min-width:0;display:flex;overflow-x:auto}.S5HVoW_tabList::-webkit-scrollbar{display:none}.S5HVoW_tab{min-width:64px;max-width:160px;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);border-right:1px solid var(--dsw-alias-border-l1);cursor:pointer;user-select:none;background:0 0;flex:none;align-items:center;gap:4px;padding:0 4px 0 10px;display:flex}.S5HVoW_tab:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_tabActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active)}.S5HVoW_tabTitle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.S5HVoW_tabBadge{min-width:16px;height:15px;font:var(--dsw-font-xxxs-strong-11);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-brand-primary);border-radius:8px;flex:none;justify-content:center;align-items:center;padding:0 4px;display:inline-flex}.S5HVoW_tabClose{width:18px;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:none;border-radius:4px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.S5HVoW_tabClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_tabBarPlus{background:var(--dsw-alias-bg-layer-1);width:22px;height:22px;color:var(--dsw-alias-label-tertiary);cursor:pointer;border:none;border-radius:5px;flex:none;justify-content:center;align-self:center;align-items:center;margin:0 6px;padding:0;display:inline-flex;position:sticky;right:0}.S5HVoW_tabBarPlus:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_pinnedTab{color:var(--dsw-alias-label-tertiary);font-style:italic}.S5HVoW_pinnedTab:hover{color:var(--dsw-alias-label-secondary)}.S5HVoW_explorer{flex-direction:column;flex:1;min-height:0;display:flex}.S5HVoW_explorerHeader{flex:none;justify-content:space-between;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.S5HVoW_explorerRoot{font:var(--dsw-font-s-14);color:var(--dsw-alias-label-secondary);text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.S5HVoW_explorerBody{flex:1;min-height:0;padding:4px 8px 8px;overflow:hidden auto}.S5HVoW_explorerRow{box-sizing:border-box;width:100%;max-width:100%;height:34px;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);text-align:left;cursor:pointer;white-space:nowrap;animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);background:0 0;border:none;border-radius:8px;align-items:center;gap:6px;padding:0 8px;display:flex}.S5HVoW_explorerRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_explorerRowRevealed{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover-accent) 18%, transparent);box-shadow:inset 2px 0 0 var(--dsw-alias-interactive-bg-hover-accent)}.S5HVoW_explorerDir{font:var(--dsw-font-s-strong-14)}.S5HVoW_explorerHidden{opacity:.45}.S5HVoW_explorerSymlink{color:var(--dsw-alias-label-tertiary);flex:none}.S5HVoW_explorerBroken .S5HVoW_explorerName{color:var(--dsw-alias-state-error-primary)}.S5HVoW_explorerName{text-overflow:ellipsis;white-space:nowrap;min-width:0;overflow:hidden}.S5HVoW_explorerRef{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);height:20px;color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-strong-11);cursor:pointer;border-radius:999px;flex:none;align-items:center;padding:0 8px;display:none}.S5HVoW_explorerRef:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_explorerRow:hover .S5HVoW_explorerRef,.S5HVoW_explorerRow:focus-within .S5HVoW_explorerRef{display:inline-flex}.S5HVoW_explorerCopied{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);flex:none}.S5HVoW_explorerError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);cursor:default}@keyframes S5HVoW_dsh-row-in{0%{opacity:0}}.S5HVoW_explorerEmpty{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;padding:16px}.S5HVoW_explorerRowDropTarget{background:var(--dsw-alias-interactive-bg-hover);outline:1px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.S5HVoW_uploadDropZone{z-index:1001;pointer-events:none;border:2px dashed var(--dsw-alias-interactive-bg-hover-accent);box-shadow:0 0 0 200vmax var(--dsw-alias-bg-mask-drop);animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);border-radius:10px;justify-content:center;align-items:flex-start;padding:12px;display:flex;position:fixed}.S5HVoW_uploadDropHero{flex-direction:column;align-items:center;gap:10px;max-width:100%;padding-top:8px;display:flex}.S5HVoW_uploadDropZonePill{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);max-width:100%;box-shadow:var(--dsw-shadow-lv2);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);border-radius:999px;align-items:center;gap:6px;padding:6px 12px;display:flex}.S5HVoW_uploadDropZoneText{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.S5HVoW_uploadDropChatHint{z-index:1002;pointer-events:none;animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0}.S5HVoW_uploadDropChatCard{text-align:center;max-width:100%;color:var(--dsw-alias-label-primary);font:var(--dsw-font-s-strong-14);flex-direction:column;align-items:center;gap:12px;display:flex}.S5HVoW_uploadOverlay{z-index:30;background:var(--dsw-alias-bg-mask-1);backdrop-filter:var(--dsw-mask-blur);animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);justify-content:center;align-items:center;display:flex;position:absolute;inset:0}.S5HVoW_uploadOverlayCard{border:1px solid var(--dsw-alias-border-inverted);background:var(--dsw-alias-bg-layer-2);min-width:280px;max-width:min(420px,100% - 48px);box-shadow:var(--dsw-shadow-lv3);border-radius:24px;flex-direction:column;gap:12px;padding:20px 24px;display:flex}.S5HVoW_uploadOverlayTitle{font:var(--dsw-font-s-strong-14);color:var(--dsw-alias-label-primary);align-items:center;gap:8px;display:flex}.S5HVoW_uploadOverlayTitle>svg{flex:none}.S5HVoW_uploadOverlayTitle>span{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.S5HVoW_uploadOverlayProgress{background:var(--dsw-alias-border-l2);border-radius:3px;height:6px;overflow:hidden}.S5HVoW_uploadOverlayProgressFill{background:var(--dsw-alias-interactive-bg-hover-accent);height:100%;transition:width .15s var(--ds-ease-in-out);border-radius:3px}.S5HVoW_uploadOverlayStatus{min-height:1em;font:var(--dsw-font-xxs-12);font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.S5HVoW_uploadOverlayCancel{border:1px solid var(--dsw-alias-border-l2);height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;background:0 0;border-radius:8px;align-self:flex-end;padding:0 14px}.S5HVoW_uploadOverlayCancel:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-border-l2)}.S5HVoW_uploadOverlayCancel:disabled{opacity:.4;cursor:default}.S5HVoW_editor{flex-direction:column;flex:1;min-height:0;display:flex}.S5HVoW_editorHeader{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:6px;padding:6px 8px;display:flex}.S5HVoW_editorTitle{min-width:0;font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-secondary);text-overflow:ellipsis;white-space:nowrap;flex:1;overflow:hidden}.S5HVoW_editorPathInput{box-sizing:border-box;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.S5HVoW_editorPathInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.S5HVoW_editorTreeToggleActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active)}.S5HVoW_editorBody{flex:1;min-height:0;display:flex}.S5HVoW_editorMain{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex}.S5HVoW_editorTreeDock{border-left:1px solid var(--dsw-alias-border-l1);flex:none;min-height:0;display:flex;position:relative}.S5HVoW_editorTreeResize{cursor:col-resize;touch-action:none;z-index:3;width:6px;position:absolute;top:0;bottom:0;left:0}.S5HVoW_editorTreeResize:hover{background:var(--dsw-alias-border-l2)}.S5HVoW_editorTreePanel{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;position:relative}.S5HVoW_editorTreePanelFull{flex:1}.S5HVoW_editorTreeSearch{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:6px;padding:6px 8px;display:flex}.S5HVoW_editorSearchInput{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:26px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.S5HVoW_editorSearchInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.S5HVoW_editorSearchHint{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);padding:8px 12px}.S5HVoW_editorSearchResult{width:100%;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);text-align:left;cursor:pointer;text-overflow:ellipsis;white-space:nowrap;background:0 0;border:none;border-radius:6px;padding:4px 8px;display:block;overflow:hidden}.S5HVoW_editorSearchResult:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_editorStatus{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary)}.S5HVoW_editorStatusError{color:var(--dsw-alias-state-error-primary)}.S5HVoW_dirtyDot{background:var(--dsw-alias-state-warn-primary);border-radius:50%;flex:none;width:7px;height:7px}.S5HVoW_editorPlaceholder{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;flex:1;justify-content:center;align-items:center;padding:16px;display:flex}.S5HVoW_orphanedType{opacity:.7;overflow-wrap:anywhere;margin-top:8px;font-size:12px;display:block}.S5HVoW_editorBinary{text-align:center;flex-direction:column;flex:1;justify-content:center;align-items:center;gap:12px;padding:24px 16px;display:flex}.S5HVoW_editorBinaryNotice{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.S5HVoW_editorDownloadLink{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out), border-color var(--ds-transition-duration-slow) var(--ds-ease-in-out);border-radius:6px;align-items:center;gap:6px;padding:6px 14px;text-decoration:none;display:inline-flex}.S5HVoW_editorDownloadLink:hover{background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-border-l2)}.S5HVoW_editorError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);padding:12px 16px}.S5HVoW_editorBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;padding:4px 8px}.S5HVoW_sandboxStatus{font:var(--dsw-font-xxxs-11);flex:none;align-items:center;gap:8px;padding:4px 10px;display:flex}.S5HVoW_sandboxStatusOn{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:1px solid var(--dsw-alias-border-l1)}.S5HVoW_sandboxStatusOff{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 10%, transparent);border-bottom:1px solid color-mix(in srgb, var(--dsw-alias-state-error-primary) 45%, transparent)}.S5HVoW_sandboxDot{background:var(--dsw-alias-state-success-primary);border-radius:50%;flex:none;width:6px;height:6px}.S5HVoW_sandboxStatusOff .S5HVoW_sandboxDot{background:var(--dsw-alias-state-error-primary)}.S5HVoW_sandboxStatusText{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.S5HVoW_sandboxAction{border:1px solid var(--dsw-alias-border-l2);font:inherit;color:inherit;cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:2px 8px}.S5HVoW_sandboxAction:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_browser{flex-direction:column;flex:1;min-height:0;display:flex}.S5HVoW_browserBar{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:4px;padding:6px 8px;display:flex}.S5HVoW_browserInput{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.S5HVoW_browserInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.S5HVoW_browserMessage{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;padding:4px 12px}.S5HVoW_browserFrame{background:var(--dsw-alias-bg-base);border:none;flex:1;width:100%;min-height:0}.S5HVoW_browserStart{text-align:center;min-height:0;font:var(--dsw-font-xs-13);color:var(--dsw-alias-label-tertiary);flex:1;justify-content:center;align-items:center;padding:20px;display:flex}.S5HVoW_browserBlocked{text-align:center;min-height:0;color:var(--dsw-alias-state-warn-primary);flex-direction:column;flex:1;justify-content:center;align-items:center;gap:6px;padding:24px;display:flex}.S5HVoW_browserBlockedTitle{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary)}.S5HVoW_browserBlockedDesc{max-width:280px;font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-secondary)}.S5HVoW_browserBlockedActions{gap:8px;margin-top:6px;display:flex}.S5HVoW_browserBlockedButton{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxxs-11);cursor:pointer;border-radius:6px;padding:4px 12px}.S5HVoW_browserBlockedButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_editorCm{background:0 0;flex:1;min-height:0;overflow:hidden}.S5HVoW_editorCm .cm-editor{height:100%}.S5HVoW_editorCm .cm-scroller{padding:12px 16px}.S5HVoW_editorCm .cm-editor.cm-focused{outline:none}.S5HVoW_selectionPopup{z-index:60;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxxs-strong-11);white-space:nowrap;cursor:pointer;border-radius:6px;align-items:center;padding:0 10px;display:inline-flex;position:fixed;transform:translate(-50%,calc(-100% - 8px))}.S5HVoW_selectionPopup:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_terminalWrap{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-height:0;display:flex;position:relative}.S5HVoW_terminal{flex:1;min-height:0;padding:6px 4px 6px 8px}.S5HVoW_terminal .xterm{height:100%}.S5HVoW_terminalBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex-wrap:wrap;flex:none;align-items:center;gap:8px;padding:3px 10px;display:flex}.S5HVoW_terminalBannerUrl{word-break:break-all;opacity:.85;flex-basis:100%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.S5HVoW_boundaryError{z-index:50;background:var(--dsw-alias-bg-layer-1);border-left:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);flex-direction:column;align-items:flex-start;gap:8px;padding:16px;display:flex;position:fixed;top:0;bottom:0;right:0;overflow:auto}.S5HVoW_terminalRetry{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxxs-strong-11);cursor:pointer;border-radius:999px;flex:none;padding:1px 8px}.S5HVoW_terminalRetry:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_terminalDepsBanner{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex-direction:column;flex:none;gap:6px;padding:10px;display:flex}.S5HVoW_terminalDepsTitle{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-state-warn-primary)}.S5HVoW_terminalDepsHint{opacity:.9}.S5HVoW_terminalDepsCommandRow{align-items:flex-start;gap:8px;display:flex}.S5HVoW_terminalRepairCommand{white-space:pre-wrap;word-break:break-all;user-select:text;min-width:0;color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2);border:1px solid var(--dsw-alias-border-l2);border-radius:4px;flex:1;max-height:160px;margin:0;padding:6px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;overflow:auto}.S5HVoW_terminalDepsNote{opacity:.85}.S5HVoW_terminalDepsActions{align-items:center;gap:8px;display:flex}.S5HVoW_tabBoundaryError{min-height:0;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);flex-direction:column;flex:1;align-items:flex-start;gap:8px;padding:12px 16px;display:flex;overflow:auto}.S5HVoW_git{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden auto}.S5HVoW_gitHeader{flex:none;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.S5HVoW_gitWorktreeRow{flex:none;align-items:center;gap:8px;padding:6px 8px 0 12px;display:flex}.S5HVoW_gitWorktreeLabel{color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);flex:none}.S5HVoW_gitBranchSelect{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-base);min-width:0;height:26px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 6px}.S5HVoW_gitSection{border-top:1px solid var(--dsw-alias-border-l1)}.S5HVoW_gitSectionHeader{font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-tertiary);text-transform:uppercase;justify-content:space-between;align-items:center;padding:6px 12px 4px;display:flex}.S5HVoW_gitLink{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-brand-primary);cursor:pointer;background:0 0;border:none;padding:0}.S5HVoW_gitLink:hover:not(:disabled){text-decoration:underline}.S5HVoW_gitLink:disabled{opacity:.4;cursor:default}.S5HVoW_gitRow{min-height:34px;animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);border-radius:8px;align-items:center;gap:6px;margin:0 6px;padding:0 8px;display:flex}.S5HVoW_gitRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_gitRowSelected{background:var(--dsw-alias-interactive-bg-active)}.S5HVoW_gitRowMain{cursor:pointer;text-align:left;background:0 0;border:none;flex:1;align-items:center;gap:8px;min-width:0;padding:3px 0;display:flex}.S5HVoW_gitBadge{width:20px;height:16px;font:var(--dsw-font-xxxs-strong-11);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary);border-radius:4px;flex:none;justify-content:center;align-items:center;display:inline-flex}.S5HVoW_gitName{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.S5HVoW_gitEmpty{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);padding:4px 12px 8px}.S5HVoW_gitPlaceholder{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;padding:16px}.S5HVoW_gitError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);white-space:pre-wrap;padding:8px 12px}.S5HVoW_gitDiff{border-top:1px solid var(--dsw-alias-border-l1);padding:8px}.S5HVoW_gitDiffTab{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden auto}.S5HVoW_gitDiffTabHeader{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.S5HVoW_gitDiffTabTitle{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.S5HVoW_gitDiffFile{width:100%;color:inherit;text-align:left;cursor:pointer;background:0 0;border:0;align-items:baseline;gap:6px;padding:8px 2px 2px;display:flex}.S5HVoW_gitDiffFile:disabled{cursor:default}.S5HVoW_gitDiffFile:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_gitDiffFileChevron{color:var(--dsw-alias-label-tertiary);flex:none;transform:rotate(0)}.S5HVoW_gitDiffFileChevronExpanded{transform:rotate(90deg)}.S5HVoW_gitDiffFilePath{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary);text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.S5HVoW_gitDiffFileOld{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);text-overflow:ellipsis;white-space:nowrap;flex:none;max-width:40%;overflow:hidden}.S5HVoW_gitDiffFileTag{border:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-secondary);border-radius:999px;flex:none;padding:0 6px}.S5HVoW_gitDiffHunk{font:var(--dsw-font-markdown-code-block-small);color:var(--dsw-alias-label-tertiary);gap:8px;padding:3px 2px;display:flex}.S5HVoW_gitDiffHunkHeader{color:var(--dsw-alias-label-secondary);flex:none}.S5HVoW_gitDiffHunkSection{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.S5HVoW_gitDiffLine{font:var(--dsw-font-markdown-code-block-small);white-space:pre-wrap;overflow-wrap:anywhere;align-items:stretch;min-width:0;line-height:20px;display:flex}.S5HVoW_gitDiffNum{text-align:right;width:36px;color:var(--dsw-alias-label-tertiary);user-select:none;flex:none;padding-right:8px}.S5HVoW_gitDiffCode{flex:1;min-width:0;overflow:visible}.S5HVoW_gitDiffCtx{color:var(--dsw-alias-label-primary)}.S5HVoW_gitDiffDel{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent)}.S5HVoW_gitDiffAdd{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 12%, transparent)}.S5HVoW_gitDiffMeta{padding-left:2px}.S5HVoW_gitDiffMetaText{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);font-style:italic}.S5HVoW_gitDiffExpand{width:100%;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-brand-primary);cursor:pointer;text-align:center;background:0 0;border:none;margin:4px 0;display:block}.S5HVoW_gitDiffExpand:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_gitConfirmDesc{font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);white-space:pre-wrap;margin:0}.S5HVoW_gitCommit{border-top:1px solid var(--dsw-alias-border-l1);align-items:center;gap:6px;padding:8px 12px;display:flex}.S5HVoW_gitCommitInput{flex:1;min-width:0}.S5HVoW_gitCommitButton{background:var(--dsw-alias-button-primary-fill);height:26px;color:var(--dsw-alias-label-primary-inverted);font:var(--dsw-font-xxs-strong-12);cursor:pointer;border:none;border-radius:6px;flex:none;padding:0 12px}.S5HVoW_gitCommitButton:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}.S5HVoW_gitCommitButton:disabled{opacity:.45;cursor:default}.S5HVoW_gitLogRow{cursor:pointer;border-radius:8px;flex-direction:column;gap:2px;padding:5px 12px;display:flex}.S5HVoW_gitLogRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_gitLogLine1{align-items:baseline;gap:8px;min-width:0;display:flex}.S5HVoW_gitLogHash{font:var(--dsw-font-markdown-code-block-small);color:var(--dsw-alias-label-tertiary);flex:none}.S5HVoW_gitLogLine2{flex-wrap:wrap;align-items:center;gap:6px;min-width:0;display:flex}.S5HVoW_gitLogRef{border:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-brand-primary);white-space:nowrap;border-radius:999px;flex:none;padding:0 5px}.S5HVoW_gitLogSubject{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.S5HVoW_gitLogMeta{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary)}.S5HVoW_gitLogMore{border:1px solid var(--dsw-alias-border-l2);width:calc(100% - 24px);font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border-radius:6px;margin:4px 12px 8px;padding:6px 0;display:block}.S5HVoW_gitLogMore:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_gitLogMore:disabled{opacity:.5;cursor:default}.S5HVoW_producedRow{flex-wrap:wrap;align-items:center;gap:8px;padding:4px 0;display:flex}.S5HVoW_producedLabel{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.S5HVoW_producedChip{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);max-width:200px;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-12);cursor:pointer;border-radius:999px;align-items:center;gap:4px;padding:2px 8px;display:inline-flex;overflow:hidden}.S5HVoW_producedChip:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_producedChip span{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.S5HVoW_producedMore{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.S5HVoW_toggleButton:focus-visible,.S5HVoW_iconButton:focus-visible,.S5HVoW_tab:focus-visible,.S5HVoW_tabClose:focus-visible,.S5HVoW_tabBarPlus:focus-visible,.S5HVoW_paneCard:focus-visible,.S5HVoW_explorerRow:focus-visible,.S5HVoW_explorerRef:focus-visible,.S5HVoW_gitRowMain:focus-visible,.S5HVoW_gitLink:focus-visible,.S5HVoW_gitCommitButton:focus-visible,.S5HVoW_gitLogRow:focus-visible,.S5HVoW_gitLogMore:focus-visible,.S5HVoW_gitDiffFile:focus-visible,.S5HVoW_gitDiffExpand:focus-visible,.S5HVoW_terminalRetry:focus-visible,.S5HVoW_editorDownloadLink:focus-visible{outline:2px solid var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}@media (prefers-reduced-motion:reduce){.S5HVoW_panel,.S5HVoW_panelHidden,.S5HVoW_toggleCluster,.S5HVoW_toggleButton,.S5HVoW_tab,.S5HVoW_tabBarPlus,.S5HVoW_paneCard,.S5HVoW_explorerRow,.S5HVoW_gitRow,.S5HVoW_divider,.S5HVoW_dividerRow:after,.S5HVoW_dividerCol:after{transition:none;animation:none}}@media (width<=767px){.S5HVoW_panel:not(.S5HVoW_panelHidden) .S5HVoW_tabBar{padding-right:40px}.S5HVoW_tab{min-width:48px;max-width:128px}}.S5HVoW_openWithLabel{align-items:center;gap:8px;width:100%;min-width:0;display:flex}.S5HVoW_openWithName{text-overflow:ellipsis;white-space:nowrap;flex:auto;min-width:0;overflow:hidden}.S5HVoW_openWithChevron{color:var(--dsw-alias-label-tertiary);flex:none}.S5HVoW_openWithPin{width:20px;height:20px;color:var(--dsw-alias-label-tertiary);cursor:pointer;border-radius:6px;flex:none;justify-content:center;align-items:center;display:inline-flex}.S5HVoW_openWithPin:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_openWithPinActive{color:var(--dsw-alias-state-business-primary)}@keyframes S5HVoW_dsh-toc-flash{0%,60%{background:var(--dsw-alias-interactive-bg-hover)}to{background:0 0}}.S5HVoW_browserLive{flex-direction:column;gap:6px;padding:8px 10px;display:flex;position:absolute;inset:0;overflow:hidden}.S5HVoW_browserLiveStatus{opacity:.75;align-items:center;gap:8px;font-size:12px;display:flex}.S5HVoW_browserLiveCanvas{object-fit:contain;border:1px solid var(--dsw-alias-border-l,#80808040);cursor:crosshair;background:#fff;border-radius:8px;flex:1;width:100%;min-height:0}.S5HVoW_browserLiveTarget{max-width:260px;font-size:12px}";
+		const css$4 = "[data-dsh-panel-host]{z-index:25;pointer-events:none;position:fixed;inset:0;overflow:hidden}[data-dsh-panel-host][data-dsh-panel-host-degraded]{position:absolute;top:0;left:0}.S5HVoW_toggleCluster{top:calc(3px + env(safe-area-inset-top));z-index:45;pointer-events:auto;flex-direction:row;gap:4px;display:flex;position:absolute;right:10px}.S5HVoW_panel:not(.S5HVoW_panelHidden) .S5HVoW_tabBar{padding-right:72px}.S5HVoW_toggleButton{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out), color var(--ds-transition-duration-slow) var(--ds-ease-in-out);background:0 0;border:none;border-radius:50%;justify-content:center;align-items:center;display:flex}.S5HVoW_toggleButton:hover:not(:disabled):not([aria-disabled=true]){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_toggleButton:disabled,.S5HVoW_toggleButton[aria-disabled=true]{opacity:.4;cursor:default}.S5HVoW_panel{box-sizing:border-box;z-index:40;pointer-events:auto;background:var(--dsw-alias-bg-layer-1);border-left:1px solid var(--dsw-alias-border-l2);padding-bottom:env(safe-area-inset-bottom);transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), width var(--ds-transition-duration-slow) var(--ds-ease-in-out);flex-direction:column;display:flex;position:absolute;top:0;bottom:0;right:0}.S5HVoW_panelHidden{pointer-events:none;visibility:hidden;transition:transform var(--ds-transition-duration-slow) var(--ds-ease-in-out), width var(--ds-transition-duration-slow) var(--ds-ease-in-out), visibility 0s linear var(--ds-transition-duration-slow);transform:translate(102%)}.S5HVoW_panel[data-dragging]{transition:none}.S5HVoW_panelResize{cursor:col-resize;z-index:2;touch-action:none;width:8px;position:absolute;top:0;bottom:0;left:-4px}.S5HVoW_panelResizeActive{background:var(--dsw-alias-interactive-bg-hover-accent)}.S5HVoW_panelBody{flex:1;min-width:0;min-height:0;display:flex}.S5HVoW_panel{contain:layout style}body[data-dsh-sidebar-dragging] .S5HVoW_panel{will-change:transform}.S5HVoW_floatWindow{z-index:42;pointer-events:auto;background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);box-shadow:var(--dsw-shadow-lv3);contain:layout style;border-radius:8px;flex-direction:column;display:flex;position:absolute;overflow:hidden}.S5HVoW_floatWindowDragging{will-change:left, top, width, height}.S5HVoW_floatHeader{height:34px;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:1px solid var(--dsw-alias-border-l1);cursor:grab;user-select:none;flex:none;align-items:center;gap:4px;padding:0 4px 0 10px;display:flex}.S5HVoW_floatWindowDragging .S5HVoW_floatHeader{cursor:grabbing}.S5HVoW_floatTitle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.S5HVoW_floatClose{width:18px;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:none;border-radius:4px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.S5HVoW_floatClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_floatContent{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden}.S5HVoW_floatResize{z-index:2;cursor:nwse-resize;touch-action:none;width:14px;height:14px;position:absolute;bottom:0;right:0}.S5HVoW_floatResize:hover{background:var(--dsw-alias-interactive-bg-hover-accent)}.S5HVoW_pane[data-dsh-float-dock-over]{outline:2px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-2px}.S5HVoW_floatDropHint{z-index:46;pointer-events:none;border:2px dashed var(--dsw-alias-interactive-bg-hover-accent);background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover-accent) 12%, transparent);border-radius:8px;justify-content:center;align-items:center;display:flex;position:absolute}.S5HVoW_floatDropHintLabel{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-1);border:1px solid var(--dsw-alias-border-l2);border-radius:999px;padding:4px 12px}.S5HVoW_toggleCluster,.S5HVoW_toggleButton,.S5HVoW_tabBar,.S5HVoW_floatHeader{-webkit-app-region:no-drag}body[data-dsh-title-bar-compat] .S5HVoW_toggleCluster{top:calc(var(--dsh-title-bar-strip,40px) + 3px)}body[data-dsh-title-bar-compat] .S5HVoW_panel{padding-top:var(--dsh-title-bar-strip,40px)}.S5HVoW_iconButton{width:28px;height:28px;color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border:none;border-radius:50%;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.S5HVoW_iconButton:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_iconButton:disabled{opacity:.4;cursor:default}.S5HVoW_workbench,.S5HVoW_split{flex:1;min-width:0;min-height:0;display:flex}.S5HVoW_splitRow{flex-direction:row}.S5HVoW_splitCol{flex-direction:column}.S5HVoW_splitChild{display:flex;position:relative;overflow:hidden}.S5HVoW_divider{z-index:3;touch-action:none;flex:none;position:relative}.S5HVoW_dividerRow:after,.S5HVoW_dividerCol:after{content:\"\";background:var(--dsw-alias-border-l2);transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out);position:absolute}.S5HVoW_dividerRow{cursor:col-resize;width:7px;margin:0 -2px}.S5HVoW_dividerRow:after{width:1px;top:0;bottom:0;left:50%;transform:translate(-50%)}.S5HVoW_dividerCol{cursor:row-resize;height:7px;margin:-2px 0}.S5HVoW_dividerCol:after{height:1px;top:50%;left:0;right:0;transform:translateY(-50%)}.S5HVoW_divider:hover:after,.S5HVoW_dividerActive:after{background:var(--dsw-alias-interactive-bg-hover-accent)}.S5HVoW_pane{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;position:relative}.S5HVoW_paneDrop{outline:1px solid var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.S5HVoW_dropOverlay{z-index:6;pointer-events:none;background:var(--dsw-alias-interactive-bg-hover-accent);opacity:.5;position:absolute}.S5HVoW_dropLeft{width:25%;top:0;bottom:0;left:0}.S5HVoW_dropRight{width:25%;top:0;bottom:0;right:0}.S5HVoW_dropUp{height:25%;top:0;left:0;right:0}.S5HVoW_dropDown{height:25%;bottom:0;left:0;right:0}.S5HVoW_dropCenter{outline:2px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-2px;background:0 0;inset:25%}.S5HVoW_paneContent{flex-direction:column;flex:1;min-height:0;display:flex;overflow:hidden}.S5HVoW_paneTab{flex-direction:column;flex:1;min-height:0;display:flex}.S5HVoW_paneTabHidden{display:none}.S5HVoW_paneEmptyCards{flex:1;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));align-content:start;gap:8px;min-height:0;padding:12px;display:grid;overflow:hidden}.S5HVoW_paneCard{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;text-align:center;border-radius:8px;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding:12px 8px;display:flex}.S5HVoW_paneCard:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary);border-color:var(--dsw-alias-border-l2)}.S5HVoW_paneCard:disabled{opacity:.45;cursor:default}.S5HVoW_tabBar{border-bottom:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);flex:none;align-items:stretch;height:34px;display:flex}.S5HVoW_tabBarDrop{outline:1px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.S5HVoW_tabList{scrollbar-width:none;flex:1;min-width:0;display:flex;overflow-x:auto}.S5HVoW_tabList::-webkit-scrollbar{display:none}.S5HVoW_tab{min-width:64px;max-width:160px;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);border-right:1px solid var(--dsw-alias-border-l1);cursor:pointer;user-select:none;background:0 0;flex:none;align-items:center;gap:4px;padding:0 4px 0 10px;display:flex}.S5HVoW_tab:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_tabActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active)}.S5HVoW_tabTitle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.S5HVoW_tabBadge{min-width:16px;height:15px;font:var(--dsw-font-xxxs-strong-11);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-brand-primary);border-radius:8px;flex:none;justify-content:center;align-items:center;padding:0 4px;display:inline-flex}.S5HVoW_tabClose{width:18px;height:18px;color:var(--dsw-alias-label-tertiary);cursor:pointer;background:0 0;border:none;border-radius:4px;flex:none;justify-content:center;align-items:center;padding:0;display:inline-flex}.S5HVoW_tabClose:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_tabBarPlus{background:var(--dsw-alias-bg-layer-1);width:22px;height:22px;color:var(--dsw-alias-label-tertiary);cursor:pointer;border:none;border-radius:5px;flex:none;justify-content:center;align-self:center;align-items:center;margin:0 6px;padding:0;display:inline-flex;position:sticky;right:0}.S5HVoW_tabBarPlus:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_pinnedTab{color:var(--dsw-alias-label-tertiary);font-style:italic}.S5HVoW_pinnedTab:hover{color:var(--dsw-alias-label-secondary)}.S5HVoW_explorer{flex-direction:column;flex:1;min-height:0;display:flex}.S5HVoW_explorerHeader{flex:none;justify-content:space-between;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.S5HVoW_explorerRoot{font:var(--dsw-font-s-14);color:var(--dsw-alias-label-secondary);text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.S5HVoW_explorerBody{flex:1;min-height:0;padding:4px 8px 8px;overflow:hidden auto}.S5HVoW_explorerRow{box-sizing:border-box;width:100%;max-width:100%;height:34px;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);text-align:left;cursor:pointer;white-space:nowrap;animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);background:0 0;border:none;border-radius:8px;align-items:center;gap:6px;padding:0 8px;display:flex}.S5HVoW_explorerRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_explorerRowRevealed{background:color-mix(in srgb, var(--dsw-alias-interactive-bg-hover-accent) 18%, transparent);box-shadow:inset 2px 0 0 var(--dsw-alias-interactive-bg-hover-accent)}.S5HVoW_explorerDir{font:var(--dsw-font-s-strong-14)}.S5HVoW_explorerHidden{opacity:.45}.S5HVoW_explorerSymlink{color:var(--dsw-alias-label-tertiary);flex:none}.S5HVoW_explorerBroken .S5HVoW_explorerName{color:var(--dsw-alias-state-error-primary)}.S5HVoW_explorerName{text-overflow:ellipsis;white-space:nowrap;min-width:0;overflow:hidden}.S5HVoW_explorerRef{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);height:20px;color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-strong-11);cursor:pointer;border-radius:999px;flex:none;align-items:center;padding:0 8px;display:none}.S5HVoW_explorerRef:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_explorerRow:hover .S5HVoW_explorerRef,.S5HVoW_explorerRow:focus-within .S5HVoW_explorerRef{display:inline-flex}.S5HVoW_explorerCopied{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);flex:none}.S5HVoW_explorerError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);cursor:default}@keyframes S5HVoW_dsh-row-in{0%{opacity:0}}.S5HVoW_explorerEmpty{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;padding:16px}.S5HVoW_explorerRowDropTarget{background:var(--dsw-alias-interactive-bg-hover);outline:1px dashed var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}.S5HVoW_uploadDropZone{z-index:1001;pointer-events:none;border:2px dashed var(--dsw-alias-interactive-bg-hover-accent);box-shadow:0 0 0 200vmax var(--dsw-alias-bg-mask-drop);animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);border-radius:10px;justify-content:center;align-items:flex-start;padding:12px;display:flex;position:fixed}.S5HVoW_uploadDropHero{flex-direction:column;align-items:center;gap:10px;max-width:100%;padding-top:8px;display:flex}.S5HVoW_uploadDropZonePill{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);max-width:100%;box-shadow:var(--dsw-shadow-lv2);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);border-radius:999px;align-items:center;gap:6px;padding:6px 12px;display:flex}.S5HVoW_uploadDropZoneText{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.S5HVoW_uploadDropChatHint{z-index:1002;pointer-events:none;animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);justify-content:center;align-items:center;padding:24px;display:flex;position:fixed;top:0;bottom:0;left:0}.S5HVoW_uploadDropChatCard{text-align:center;max-width:100%;color:var(--dsw-alias-label-primary);font:var(--dsw-font-s-strong-14);flex-direction:column;align-items:center;gap:12px;display:flex}.S5HVoW_uploadOverlay{z-index:30;background:var(--dsw-alias-bg-mask-1);backdrop-filter:var(--dsw-mask-blur);animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);justify-content:center;align-items:center;display:flex;position:absolute;inset:0}.S5HVoW_uploadOverlayCard{border:1px solid var(--dsw-alias-border-inverted);background:var(--dsw-alias-bg-layer-2);min-width:280px;max-width:min(420px,100% - 48px);box-shadow:var(--dsw-shadow-lv3);border-radius:24px;flex-direction:column;gap:12px;padding:20px 24px;display:flex}.S5HVoW_uploadOverlayTitle{font:var(--dsw-font-s-strong-14);color:var(--dsw-alias-label-primary);align-items:center;gap:8px;display:flex}.S5HVoW_uploadOverlayTitle>svg{flex:none}.S5HVoW_uploadOverlayTitle>span{white-space:nowrap;text-overflow:ellipsis;min-width:0;overflow:hidden}.S5HVoW_uploadOverlayProgress{background:var(--dsw-alias-border-l2);border-radius:3px;height:6px;overflow:hidden}.S5HVoW_uploadOverlayProgressFill{background:var(--dsw-alias-interactive-bg-hover-accent);height:100%;transition:width .15s var(--ds-ease-in-out);border-radius:3px}.S5HVoW_uploadOverlayStatus{min-height:1em;font:var(--dsw-font-xxs-12);font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-tertiary);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.S5HVoW_uploadOverlayCancel{border:1px solid var(--dsw-alias-border-l2);height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;background:0 0;border-radius:8px;align-self:flex-end;padding:0 14px}.S5HVoW_uploadOverlayCancel:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-border-l2)}.S5HVoW_uploadOverlayCancel:disabled{opacity:.4;cursor:default}.S5HVoW_editor{flex-direction:column;flex:1;min-height:0;display:flex}.S5HVoW_editorHeader{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:6px;padding:6px 8px;display:flex}.S5HVoW_editorTitle{min-width:0;font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-secondary);text-overflow:ellipsis;white-space:nowrap;flex:1;overflow:hidden}.S5HVoW_editorPathInput{box-sizing:border-box;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.S5HVoW_editorPathInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.S5HVoW_editorTreeToggleActive{color:var(--dsw-alias-label-primary);background:var(--dsw-alias-interactive-bg-active)}.S5HVoW_editorBody{flex:1;min-height:0;display:flex}.S5HVoW_editorMain{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex}.S5HVoW_editorTreeDock{border-left:1px solid var(--dsw-alias-border-l1);flex:none;min-height:0;display:flex;position:relative}.S5HVoW_editorTreeResize{cursor:col-resize;touch-action:none;z-index:3;width:6px;position:absolute;top:0;bottom:0;left:0}.S5HVoW_editorTreeResize:hover{background:var(--dsw-alias-border-l2)}.S5HVoW_editorTreePanel{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;position:relative}.S5HVoW_editorTreePanelFull{flex:1}.S5HVoW_editorTreeSearch{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:6px;padding:6px 8px;display:flex}.S5HVoW_editorSearchInput{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:26px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.S5HVoW_editorSearchInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.S5HVoW_editorSearchHint{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);padding:8px 12px}.S5HVoW_editorSearchResult{width:100%;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);text-align:left;cursor:pointer;text-overflow:ellipsis;white-space:nowrap;background:0 0;border:none;border-radius:6px;padding:4px 8px;display:block;overflow:hidden}.S5HVoW_editorSearchResult:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_editorStatus{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary)}.S5HVoW_editorStatusError{color:var(--dsw-alias-state-error-primary)}.S5HVoW_dirtyDot{background:var(--dsw-alias-state-warn-primary);border-radius:50%;flex:none;width:7px;height:7px}.S5HVoW_editorPlaceholder{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;flex:1;justify-content:center;align-items:center;padding:16px;display:flex}.S5HVoW_orphanedType{opacity:.7;overflow-wrap:anywhere;margin-top:8px;font-size:12px;display:block}.S5HVoW_editorBinary{text-align:center;flex-direction:column;flex:1;justify-content:center;align-items:center;gap:12px;padding:24px 16px;display:flex}.S5HVoW_editorBinaryNotice{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.S5HVoW_editorDownloadLink{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-strong-12);cursor:pointer;transition:background var(--ds-transition-duration-slow) var(--ds-ease-in-out), border-color var(--ds-transition-duration-slow) var(--ds-ease-in-out);border-radius:6px;align-items:center;gap:6px;padding:6px 14px;text-decoration:none;display:inline-flex}.S5HVoW_editorDownloadLink:hover{background:var(--dsw-alias-interactive-bg-hover);border-color:var(--dsw-alias-border-l2)}.S5HVoW_editorError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);padding:12px 16px}.S5HVoW_editorBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;padding:4px 8px}.S5HVoW_sandboxStatus{font:var(--dsw-font-xxxs-11);flex:none;align-items:center;gap:8px;padding:4px 10px;display:flex}.S5HVoW_sandboxStatusOn{color:var(--dsw-alias-label-secondary);background:var(--dsw-alias-bg-layer-1);border-bottom:1px solid var(--dsw-alias-border-l1)}.S5HVoW_sandboxStatusOff{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 10%, transparent);border-bottom:1px solid color-mix(in srgb, var(--dsw-alias-state-error-primary) 45%, transparent)}.S5HVoW_sandboxDot{background:var(--dsw-alias-state-success-primary);border-radius:50%;flex:none;width:6px;height:6px}.S5HVoW_sandboxStatusOff .S5HVoW_sandboxDot{background:var(--dsw-alias-state-error-primary)}.S5HVoW_sandboxStatusText{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;overflow:hidden}.S5HVoW_sandboxAction{border:1px solid var(--dsw-alias-border-l2);font:inherit;color:inherit;cursor:pointer;background:0 0;border-radius:6px;flex:none;padding:2px 8px}.S5HVoW_sandboxAction:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_browser{flex-direction:column;flex:1;min-height:0;display:flex}.S5HVoW_browserBar{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:4px;padding:6px 8px;display:flex}.S5HVoW_browserInput{border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-1);min-width:0;height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 10px}.S5HVoW_browserInput:focus{border-color:var(--dsw-alias-border-l2);outline:none}.S5HVoW_browserMessage{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;padding:4px 12px}.S5HVoW_browserFrame{background:var(--dsw-alias-bg-base);border:none;flex:1;width:100%;min-height:0}.S5HVoW_browserStart{text-align:center;min-height:0;font:var(--dsw-font-xs-13);color:var(--dsw-alias-label-tertiary);flex:1;justify-content:center;align-items:center;padding:20px;display:flex}.S5HVoW_browserBlocked{text-align:center;min-height:0;color:var(--dsw-alias-state-warn-primary);flex-direction:column;flex:1;justify-content:center;align-items:center;gap:6px;padding:24px;display:flex}.S5HVoW_browserBlockedTitle{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary)}.S5HVoW_browserBlockedDesc{max-width:280px;font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-secondary)}.S5HVoW_browserBlockedActions{gap:8px;margin-top:6px;display:flex}.S5HVoW_browserBlockedButton{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-1);color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxxs-11);cursor:pointer;border-radius:6px;padding:4px 12px}.S5HVoW_browserBlockedButton:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_editorCm{background:0 0;flex:1;min-height:0;overflow:hidden}.S5HVoW_editorCm .cm-editor{height:100%}.S5HVoW_editorCm .cm-scroller{padding:12px 16px}.S5HVoW_editorCm .cm-editor.cm-focused{outline:none}.S5HVoW_selectionPopup{z-index:60;border:1px solid var(--dsw-alias-border-l1);background:var(--dsw-alias-bg-layer-2);height:28px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxxs-strong-11);white-space:nowrap;cursor:pointer;border-radius:6px;align-items:center;padding:0 10px;display:inline-flex;position:fixed;transform:translate(-50%,calc(-100% - 8px))}.S5HVoW_selectionPopup:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_terminalWrap{background:var(--dsw-alias-bg-base);flex-direction:column;flex:1;min-height:0;display:flex;position:relative}.S5HVoW_terminal{flex:1;min-height:0;padding:6px 4px 6px 8px}.S5HVoW_terminal .xterm{height:100%}.S5HVoW_terminalBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex-wrap:wrap;flex:none;align-items:center;gap:8px;padding:3px 10px;display:flex}.S5HVoW_terminalBannerUrl{word-break:break-all;opacity:.85;flex-basis:100%;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.S5HVoW_boundaryError{z-index:50;background:var(--dsw-alias-bg-layer-1);border-left:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);flex-direction:column;align-items:flex-start;gap:8px;padding:16px;display:flex;position:fixed;top:0;bottom:0;right:0;overflow:auto}.S5HVoW_terminalRetry{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxxs-strong-11);cursor:pointer;border-radius:999px;flex:none;padding:1px 8px}.S5HVoW_terminalRetry:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_gitFoldRow{box-sizing:border-box;background:var(--dsw-alias-bg-layer-1);width:100%;color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);text-align:center;cursor:pointer;border:none;outline:none;padding:2px 12px;display:block}.S5HVoW_gitFoldRow:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary)}.S5HVoW_gitFoldRow:disabled{cursor:default}.S5HVoW_gitFoldRowFailed{color:var(--dsw-alias-state-error-primary);opacity:.7}.S5HVoW_explorerRenameInput{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);min-width:0;height:20px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:4px;outline:none;flex:1;padding:0 4px}.S5HVoW_terminalWaitBanner{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex:none;align-items:center;gap:8px;padding:3px 10px;display:flex}.S5HVoW_terminalWaitNeedle{text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow:hidden}.S5HVoW_terminalDepsBanner{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-warn-label);background:var(--dsw-alias-state-warn-tertiary);flex-direction:column;flex:none;gap:6px;padding:10px;display:flex}.S5HVoW_terminalDepsTitle{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-state-warn-primary)}.S5HVoW_terminalDepsHint{opacity:.9}.S5HVoW_terminalDepsCommandRow{align-items:flex-start;gap:8px;display:flex}.S5HVoW_terminalRepairCommand{white-space:pre-wrap;word-break:break-all;user-select:text;min-width:0;color:var(--dsw-alias-label-primary);background:var(--dsw-alias-bg-layer-2);border:1px solid var(--dsw-alias-border-l2);border-radius:4px;flex:1;max-height:160px;margin:0;padding:6px 8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;line-height:1.5;overflow:auto}.S5HVoW_terminalDepsNote{opacity:.85}.S5HVoW_terminalDepsActions{align-items:center;gap:8px;display:flex}.S5HVoW_tabBoundaryError{min-height:0;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);flex-direction:column;flex:1;align-items:flex-start;gap:8px;padding:12px 16px;display:flex;overflow:auto}.S5HVoW_git{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden auto}.S5HVoW_gitHeader{flex:none;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.S5HVoW_gitWorktreeRow{flex:none;align-items:center;gap:8px;padding:6px 8px 0 12px;display:flex}.S5HVoW_gitWorktreeLabel{color:var(--dsw-alias-label-tertiary);font:var(--dsw-font-xxxs-11);flex:none}.S5HVoW_gitBranchSelect{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-base);min-width:0;height:26px;color:var(--dsw-alias-label-primary);font:var(--dsw-font-xxs-12);border-radius:6px;flex:1;padding:0 6px}.S5HVoW_gitSection{border-top:1px solid var(--dsw-alias-border-l1)}.S5HVoW_gitSectionHeader{font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-tertiary);text-transform:uppercase;justify-content:space-between;align-items:center;padding:6px 12px 4px;display:flex}.S5HVoW_gitLink{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-brand-primary);cursor:pointer;background:0 0;border:none;padding:0}.S5HVoW_gitLink:hover:not(:disabled){text-decoration:underline}.S5HVoW_gitLink:disabled{opacity:.4;cursor:default}.S5HVoW_gitRow{min-height:34px;animation:S5HVoW_dsh-row-in .15s var(--ds-ease-in-out);border-radius:8px;align-items:center;gap:6px;margin:0 6px;padding:0 8px;display:flex}.S5HVoW_gitRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_gitRowSelected{background:var(--dsw-alias-interactive-bg-active)}.S5HVoW_gitRowMain{cursor:pointer;text-align:left;background:0 0;border:none;flex:1;align-items:center;gap:8px;min-width:0;padding:3px 0;display:flex}.S5HVoW_gitBadge{width:20px;height:16px;font:var(--dsw-font-xxxs-strong-11);background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-secondary);border-radius:4px;flex:none;justify-content:center;align-items:center;display:inline-flex}.S5HVoW_gitName{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.S5HVoW_gitEmpty{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);padding:4px 12px 8px}.S5HVoW_gitPlaceholder{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary);text-align:center;padding:16px}.S5HVoW_gitError{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-state-error-primary);white-space:pre-wrap;padding:8px 12px}.S5HVoW_gitDiff{border-top:1px solid var(--dsw-alias-border-l1);padding:8px}.S5HVoW_gitDiffTab{flex-direction:column;flex:1;min-width:0;min-height:0;display:flex;overflow:hidden auto}.S5HVoW_gitDiffTabHeader{border-bottom:1px solid var(--dsw-alias-border-l1);flex:none;align-items:center;gap:8px;height:36px;padding:0 8px 0 12px;display:flex}.S5HVoW_gitDiffTabTitle{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.S5HVoW_gitDiffFile{width:100%;color:inherit;text-align:left;cursor:pointer;background:0 0;border:0;align-items:baseline;gap:6px;padding:8px 2px 2px;display:flex}.S5HVoW_gitDiffFile:disabled{cursor:default}.S5HVoW_gitDiffFile:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_gitDiffFileChevron{color:var(--dsw-alias-label-tertiary);flex:none;transform:rotate(0)}.S5HVoW_gitDiffFileChevronExpanded{transform:rotate(90deg)}.S5HVoW_gitDiffFilePath{font:var(--dsw-font-xxs-strong-12);color:var(--dsw-alias-label-primary);text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.S5HVoW_gitDiffFileOld{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);text-overflow:ellipsis;white-space:nowrap;flex:none;max-width:40%;overflow:hidden}.S5HVoW_gitDiffFileTag{border:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-label-secondary);border-radius:999px;flex:none;padding:0 6px}.S5HVoW_gitDiffHunk{font:var(--dsw-font-markdown-code-block-small);color:var(--dsw-alias-label-tertiary);gap:8px;padding:3px 2px;display:flex}.S5HVoW_gitDiffHunkHeader{color:var(--dsw-alias-label-secondary);flex:none}.S5HVoW_gitDiffHunkSection{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.S5HVoW_gitDiffLine{font:var(--dsw-font-markdown-code-block-small);white-space:pre-wrap;overflow-wrap:anywhere;align-items:stretch;min-width:0;line-height:20px;display:flex}.S5HVoW_gitDiffNum{text-align:right;width:36px;color:var(--dsw-alias-label-tertiary);user-select:none;flex:none;padding-right:8px}.S5HVoW_gitDiffCode{flex:1;min-width:0;overflow:visible}.S5HVoW_gitDiffCtx{color:var(--dsw-alias-label-primary)}.S5HVoW_gitDiffDel{color:var(--dsw-alias-state-error-primary);background:color-mix(in srgb, var(--dsw-alias-state-error-primary) 12%, transparent)}.S5HVoW_gitDiffAdd{color:var(--dsw-alias-state-success-primary);background:color-mix(in srgb, var(--dsw-alias-state-success-primary) 12%, transparent)}.S5HVoW_gitDiffMeta{padding-left:2px}.S5HVoW_gitDiffMetaText{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary);font-style:italic}.S5HVoW_gitDiffExpand{width:100%;font:var(--dsw-font-xxs-12);color:var(--dsw-alias-brand-primary);cursor:pointer;text-align:center;background:0 0;border:none;margin:4px 0;display:block}.S5HVoW_gitDiffExpand:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_gitConfirmDesc{font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);white-space:pre-wrap;margin:0}.S5HVoW_gitCommit{border-top:1px solid var(--dsw-alias-border-l1);align-items:center;gap:6px;padding:8px 12px;display:flex}.S5HVoW_gitCommitInput{flex:1;min-width:0}.S5HVoW_gitCommitButton{background:var(--dsw-alias-button-primary-fill);height:26px;color:var(--dsw-alias-label-primary-inverted);font:var(--dsw-font-xxs-strong-12);cursor:pointer;border:none;border-radius:6px;flex:none;padding:0 12px}.S5HVoW_gitCommitButton:hover:not(:disabled){background:var(--dsw-alias-button-primary-hover)}.S5HVoW_gitCommitButton:disabled{opacity:.45;cursor:default}.S5HVoW_gitLogRow{cursor:pointer;border-radius:8px;flex-direction:column;gap:2px;padding:5px 12px;display:flex}.S5HVoW_gitLogRow:hover{background:var(--dsw-alias-interactive-bg-hover)}.S5HVoW_gitLogLine1{align-items:baseline;gap:8px;min-width:0;display:flex}.S5HVoW_gitLogHash{font:var(--dsw-font-markdown-code-block-small);color:var(--dsw-alias-label-tertiary);flex:none}.S5HVoW_gitLogLine2{flex-wrap:wrap;align-items:center;gap:6px;min-width:0;display:flex}.S5HVoW_gitLogRef{border:1px solid var(--dsw-alias-border-l2);font:var(--dsw-font-xxxs-strong-11);color:var(--dsw-alias-brand-primary);white-space:nowrap;border-radius:999px;flex:none;padding:0 5px}.S5HVoW_gitLogSubject{text-overflow:ellipsis;white-space:nowrap;min-width:0;font:var(--dsw-font-s-14);color:var(--dsw-alias-label-primary);flex:1;overflow:hidden}.S5HVoW_gitLogMeta{font:var(--dsw-font-xxxs-11);color:var(--dsw-alias-label-tertiary)}.S5HVoW_gitLogMore{border:1px solid var(--dsw-alias-border-l2);width:calc(100% - 24px);font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-secondary);cursor:pointer;background:0 0;border-radius:6px;margin:4px 12px 8px;padding:6px 0;display:block}.S5HVoW_gitLogMore:hover:not(:disabled){background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_gitLogMore:disabled{opacity:.5;cursor:default}.S5HVoW_producedRow{flex-wrap:wrap;align-items:center;gap:8px;padding:4px 0;display:flex}.S5HVoW_producedLabel{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.S5HVoW_producedChip{border:1px solid var(--dsw-alias-border-l2);background:var(--dsw-alias-bg-layer-2);max-width:200px;color:var(--dsw-alias-label-secondary);font:var(--dsw-font-xxs-12);cursor:pointer;border-radius:999px;align-items:center;gap:4px;padding:2px 8px;display:inline-flex;overflow:hidden}.S5HVoW_producedChip:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_producedChip span{text-overflow:ellipsis;white-space:nowrap;overflow:hidden}.S5HVoW_producedMore{font:var(--dsw-font-xxs-12);color:var(--dsw-alias-label-tertiary)}.S5HVoW_toggleButton:focus-visible,.S5HVoW_iconButton:focus-visible,.S5HVoW_tab:focus-visible,.S5HVoW_tabClose:focus-visible,.S5HVoW_tabBarPlus:focus-visible,.S5HVoW_paneCard:focus-visible,.S5HVoW_explorerRow:focus-visible,.S5HVoW_explorerRef:focus-visible,.S5HVoW_gitRowMain:focus-visible,.S5HVoW_gitLink:focus-visible,.S5HVoW_gitCommitButton:focus-visible,.S5HVoW_gitLogRow:focus-visible,.S5HVoW_gitLogMore:focus-visible,.S5HVoW_gitDiffFile:focus-visible,.S5HVoW_gitDiffExpand:focus-visible,.S5HVoW_terminalRetry:focus-visible,.S5HVoW_editorDownloadLink:focus-visible{outline:2px solid var(--dsw-alias-interactive-bg-hover-accent);outline-offset:-1px}@media (prefers-reduced-motion:reduce){.S5HVoW_panel,.S5HVoW_panelHidden,.S5HVoW_toggleCluster,.S5HVoW_toggleButton,.S5HVoW_tab,.S5HVoW_tabBarPlus,.S5HVoW_paneCard,.S5HVoW_explorerRow,.S5HVoW_gitRow,.S5HVoW_divider,.S5HVoW_dividerRow:after,.S5HVoW_dividerCol:after{transition:none;animation:none}}@media (width<=767px){.S5HVoW_panel:not(.S5HVoW_panelHidden) .S5HVoW_tabBar{padding-right:40px}.S5HVoW_tab{min-width:48px;max-width:128px}}.S5HVoW_openWithLabel{align-items:center;gap:8px;width:100%;min-width:0;display:flex}.S5HVoW_openWithName{text-overflow:ellipsis;white-space:nowrap;flex:auto;min-width:0;overflow:hidden}.S5HVoW_openWithChevron{color:var(--dsw-alias-label-tertiary);flex:none}.S5HVoW_openWithPin{width:20px;height:20px;color:var(--dsw-alias-label-tertiary);cursor:pointer;border-radius:6px;flex:none;justify-content:center;align-items:center;display:inline-flex}.S5HVoW_openWithPin:hover{background:var(--dsw-alias-interactive-bg-hover);color:var(--dsw-alias-label-primary)}.S5HVoW_openWithPinActive{color:var(--dsw-alias-state-business-primary)}@keyframes S5HVoW_dsh-toc-flash{0%,60%{background:var(--dsw-alias-interactive-bg-hover)}to{background:0 0}}.S5HVoW_browserLive{flex-direction:column;gap:6px;padding:8px 10px;display:flex;position:absolute;inset:0;overflow:hidden}.S5HVoW_browserLiveStatus{opacity:.75;align-items:center;gap:8px;font-size:12px;display:flex}.S5HVoW_browserLiveCanvas{object-fit:contain;border:1px solid var(--dsw-alias-border-l,#80808040);cursor:crosshair;background:#fff;border-radius:8px;flex:1;width:100%;min-height:0}.S5HVoW_browserLiveTarget{max-width:260px;font-size:12px}";
 		const tagId$4 = "dsh-external/dsh-coding-sidebar/sidebar.module.css";
 		if (typeof document !== "undefined" && document.querySelector("style[data-plugin-css=" + JSON.stringify(tagId$4) + "]") === null) {
 			const tag = document.createElement("style");
@@ -2964,207 +3009,212 @@ window.__ModuleLoader__.load({
 			document.head.appendChild(tag);
 		}
 		var sidebar_module_css_default = {
-			"dsh-toc-flash": "S5HVoW_dsh-toc-flash",
 			"workbench": "S5HVoW_workbench",
-			"explorerHidden": "S5HVoW_explorerHidden",
-			"dropUp": "S5HVoW_dropUp",
-			"paneContent": "S5HVoW_paneContent",
-			"tabBoundaryError": "S5HVoW_tabBoundaryError",
-			"gitConfirmDesc": "S5HVoW_gitConfirmDesc",
-			"browserBar": "S5HVoW_browserBar",
-			"producedLabel": "S5HVoW_producedLabel",
-			"iconButton": "S5HVoW_iconButton",
-			"editorError": "S5HVoW_editorError",
-			"sandboxStatusOn": "S5HVoW_sandboxStatusOn",
-			"gitLink": "S5HVoW_gitLink",
-			"editorPlaceholder": "S5HVoW_editorPlaceholder",
-			"browserBlocked": "S5HVoW_browserBlocked",
-			"gitRowMain": "S5HVoW_gitRowMain",
-			"dropDown": "S5HVoW_dropDown",
-			"explorerDir": "S5HVoW_explorerDir",
-			"terminal": "S5HVoW_terminal",
-			"toggleButton": "S5HVoW_toggleButton",
-			"paneEmptyCards": "S5HVoW_paneEmptyCards",
-			"browserLive": "S5HVoW_browserLive",
-			"pane": "S5HVoW_pane",
-			"editorSearchInput": "S5HVoW_editorSearchInput",
-			"tabClose": "S5HVoW_tabClose",
-			"paneTabHidden": "S5HVoW_paneTabHidden",
-			"editorSearchResult": "S5HVoW_editorSearchResult",
-			"browserBlockedTitle": "S5HVoW_browserBlockedTitle",
-			"explorerRowRevealed": "S5HVoW_explorerRowRevealed",
-			"editorTitle": "S5HVoW_editorTitle",
-			"terminalDepsBanner": "S5HVoW_terminalDepsBanner",
-			"browserLiveCanvas": "S5HVoW_browserLiveCanvas",
-			"editorTreeToggleActive": "S5HVoW_editorTreeToggleActive",
-			"gitDiffHunk": "S5HVoW_gitDiffHunk",
-			"gitDiffHunkSection": "S5HVoW_gitDiffHunkSection",
-			"paneCard": "S5HVoW_paneCard",
-			"panelResize": "S5HVoW_panelResize",
-			"gitLogMeta": "S5HVoW_gitLogMeta",
-			"floatHeader": "S5HVoW_floatHeader",
-			"editorBanner": "S5HVoW_editorBanner",
-			"terminalDepsNote": "S5HVoW_terminalDepsNote",
-			"gitDiffCtx": "S5HVoW_gitDiffCtx",
-			"browserLiveStatus": "S5HVoW_browserLiveStatus",
-			"producedChip": "S5HVoW_producedChip",
-			"dsh-row-in": "S5HVoW_dsh-row-in",
-			"explorerEmpty": "S5HVoW_explorerEmpty",
-			"gitDiffFileChevronExpanded": "S5HVoW_gitDiffFileChevronExpanded",
-			"pinnedTab": "S5HVoW_pinnedTab",
-			"git": "S5HVoW_git",
-			"gitCommit": "S5HVoW_gitCommit",
-			"dropRight": "S5HVoW_dropRight",
-			"explorerRef": "S5HVoW_explorerRef",
-			"floatWindowDragging": "S5HVoW_floatWindowDragging",
-			"uploadOverlayProgress": "S5HVoW_uploadOverlayProgress",
-			"uploadOverlayCard": "S5HVoW_uploadOverlayCard",
-			"terminalWrap": "S5HVoW_terminalWrap",
-			"gitError": "S5HVoW_gitError",
-			"explorer": "S5HVoW_explorer",
-			"tabTitle": "S5HVoW_tabTitle",
-			"browserBlockedButton": "S5HVoW_browserBlockedButton",
-			"floatDropHint": "S5HVoW_floatDropHint",
-			"editorTreePanel": "S5HVoW_editorTreePanel",
-			"gitDiffLine": "S5HVoW_gitDiffLine",
-			"gitDiff": "S5HVoW_gitDiff",
-			"sandboxAction": "S5HVoW_sandboxAction",
-			"floatWindow": "S5HVoW_floatWindow",
-			"browserBlockedActions": "S5HVoW_browserBlockedActions",
-			"terminalDepsHint": "S5HVoW_terminalDepsHint",
-			"dividerRow": "S5HVoW_dividerRow",
-			"gitDiffExpand": "S5HVoW_gitDiffExpand",
-			"openWithChevron": "S5HVoW_openWithChevron",
-			"panelResizeActive": "S5HVoW_panelResizeActive",
-			"uploadDropZoneText": "S5HVoW_uploadDropZoneText",
-			"gitCommitButton": "S5HVoW_gitCommitButton",
-			"explorerCopied": "S5HVoW_explorerCopied",
-			"dividerCol": "S5HVoW_dividerCol",
-			"openWithName": "S5HVoW_openWithName",
-			"splitRow": "S5HVoW_splitRow",
-			"gitBranchSelect": "S5HVoW_gitBranchSelect",
-			"floatResize": "S5HVoW_floatResize",
-			"gitName": "S5HVoW_gitName",
-			"gitDiffDel": "S5HVoW_gitDiffDel",
-			"panelBody": "S5HVoW_panelBody",
 			"gitLogRef": "S5HVoW_gitLogRef",
-			"tabList": "S5HVoW_tabList",
-			"editorPathInput": "S5HVoW_editorPathInput",
-			"gitDiffFileChevron": "S5HVoW_gitDiffFileChevron",
-			"terminalBannerUrl": "S5HVoW_terminalBannerUrl",
-			"editorTreeSearch": "S5HVoW_editorTreeSearch",
-			"gitLogRow": "S5HVoW_gitLogRow",
-			"explorerRoot": "S5HVoW_explorerRoot",
-			"tabBarPlus": "S5HVoW_tabBarPlus",
-			"editorDownloadLink": "S5HVoW_editorDownloadLink",
-			"openWithPin": "S5HVoW_openWithPin",
-			"explorerRow": "S5HVoW_explorerRow",
-			"tabActive": "S5HVoW_tabActive",
-			"editorTreeDock": "S5HVoW_editorTreeDock",
-			"terminalDepsActions": "S5HVoW_terminalDepsActions",
-			"editorStatusError": "S5HVoW_editorStatusError",
-			"divider": "S5HVoW_divider",
-			"gitLogLine2": "S5HVoW_gitLogLine2",
-			"browserFrame": "S5HVoW_browserFrame",
-			"gitDiffMetaText": "S5HVoW_gitDiffMetaText",
-			"uploadDropChatHint": "S5HVoW_uploadDropChatHint",
-			"browserLiveTarget": "S5HVoW_browserLiveTarget",
-			"panelHidden": "S5HVoW_panelHidden",
-			"explorerBody": "S5HVoW_explorerBody",
-			"sandboxStatusText": "S5HVoW_sandboxStatusText",
-			"boundaryError": "S5HVoW_boundaryError",
-			"browserInput": "S5HVoW_browserInput",
-			"uploadOverlayStatus": "S5HVoW_uploadOverlayStatus",
-			"terminalRepairCommand": "S5HVoW_terminalRepairCommand",
-			"terminalBanner": "S5HVoW_terminalBanner",
-			"tabBadge": "S5HVoW_tabBadge",
-			"explorerError": "S5HVoW_explorerError",
-			"gitRow": "S5HVoW_gitRow",
-			"uploadDropZonePill": "S5HVoW_uploadDropZonePill",
-			"browserBlockedDesc": "S5HVoW_browserBlockedDesc",
-			"gitBadge": "S5HVoW_gitBadge",
-			"gitDiffCode": "S5HVoW_gitDiffCode",
-			"uploadOverlay": "S5HVoW_uploadOverlay",
-			"editorStatus": "S5HVoW_editorStatus",
-			"uploadOverlayProgressFill": "S5HVoW_uploadOverlayProgressFill",
-			"floatDropHintLabel": "S5HVoW_floatDropHintLabel",
-			"browser": "S5HVoW_browser",
-			"gitPlaceholder": "S5HVoW_gitPlaceholder",
-			"uploadDropZone": "S5HVoW_uploadDropZone",
-			"editor": "S5HVoW_editor",
-			"browserStart": "S5HVoW_browserStart",
-			"gitRowSelected": "S5HVoW_gitRowSelected",
-			"gitDiffTab": "S5HVoW_gitDiffTab",
-			"gitDiffFileOld": "S5HVoW_gitDiffFileOld",
-			"dropLeft": "S5HVoW_dropLeft",
-			"gitDiffFileTag": "S5HVoW_gitDiffFileTag",
-			"gitDiffHunkHeader": "S5HVoW_gitDiffHunkHeader",
-			"gitDiffMeta": "S5HVoW_gitDiffMeta",
-			"gitLogLine1": "S5HVoW_gitLogLine1",
-			"openWithLabel": "S5HVoW_openWithLabel",
-			"panel": "S5HVoW_panel",
-			"floatContent": "S5HVoW_floatContent",
-			"editorHeader": "S5HVoW_editorHeader",
-			"selectionPopup": "S5HVoW_selectionPopup",
-			"paneDrop": "S5HVoW_paneDrop",
-			"split": "S5HVoW_split",
-			"splitCol": "S5HVoW_splitCol",
-			"dropCenter": "S5HVoW_dropCenter",
-			"uploadOverlayCancel": "S5HVoW_uploadOverlayCancel",
-			"editorCm": "S5HVoW_editorCm",
-			"uploadDropChatCard": "S5HVoW_uploadDropChatCard",
-			"gitDiffTabTitle": "S5HVoW_gitDiffTabTitle",
-			"sandboxStatusOff": "S5HVoW_sandboxStatusOff",
-			"editorSearchHint": "S5HVoW_editorSearchHint",
-			"gitWorktreeRow": "S5HVoW_gitWorktreeRow",
-			"dividerActive": "S5HVoW_dividerActive",
-			"tabBar": "S5HVoW_tabBar",
-			"gitDiffFile": "S5HVoW_gitDiffFile",
-			"gitDiffFilePath": "S5HVoW_gitDiffFilePath",
 			"producedRow": "S5HVoW_producedRow",
-			"gitWorktreeLabel": "S5HVoW_gitWorktreeLabel",
-			"gitEmpty": "S5HVoW_gitEmpty",
-			"splitChild": "S5HVoW_splitChild",
-			"orphanedType": "S5HVoW_orphanedType",
-			"explorerSymlink": "S5HVoW_explorerSymlink",
-			"producedMore": "S5HVoW_producedMore",
-			"paneTab": "S5HVoW_paneTab",
-			"editorTreePanelFull": "S5HVoW_editorTreePanelFull",
-			"tab": "S5HVoW_tab",
-			"terminalDepsTitle": "S5HVoW_terminalDepsTitle",
-			"gitDiffAdd": "S5HVoW_gitDiffAdd",
-			"gitLogHash": "S5HVoW_gitLogHash",
-			"tabBarDrop": "S5HVoW_tabBarDrop",
-			"gitLogMore": "S5HVoW_gitLogMore",
-			"gitHeader": "S5HVoW_gitHeader",
-			"editorBinary": "S5HVoW_editorBinary",
-			"editorMain": "S5HVoW_editorMain",
-			"explorerBroken": "S5HVoW_explorerBroken",
-			"uploadOverlayTitle": "S5HVoW_uploadOverlayTitle",
-			"sandboxStatus": "S5HVoW_sandboxStatus",
-			"floatClose": "S5HVoW_floatClose",
-			"sandboxDot": "S5HVoW_sandboxDot",
-			"editorBody": "S5HVoW_editorBody",
-			"editorBinaryNotice": "S5HVoW_editorBinaryNotice",
-			"browserMessage": "S5HVoW_browserMessage",
-			"terminalRetry": "S5HVoW_terminalRetry",
-			"terminalDepsCommandRow": "S5HVoW_terminalDepsCommandRow",
-			"gitDiffTabHeader": "S5HVoW_gitDiffTabHeader",
-			"explorerName": "S5HVoW_explorerName",
-			"gitDiffNum": "S5HVoW_gitDiffNum",
-			"gitCommitInput": "S5HVoW_gitCommitInput",
-			"explorerHeader": "S5HVoW_explorerHeader",
-			"floatTitle": "S5HVoW_floatTitle",
-			"gitLogSubject": "S5HVoW_gitLogSubject",
-			"gitSection": "S5HVoW_gitSection",
-			"toggleCluster": "S5HVoW_toggleCluster",
-			"editorTreeResize": "S5HVoW_editorTreeResize",
-			"dirtyDot": "S5HVoW_dirtyDot",
+			"terminalWrap": "S5HVoW_terminalWrap",
+			"gitConfirmDesc": "S5HVoW_gitConfirmDesc",
+			"dropLeft": "S5HVoW_dropLeft",
+			"uploadDropZone": "S5HVoW_uploadDropZone",
+			"uploadDropZonePill": "S5HVoW_uploadDropZonePill",
+			"panel": "S5HVoW_panel",
+			"splitCol": "S5HVoW_splitCol",
+			"browserFrame": "S5HVoW_browserFrame",
+			"browserBlockedDesc": "S5HVoW_browserBlockedDesc",
+			"gitWorktreeRow": "S5HVoW_gitWorktreeRow",
+			"uploadDropZoneText": "S5HVoW_uploadDropZoneText",
+			"sandboxAction": "S5HVoW_sandboxAction",
+			"browserLiveStatus": "S5HVoW_browserLiveStatus",
+			"uploadDropChatCard": "S5HVoW_uploadDropChatCard",
 			"dropOverlay": "S5HVoW_dropOverlay",
-			"explorerRowDropTarget": "S5HVoW_explorerRowDropTarget",
+			"editorError": "S5HVoW_editorError",
+			"editorCm": "S5HVoW_editorCm",
+			"tabBoundaryError": "S5HVoW_tabBoundaryError",
+			"editorStatus": "S5HVoW_editorStatus",
+			"gitDiffMetaText": "S5HVoW_gitDiffMetaText",
+			"browserLiveTarget": "S5HVoW_browserLiveTarget",
+			"dropDown": "S5HVoW_dropDown",
+			"gitDiffNum": "S5HVoW_gitDiffNum",
+			"uploadOverlayProgressFill": "S5HVoW_uploadOverlayProgressFill",
+			"panelHidden": "S5HVoW_panelHidden",
+			"dsh-row-in": "S5HVoW_dsh-row-in",
+			"dsh-toc-flash": "S5HVoW_dsh-toc-flash",
+			"splitRow": "S5HVoW_splitRow",
+			"dividerCol": "S5HVoW_dividerCol",
+			"uploadOverlayProgress": "S5HVoW_uploadOverlayProgress",
+			"explorerRenameInput": "S5HVoW_explorerRenameInput",
+			"editorMain": "S5HVoW_editorMain",
+			"terminalWaitNeedle": "S5HVoW_terminalWaitNeedle",
+			"terminalDepsNote": "S5HVoW_terminalDepsNote",
+			"dividerRow": "S5HVoW_dividerRow",
+			"paneDrop": "S5HVoW_paneDrop",
+			"terminalDepsActions": "S5HVoW_terminalDepsActions",
+			"tabBarPlus": "S5HVoW_tabBarPlus",
+			"gitBadge": "S5HVoW_gitBadge",
+			"gitEmpty": "S5HVoW_gitEmpty",
+			"gitDiffExpand": "S5HVoW_gitDiffExpand",
+			"browserBlockedButton": "S5HVoW_browserBlockedButton",
+			"gitDiffHunk": "S5HVoW_gitDiffHunk",
+			"gitDiffLine": "S5HVoW_gitDiffLine",
+			"splitChild": "S5HVoW_splitChild",
+			"pane": "S5HVoW_pane",
+			"editorStatusError": "S5HVoW_editorStatusError",
+			"producedLabel": "S5HVoW_producedLabel",
+			"editorBinaryNotice": "S5HVoW_editorBinaryNotice",
+			"gitDiffFileOld": "S5HVoW_gitDiffFileOld",
+			"floatWindowDragging": "S5HVoW_floatWindowDragging",
+			"gitDiffTabTitle": "S5HVoW_gitDiffTabTitle",
+			"panelResizeActive": "S5HVoW_panelResizeActive",
+			"dirtyDot": "S5HVoW_dirtyDot",
+			"browserInput": "S5HVoW_browserInput",
+			"gitDiffAdd": "S5HVoW_gitDiffAdd",
+			"paneContent": "S5HVoW_paneContent",
+			"uploadDropHero": "S5HVoW_uploadDropHero",
+			"editor": "S5HVoW_editor",
+			"tabBar": "S5HVoW_tabBar",
+			"gitCommitButton": "S5HVoW_gitCommitButton",
+			"producedMore": "S5HVoW_producedMore",
+			"toggleButton": "S5HVoW_toggleButton",
+			"editorDownloadLink": "S5HVoW_editorDownloadLink",
+			"floatDropHint": "S5HVoW_floatDropHint",
+			"pinnedTab": "S5HVoW_pinnedTab",
+			"orphanedType": "S5HVoW_orphanedType",
+			"editorBinary": "S5HVoW_editorBinary",
+			"gitPlaceholder": "S5HVoW_gitPlaceholder",
+			"dividerActive": "S5HVoW_dividerActive",
 			"openWithPinActive": "S5HVoW_openWithPinActive",
+			"floatDropHintLabel": "S5HVoW_floatDropHintLabel",
+			"tabTitle": "S5HVoW_tabTitle",
+			"gitDiffHunkSection": "S5HVoW_gitDiffHunkSection",
+			"gitBranchSelect": "S5HVoW_gitBranchSelect",
+			"gitDiffFilePath": "S5HVoW_gitDiffFilePath",
+			"paneTab": "S5HVoW_paneTab",
+			"gitDiffHunkHeader": "S5HVoW_gitDiffHunkHeader",
+			"uploadOverlayTitle": "S5HVoW_uploadOverlayTitle",
+			"explorerRowDropTarget": "S5HVoW_explorerRowDropTarget",
+			"tabClose": "S5HVoW_tabClose",
+			"gitCommit": "S5HVoW_gitCommit",
+			"gitLogHash": "S5HVoW_gitLogHash",
+			"gitDiffFileChevron": "S5HVoW_gitDiffFileChevron",
+			"producedChip": "S5HVoW_producedChip",
+			"split": "S5HVoW_split",
+			"editorSearchInput": "S5HVoW_editorSearchInput",
+			"floatWindow": "S5HVoW_floatWindow",
+			"uploadOverlayStatus": "S5HVoW_uploadOverlayStatus",
+			"gitRowMain": "S5HVoW_gitRowMain",
+			"browserLiveCanvas": "S5HVoW_browserLiveCanvas",
+			"tabBadge": "S5HVoW_tabBadge",
+			"editorTreeDock": "S5HVoW_editorTreeDock",
+			"sandboxStatusOn": "S5HVoW_sandboxStatusOn",
+			"gitDiffCode": "S5HVoW_gitDiffCode",
+			"gitLogLine2": "S5HVoW_gitLogLine2",
+			"sandboxStatusOff": "S5HVoW_sandboxStatusOff",
+			"gitDiffDel": "S5HVoW_gitDiffDel",
+			"editorTreePanel": "S5HVoW_editorTreePanel",
+			"browserBlockedActions": "S5HVoW_browserBlockedActions",
+			"terminalWaitBanner": "S5HVoW_terminalWaitBanner",
+			"explorerError": "S5HVoW_explorerError",
+			"paneCard": "S5HVoW_paneCard",
+			"terminalRepairCommand": "S5HVoW_terminalRepairCommand",
+			"gitLogMore": "S5HVoW_gitLogMore",
+			"openWithName": "S5HVoW_openWithName",
+			"gitWorktreeLabel": "S5HVoW_gitWorktreeLabel",
+			"gitHeader": "S5HVoW_gitHeader",
+			"editorPathInput": "S5HVoW_editorPathInput",
+			"floatClose": "S5HVoW_floatClose",
+			"editorBody": "S5HVoW_editorBody",
+			"explorerHidden": "S5HVoW_explorerHidden",
+			"explorerRow": "S5HVoW_explorerRow",
+			"gitDiffCtx": "S5HVoW_gitDiffCtx",
+			"panelBody": "S5HVoW_panelBody",
+			"explorerRoot": "S5HVoW_explorerRoot",
+			"explorerEmpty": "S5HVoW_explorerEmpty",
+			"sandboxDot": "S5HVoW_sandboxDot",
+			"gitLogSubject": "S5HVoW_gitLogSubject",
+			"openWithLabel": "S5HVoW_openWithLabel",
+			"uploadOverlay": "S5HVoW_uploadOverlay",
+			"editorHeader": "S5HVoW_editorHeader",
+			"boundaryError": "S5HVoW_boundaryError",
+			"terminalDepsTitle": "S5HVoW_terminalDepsTitle",
+			"terminalDepsCommandRow": "S5HVoW_terminalDepsCommandRow",
+			"explorerName": "S5HVoW_explorerName",
+			"browserBlocked": "S5HVoW_browserBlocked",
+			"browserBlockedTitle": "S5HVoW_browserBlockedTitle",
+			"explorerBody": "S5HVoW_explorerBody",
+			"editorTreeSearch": "S5HVoW_editorTreeSearch",
+			"browserLive": "S5HVoW_browserLive",
+			"uploadOverlayCard": "S5HVoW_uploadOverlayCard",
+			"editorTitle": "S5HVoW_editorTitle",
+			"tabBarDrop": "S5HVoW_tabBarDrop",
+			"editorTreeToggleActive": "S5HVoW_editorTreeToggleActive",
+			"editorSearchResult": "S5HVoW_editorSearchResult",
+			"browserBar": "S5HVoW_browserBar",
+			"terminalDepsHint": "S5HVoW_terminalDepsHint",
+			"git": "S5HVoW_git",
+			"editorTreePanelFull": "S5HVoW_editorTreePanelFull",
+			"gitDiffTab": "S5HVoW_gitDiffTab",
+			"floatHeader": "S5HVoW_floatHeader",
+			"gitDiffFile": "S5HVoW_gitDiffFile",
+			"gitLogMeta": "S5HVoW_gitLogMeta",
+			"gitDiff": "S5HVoW_gitDiff",
+			"sandboxStatus": "S5HVoW_sandboxStatus",
+			"terminalBanner": "S5HVoW_terminalBanner",
+			"floatResize": "S5HVoW_floatResize",
+			"gitRow": "S5HVoW_gitRow",
+			"gitLogRow": "S5HVoW_gitLogRow",
+			"editorTreeResize": "S5HVoW_editorTreeResize",
+			"uploadOverlayCancel": "S5HVoW_uploadOverlayCancel",
+			"explorerRowRevealed": "S5HVoW_explorerRowRevealed",
+			"editorSearchHint": "S5HVoW_editorSearchHint",
+			"terminalDepsBanner": "S5HVoW_terminalDepsBanner",
+			"toggleCluster": "S5HVoW_toggleCluster",
+			"dropCenter": "S5HVoW_dropCenter",
+			"paneEmptyCards": "S5HVoW_paneEmptyCards",
+			"explorer": "S5HVoW_explorer",
+			"browserMessage": "S5HVoW_browserMessage",
+			"dropRight": "S5HVoW_dropRight",
+			"dropUp": "S5HVoW_dropUp",
+			"explorerHeader": "S5HVoW_explorerHeader",
+			"gitDiffFileChevronExpanded": "S5HVoW_gitDiffFileChevronExpanded",
+			"tabActive": "S5HVoW_tabActive",
+			"iconButton": "S5HVoW_iconButton",
+			"browser": "S5HVoW_browser",
+			"explorerSymlink": "S5HVoW_explorerSymlink",
+			"browserStart": "S5HVoW_browserStart",
+			"terminal": "S5HVoW_terminal",
+			"explorerBroken": "S5HVoW_explorerBroken",
+			"terminalBannerUrl": "S5HVoW_terminalBannerUrl",
+			"openWithPin": "S5HVoW_openWithPin",
+			"tabList": "S5HVoW_tabList",
+			"explorerCopied": "S5HVoW_explorerCopied",
+			"gitFoldRowFailed": "S5HVoW_gitFoldRowFailed",
+			"tab": "S5HVoW_tab",
+			"editorBanner": "S5HVoW_editorBanner",
+			"sandboxStatusText": "S5HVoW_sandboxStatusText",
+			"terminalRetry": "S5HVoW_terminalRetry",
+			"floatTitle": "S5HVoW_floatTitle",
+			"gitFoldRow": "S5HVoW_gitFoldRow",
+			"divider": "S5HVoW_divider",
+			"gitLink": "S5HVoW_gitLink",
+			"gitRowSelected": "S5HVoW_gitRowSelected",
+			"gitName": "S5HVoW_gitName",
+			"gitDiffTabHeader": "S5HVoW_gitDiffTabHeader",
+			"gitLogLine1": "S5HVoW_gitLogLine1",
+			"explorerDir": "S5HVoW_explorerDir",
+			"gitError": "S5HVoW_gitError",
+			"gitDiffFileTag": "S5HVoW_gitDiffFileTag",
+			"floatContent": "S5HVoW_floatContent",
+			"paneTabHidden": "S5HVoW_paneTabHidden",
+			"panelResize": "S5HVoW_panelResize",
+			"selectionPopup": "S5HVoW_selectionPopup",
+			"editorPlaceholder": "S5HVoW_editorPlaceholder",
+			"gitSection": "S5HVoW_gitSection",
 			"gitSectionHeader": "S5HVoW_gitSectionHeader",
-			"uploadDropHero": "S5HVoW_uploadDropHero"
+			"gitDiffMeta": "S5HVoW_gitDiffMeta",
+			"gitCommitInput": "S5HVoW_gitCommitInput",
+			"openWithChevron": "S5HVoW_openWithChevron",
+			"explorerRef": "S5HVoW_explorerRef",
+			"uploadDropChatHint": "S5HVoW_uploadDropChatHint"
 		};
 		//#endregion
 		//#region src/client/intercept.tsx
@@ -3427,6 +3477,15 @@ window.__ModuleLoader__.load({
 				path,
 				content
 			})),
+			/** Rename one tree row within its directory (single-segment name; a
+			*  destination-existence clash is a 409; symlink rows rename the link). */
+			fsRename: (scope, path, name) => call("fs.rename", scopePayload(scope, {
+				path,
+				name
+			})),
+			/** Delete one tree row permanently (recursive for directories; a symlink
+			*  row unlinks the link only). */
+			fsRemove: (scope, path) => call("fs.remove", scopePayload(scope, { path })),
 			/** Upload one file's raw bytes into `dir` (keeps the folder tree via
 			*  `relativePath`); the host streams it under the session workspace. */
 			uploadFile: (scope, dir, relativePath, body, signal) => fetchUpload(scope, dir, relativePath, body, signal),
@@ -3448,6 +3507,13 @@ window.__ModuleLoader__.load({
 			}), signal),
 			/** Full patch text of one commit (diff display for the history rows). */
 			gitCommitDiff: (scope, hash, worktree, signal) => call("git.commit-diff", gitPayload(scope, worktree, { hash }), signal),
+			/** Both sides' full file contents for a diff-fold expansion; a missing
+			*  side is null (untracked / deleted) and the view degrades the fold. */
+			gitFoldContents: (scope, opts, worktree, signal) => call("git.fold-contents", gitPayload(scope, worktree, {
+				path: opts.path,
+				...opts.staged !== void 0 ? { staged: opts.staged } : {},
+				...opts.hash !== void 0 ? { hash: opts.hash } : {}
+			}), signal),
 			/** Discard the worktree changes of one file (the index is untouched). */
 			gitDiscard: (scope, path, worktree) => call("git.discard", gitPayload(scope, worktree, { path })),
 			/** Revert one commit onto the current branch. */
@@ -3460,6 +3526,9 @@ window.__ModuleLoader__.load({
 			ptyClose: (scope, tab) => call("pty.close", scopePayload(scope, { tab })),
 			/** Release an agent terminal by uuid (tab closed while WS was down). */
 			agentPtyClose: (uuid) => call("agent-pty.close", { uuid }),
+			/** Skip every active terminal_wait_for on one agent terminal (the wait
+			*  banner's skip button). Idempotent: {skipped:0} when none is active. */
+			agentSkipWait: (uuid) => call("agent-pty.skip-wait", { uuid }),
 			/** Terminal dependency status (issue #140): after a WS close 1011 with
 			*  reason `pty-deps-missing` the view fetches the full repair details here
 			*  (the close reason itself is capped at 123 bytes). */
@@ -4351,13 +4420,19 @@ window.__ModuleLoader__.load({
 			})]
 		});
 		function FileTree(props) {
-			const { sessionId, cwd, expanded, revealed, onToggle, onOpenFile, onOpenFileNewTab, onOpenFileSide, openWithTargets, openWithPinned, openWithSsh, onOpenWith, onToggleOpenWithPin, onReferenceFile, refreshTick, onUploadRequest, busy } = props;
+			const { sessionId, cwd, expanded, revealed, onToggle, onOpenFile, onOpenFileNewTab, onOpenFileSide, openWithTargets, openWithPinned, openWithSsh, onOpenWith, onToggleOpenWithPin, onReferenceFile, refreshTick, onUploadRequest, busy, onPathRenamed, onPathRemoved } = props;
 			const [data, setData] = (0, react.useState)({});
 			const dataRef = (0, react.useRef)(data);
 			/** The row whose path was just copied ("copied" label replaces its button). */
 			const [copiedPath, setCopiedPath] = (0, react.useState)(null);
 			/** Open context menu: the row path (and whether it is a directory) plus the cursor position. */
 			const [rowMenu, setRowMenu] = (0, react.useState)(null);
+			/** The row being renamed inline (pre-filled base name; Enter commits). */
+			const [renaming, setRenaming] = (0, react.useState)(null);
+			/** The row pending delete confirmation (the Modal owns the final call). */
+			const [deleting, setDeleting] = (0, react.useState)(null);
+			/** The last mutation failure (dismissable strip above the tree). */
+			const [mutationError, setMutationError] = (0, react.useState)(null);
 			/** Whether a file drag hovers the tree (drives the portaled drop zone). */
 			const [dropOver, setDropOver] = (0, react.useState)(false);
 			/** The directory a drag is hovering right now (null = body, drop to root). */
@@ -4512,6 +4587,89 @@ window.__ModuleLoader__.load({
 					}, COPIED_MS);
 				});
 			}, []);
+			/** Re-fetch one directory level (a mutation changed it on disk). */
+			const reloadDir = (0, react.useCallback)((dir) => {
+				dataRef.current = {
+					...dataRef.current,
+					[dir]: {}
+				};
+				setData(dataRef.current);
+				api.fsTree({
+					sessionId,
+					cwd
+				}, dir).then((listing) => {
+					storeLevel(dir, { entries: listing.entries });
+				}).catch((error) => {
+					storeLevel(dir, { error: error instanceof Error ? error.message : String(error) });
+				});
+			}, [
+				sessionId,
+				cwd,
+				storeLevel
+			]);
+			/** Commit the inline rename: single-segment name; the row reloads from
+			*  its parent and open tabs retarget through the caller. */
+			const commitRename = (target) => {
+				const name = target.name.trim();
+				if (name === "" || name.includes("/") || name.includes("\\")) {
+					setMutationError(t("renameInvalid"));
+					return;
+				}
+				api.fsRename({
+					sessionId,
+					cwd
+				}, target.path, name).then(({ path }) => {
+					setRenaming(null);
+					reloadDir(parentOf(target.path) ?? path);
+					onPathRenamed?.(target.path, path);
+				}).catch((error) => {
+					setMutationError(error instanceof Error ? error.message : String(error));
+				});
+			};
+			/** Commit the confirmed delete: the parent reloads and the caller closes
+			*  every open tab at or under the removed path. */
+			const commitDelete = (target) => {
+				api.fsRemove({
+					sessionId,
+					cwd
+				}, target.path).then(() => {
+					setDeleting(null);
+					reloadDir(parentOf(target.path) ?? target.path);
+					onPathRemoved?.(target.path);
+				}).catch((error) => {
+					setMutationError(error instanceof Error ? error.message : String(error));
+				});
+			};
+			/** The inline rename input (auto-focused, pre-selected; Enter/blur commits,
+			*  Esc cancels, an IME composition never triggers the key handlers). */
+			const renameCancelled = (0, react.useRef)(false);
+			const renderRenameInput = (path) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+				autoFocus: true,
+				className: sidebar_module_css_default.explorerRenameInput,
+				defaultValue: renaming?.name ?? "",
+				onClick: (event) => {
+					event.stopPropagation();
+				},
+				onKeyDown: (event) => {
+					event.stopPropagation();
+					if (event.nativeEvent.isComposing) return;
+					if (event.key === "Enter") {
+						event.preventDefault();
+						if (renaming !== null) commitRename(renaming);
+					} else if (event.key === "Escape") {
+						event.preventDefault();
+						renameCancelled.current = true;
+						setRenaming(null);
+					}
+				},
+				onBlur: () => {
+					if (renameCancelled.current) {
+						renameCancelled.current = false;
+						return;
+					}
+					if (renaming !== null) commitRename(renaming);
+				}
+			});
 			/** The row's trailing actions: the @-reference button, or the copied label. */
 			const rowActions = (entry) => {
 				if (copiedPath === entry.path) return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
@@ -4673,7 +4831,7 @@ window.__ModuleLoader__.load({
 							},
 							children: [
 								isOpen ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)(VscFolderOpened, { size: 14 }) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)(VscFolder, { size: 14 }),
-								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+								renaming?.path === entry.path ? renderRenameInput(entry.path) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
 									className: sidebar_module_css_default.explorerName,
 									children: entry.name
 								}),
@@ -4712,7 +4870,7 @@ window.__ModuleLoader__.load({
 						},
 						children: [
 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)(VscFile, { size: 14 }),
-							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							renaming?.path === entry.path ? renderRenameInput(entry.path) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
 								className: sidebar_module_css_default.explorerName,
 								children: entry.name
 							}),
@@ -4808,6 +4966,27 @@ window.__ModuleLoader__.load({
 							event.target.value = "";
 						}
 					}),
+					mutationError !== null && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+						className: clsx(sidebar_module_css_default.explorerRow, sidebar_module_css_default.explorerError),
+						children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							style: {
+								flex: 1,
+								minWidth: 0,
+								overflow: "hidden",
+								textOverflow: "ellipsis"
+							},
+							children: mutationError
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+							type: "button",
+							className: sidebar_module_css_default.explorerRef,
+							"aria-label": t("dismiss"),
+							title: t("dismiss"),
+							onClick: () => {
+								setMutationError(null);
+							},
+							children: t("dismiss")
+						})]
+					}),
 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Menu, {
 						open: rowMenu !== null,
 						onClose: () => {
@@ -4844,7 +5023,19 @@ window.__ModuleLoader__.load({
 								id: "absolute",
 								label: t("copyAbsolute"),
 								icon: /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCopyOutline16, { size: 16 })
-							}
+							},
+							...onPathRenamed !== void 0 && rowMenu !== null && rowMenu.path !== root || onPathRemoved !== void 0 && rowMenu !== null && rowMenu.path !== root ? [{
+								id: "mutation-sep",
+								type: "separator"
+							}] : [],
+							...onPathRenamed !== void 0 && rowMenu !== null && rowMenu.path !== root ? [{
+								id: "rename-row",
+								label: t("rename")
+							}] : [],
+							...onPathRemoved !== void 0 && rowMenu !== null && rowMenu.path !== root ? [{
+								id: "delete-row",
+								label: t("delete")
+							}] : []
 						],
 						onSelect: (id) => {
 							const target = rowMenu;
@@ -4871,12 +5062,54 @@ window.__ModuleLoader__.load({
 								fileInputRef.current?.click();
 								return;
 							}
+							if (id === "rename-row") {
+								setMutationError(null);
+								setRenaming({
+									path: target.path,
+									name: baseName$1(target.path)
+								});
+								return;
+							}
+							if (id === "delete-row") {
+								setDeleting({
+									path: target.path,
+									isDir: target.isDir
+								});
+								return;
+							}
 							copyPath(id === "relative" ? relativeTo(cwd ?? "", target.path) : target.path, target.path);
 						},
 						portal: true,
 						align: "start",
 						getAnchorRect: () => rowMenu === null ? null : new DOMRect(rowMenu.x, rowMenu.y, 0, 0),
 						anchor: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {})
+					}),
+					/* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Modal, {
+						open: deleting !== null,
+						onClose: () => {
+							setDeleting(null);
+						},
+						title: deleting === null ? "" : t("deleteTitle", { name: baseName$1(deleting.path) }),
+						closeLabel: t("cancel"),
+						footer: /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Button, {
+							variant: "outline",
+							onClick: () => {
+								setDeleting(null);
+							},
+							children: t("cancel")
+						}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Button, {
+							variant: "primary",
+							onClick: () => {
+								const target = deleting;
+								if (target === null) return;
+								commitDelete(target);
+							},
+							children: t("delete")
+						})] }),
+						children: /* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+							className: sidebar_module_css_default.explorerError,
+							children: deleting?.isDir === true ? t("deleteDescDir") : t("deleteDescFile")
+						})
 					})
 				]
 			});
@@ -5275,7 +5508,7 @@ window.__ModuleLoader__.load({
 		* intake.
 		*/
 		function TreePanel(props) {
-			const { sessionId, cwd, expanded, revealed, onToggle, onOpenFile, onOpenFileNewTab, onOpenFileSide, openWithTargets, openWithPinned, openWithSsh, onOpenWith, onToggleOpenWithPin, onReferenceFile, full } = props;
+			const { sessionId, cwd, expanded, revealed, onToggle, onOpenFile, onOpenFileNewTab, onOpenFileSide, openWithTargets, openWithPinned, openWithSsh, onOpenWith, onToggleOpenWithPin, onReferenceFile, onPathRenamed, onPathRemoved, full } = props;
 			const [query, setQuery] = (0, react.useState)("");
 			const [results, setResults] = (0, react.useState)(null);
 			const [error, setError] = (0, react.useState)(null);
@@ -5475,6 +5708,8 @@ window.__ModuleLoader__.load({
 						onOpenWith,
 						onToggleOpenWithPin,
 						onReferenceFile,
+						onPathRenamed,
+						onPathRemoved,
 						refreshTick,
 						onUploadRequest: startUpload,
 						busy
@@ -5669,7 +5904,7 @@ window.__ModuleLoader__.load({
 			return Math.min(TREE_WIDTH_MAX, Math.max(TREE_WIDTH_MIN, Math.round(value)));
 		}
 		function EditorHost(props) {
-			const { ctx, store, scope, tab, expanded, revealed, onToggleDir, onReferenceFile } = props;
+			const { ctx, store, scope, tab, expanded, revealed, onToggleDir, onReferenceFile, onPathRenamed, onPathRemoved } = props;
 			const path = tab.path ?? "";
 			const isDir = metaOf(tab).dir === true;
 			const [load, setLoad] = (0, react.useState)({ status: "loading" });
@@ -5862,7 +6097,9 @@ window.__ModuleLoader__.load({
 					openWithSsh: openWithSshActive(openWithConfig),
 					onOpenWith: openWith,
 					onToggleOpenWithPin: toggleOpenWithPin,
-					onReferenceFile
+					onReferenceFile,
+					onPathRenamed,
+					onPathRemoved
 				})
 			});
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
@@ -5970,7 +6207,9 @@ window.__ModuleLoader__.load({
 							openWithSsh: openWithSshActive(openWithConfig),
 							onOpenWith: openWith,
 							onToggleOpenWithPin: toggleOpenWithPin,
-							onReferenceFile
+							onReferenceFile,
+							onPathRenamed,
+							onPathRemoved
 						})]
 					})]
 				})]
@@ -6029,75 +6268,75 @@ window.__ModuleLoader__.load({
 			document.head.appendChild(tag);
 		}
 		var SideCardSection_module_css_default = {
-			"versionBadgeTag": "AC9POW_versionBadgeTag",
-			"error": "AC9POW_error",
 			"cardTop": "AC9POW_cardTop",
-			"switchTrack": "AC9POW_switchTrack",
-			"switchThumb": "AC9POW_switchThumb",
-			"popupRow": "AC9POW_popupRow",
-			"openWithFamily": "AC9POW_openWithFamily",
-			"pluginEmpty": "AC9POW_pluginEmpty",
-			"cardSwitch": "AC9POW_cardSwitch",
-			"pluginTopicBtn": "AC9POW_pluginTopicBtn",
-			"pluginModal": "AC9POW_pluginModal",
-			"cardOn": "AC9POW_cardOn",
-			"cardSettings": "AC9POW_cardSettings",
-			"versionBadge": "AC9POW_versionBadge",
-			"control": "AC9POW_control",
-			"selectAnchorText": "AC9POW_selectAnchorText",
-			"row": "AC9POW_row",
-			"openWithEditorRow": "AC9POW_openWithEditorRow",
-			"percentInput": "AC9POW_percentInput",
-			"card": "AC9POW_card",
-			"title": "AC9POW_title",
-			"rowGear": "AC9POW_rowGear",
-			"pluginName": "AC9POW_pluginName",
-			"switch": "AC9POW_switch",
-			"desc": "AC9POW_desc",
-			"popupRows": "AC9POW_popupRows",
-			"cardMain": "AC9POW_cardMain",
-			"suffix": "AC9POW_suffix",
-			"selectOptionIcon": "AC9POW_selectOptionIcon",
-			"pluginGroupHeading": "AC9POW_pluginGroupHeading",
-			"openWithEditorInput": "AC9POW_openWithEditorInput",
-			"selectOption": "AC9POW_selectOption",
-			"pluginSearch": "AC9POW_pluginSearch",
-			"count": "AC9POW_count",
-			"cardTitle": "AC9POW_cardTitle",
-			"popupDialog": "AC9POW_popupDialog",
-			"pluginJumpBtn": "AC9POW_pluginJumpBtn",
-			"versionBadgeName": "AC9POW_versionBadgeName",
-			"pluginEntries": "AC9POW_pluginEntries",
-			"pluginInstall": "AC9POW_pluginInstall",
-			"cardIconChip": "AC9POW_cardIconChip",
-			"selectAnchor": "AC9POW_selectAnchor",
-			"pluginCopyBtn": "AC9POW_pluginCopyBtn",
-			"selectOptionText": "AC9POW_selectOptionText",
-			"openWithRemove": "AC9POW_openWithRemove",
-			"typedInput": "AC9POW_typedInput",
-			"typedInputNumber": "AC9POW_typedInputNumber",
-			"group": "AC9POW_group",
-			"groupHeading": "AC9POW_groupHeading",
-			"selectAnchorIcon": "AC9POW_selectAnchorIcon",
-			"done": "AC9POW_done",
-			"pluginDesc": "AC9POW_pluginDesc",
-			"openWithHint": "AC9POW_openWithHint",
-			"pluginGroup": "AC9POW_pluginGroup",
-			"pluginEntryHead": "AC9POW_pluginEntryHead",
-			"intro": "AC9POW_intro",
-			"pluginEntry": "AC9POW_pluginEntry",
-			"pluginList": "AC9POW_pluginList",
-			"switchInput": "AC9POW_switchInput",
-			"cardDesc": "AC9POW_cardDesc",
-			"rowText": "AC9POW_rowText",
-			"cssTextArea": "AC9POW_cssTextArea",
-			"pluginEntryActions": "AC9POW_pluginEntryActions",
-			"addCard": "AC9POW_addCard",
-			"cardSwitchTrack": "AC9POW_cardSwitchTrack",
-			"openWithEditorTemplate": "AC9POW_openWithEditorTemplate",
-			"section": "AC9POW_section",
 			"cardSwitchThumb": "AC9POW_cardSwitchThumb",
-			"grid": "AC9POW_grid"
+			"intro": "AC9POW_intro",
+			"pluginGroup": "AC9POW_pluginGroup",
+			"openWithHint": "AC9POW_openWithHint",
+			"pluginTopicBtn": "AC9POW_pluginTopicBtn",
+			"error": "AC9POW_error",
+			"selectOptionIcon": "AC9POW_selectOptionIcon",
+			"pluginName": "AC9POW_pluginName",
+			"selectAnchorText": "AC9POW_selectAnchorText",
+			"pluginCopyBtn": "AC9POW_pluginCopyBtn",
+			"switchThumb": "AC9POW_switchThumb",
+			"cardSwitchTrack": "AC9POW_cardSwitchTrack",
+			"cardDesc": "AC9POW_cardDesc",
+			"groupHeading": "AC9POW_groupHeading",
+			"rowGear": "AC9POW_rowGear",
+			"switchTrack": "AC9POW_switchTrack",
+			"selectOptionText": "AC9POW_selectOptionText",
+			"pluginEntryActions": "AC9POW_pluginEntryActions",
+			"pluginJumpBtn": "AC9POW_pluginJumpBtn",
+			"openWithEditorRow": "AC9POW_openWithEditorRow",
+			"pluginEntry": "AC9POW_pluginEntry",
+			"card": "AC9POW_card",
+			"pluginList": "AC9POW_pluginList",
+			"popupRows": "AC9POW_popupRows",
+			"cardSettings": "AC9POW_cardSettings",
+			"suffix": "AC9POW_suffix",
+			"count": "AC9POW_count",
+			"pluginSearch": "AC9POW_pluginSearch",
+			"pluginModal": "AC9POW_pluginModal",
+			"openWithEditorInput": "AC9POW_openWithEditorInput",
+			"openWithRemove": "AC9POW_openWithRemove",
+			"pluginEntryHead": "AC9POW_pluginEntryHead",
+			"typedInput": "AC9POW_typedInput",
+			"pluginEmpty": "AC9POW_pluginEmpty",
+			"switch": "AC9POW_switch",
+			"percentInput": "AC9POW_percentInput",
+			"cardIconChip": "AC9POW_cardIconChip",
+			"done": "AC9POW_done",
+			"desc": "AC9POW_desc",
+			"pluginEntries": "AC9POW_pluginEntries",
+			"cssTextArea": "AC9POW_cssTextArea",
+			"pluginDesc": "AC9POW_pluginDesc",
+			"group": "AC9POW_group",
+			"cardMain": "AC9POW_cardMain",
+			"title": "AC9POW_title",
+			"popupDialog": "AC9POW_popupDialog",
+			"versionBadge": "AC9POW_versionBadge",
+			"selectOption": "AC9POW_selectOption",
+			"grid": "AC9POW_grid",
+			"cardTitle": "AC9POW_cardTitle",
+			"cardSwitch": "AC9POW_cardSwitch",
+			"selectAnchorIcon": "AC9POW_selectAnchorIcon",
+			"addCard": "AC9POW_addCard",
+			"control": "AC9POW_control",
+			"pluginInstall": "AC9POW_pluginInstall",
+			"popupRow": "AC9POW_popupRow",
+			"cardOn": "AC9POW_cardOn",
+			"versionBadgeName": "AC9POW_versionBadgeName",
+			"openWithFamily": "AC9POW_openWithFamily",
+			"rowText": "AC9POW_rowText",
+			"row": "AC9POW_row",
+			"typedInputNumber": "AC9POW_typedInputNumber",
+			"selectAnchor": "AC9POW_selectAnchor",
+			"section": "AC9POW_section",
+			"switchInput": "AC9POW_switchInput",
+			"openWithEditorTemplate": "AC9POW_openWithEditorTemplate",
+			"versionBadgeTag": "AC9POW_versionBadgeTag",
+			"pluginGroupHeading": "AC9POW_pluginGroupHeading"
 		};
 		//#endregion
 		//#region src/client/open-with-settings.tsx
@@ -7216,6 +7455,56 @@ window.__ModuleLoader__.load({
 			if (path.startsWith("a/") || path.startsWith("b/")) return path.slice(2);
 			return path;
 		}
+		/** How many old-side rows a hunk carries (rows without an old number are
+		*  pure additions and do not advance the old side). */
+		function hunkOldEnd(hunk) {
+			return hunk.oldStart + hunk.lines.filter((line) => line.oldNum !== null).length - 1;
+		}
+		/** How many new-side rows a hunk carries. */
+		function hunkNewEnd(hunk) {
+			return hunk.newStart + hunk.lines.filter((line) => line.newNum !== null).length - 1;
+		}
+		/**
+		* Materialize a git gap fold's hidden rows from the two sides' full file
+		* contents, by the fold's known line ranges: the old side drives context
+		* rows (each mapped onto the new side through the fold's offset — a gap is
+		* an unchanged run, so the sides align), and new-side lines the old range
+		* never reaches become pure additions. Line numbers clip to the actual
+		* content (a no-newline file's ranges can overrun by one); `\r` endings
+		* survive verbatim, like git's own context lines.
+		*/
+		function foldRowsFromContents(fold, oldContent, newContent) {
+			const oldLines = oldContent.length === 0 ? [] : oldContent.split("\n");
+			const newLines = newContent.length === 0 ? [] : newContent.split("\n");
+			const offset = fold.newStart - fold.oldStart;
+			const rows = [];
+			const oldFrom = Math.max(fold.oldStart, 1);
+			const oldTo = Math.min(fold.oldEnd, oldLines.length);
+			for (let oldLine = oldFrom; oldLine <= oldTo; oldLine += 1) {
+				const text = oldLines[oldLine - 1] ?? "";
+				const newLine = oldLine + offset;
+				rows.push(newLine >= fold.newStart && newLine <= fold.newEnd && newLine <= newLines.length ? {
+					kind: "ctx",
+					text,
+					oldNum: oldLine,
+					newNum: newLine
+				} : {
+					kind: "ctx",
+					text,
+					oldNum: oldLine,
+					newNum: null
+				});
+			}
+			const newFrom = Math.max(Math.max(fold.newStart, 1), oldTo + offset + 1);
+			const newTo = Math.min(fold.newEnd, newLines.length);
+			for (let newLine = newFrom; newLine <= newTo; newLine += 1) rows.push({
+				kind: "add",
+				text: newLines[newLine - 1] ?? "",
+				oldNum: null,
+				newNum: newLine
+			});
+			return rows;
+		}
 		/** The file header badge: added / deleted / renamed / binary ('' for a plain edit). */
 		function fileTag(file) {
 			if (file.binary) return t("diffBinary");
@@ -7239,7 +7528,7 @@ window.__ModuleLoader__.load({
 			});
 			return expanded;
 		}
-		function DiffView({ diff, untrackedPath, untrackedContent }) {
+		function DiffView({ diff, untrackedPath, untrackedContent, foldSource }) {
 			const parsed = (0, react.useMemo)(() => {
 				if (untrackedPath !== void 0) return { files: [untrackedFile(untrackedPath, untrackedContent ?? "")] };
 				return parseUnifiedDiff(diff);
@@ -7250,9 +7539,43 @@ window.__ModuleLoader__.load({
 			]);
 			const [expanded, setExpanded] = (0, react.useState)(false);
 			const [expandedFiles, setExpandedFiles] = (0, react.useState)(() => defaultExpandedFiles(parsed.files));
+			const [foldRows, setFoldRows] = (0, react.useState)(/* @__PURE__ */ new Map());
+			const foldInflight = (0, react.useRef)(/* @__PURE__ */ new Map());
 			(0, react.useEffect)(() => {
 				setExpandedFiles(defaultExpandedFiles(parsed.files));
 			}, [parsed]);
+			(0, react.useEffect)(() => {
+				setFoldRows(/* @__PURE__ */ new Map());
+				foldInflight.current.clear();
+			}, [parsed]);
+			/** Fetch both sides' contents and materialize one fold's hidden rows. */
+			const resolveFold = (key, file, fold) => {
+				if (foldSource === void 0 || foldInflight.current.has(key)) return;
+				setFoldRows((current) => new Map(current).set(key, { status: "loading" }));
+				const task = (async () => {
+					try {
+						const path = displayPath(file.newPath === "/dev/null" ? file.oldPath : file.newPath);
+						const contents = await api.gitFoldContents(foldSource.scope, {
+							path,
+							...foldSource.ref.kind === "commit" ? { hash: foldSource.ref.hashFull } : { staged: foldSource.ref.staged === true }
+						}, foldSource.ref.kind === "worktree" ? foldSource.ref.worktree : void 0);
+						if (contents.old === null || contents.new === null) {
+							setFoldRows((current) => new Map(current).set(key, { status: "failed" }));
+							return;
+						}
+						const rows = foldRowsFromContents(fold, contents.old, contents.new);
+						setFoldRows((current) => new Map(current).set(key, {
+							status: "ready",
+							rows
+						}));
+					} catch {
+						setFoldRows((current) => new Map(current).set(key, { status: "failed" }));
+					} finally {
+						foldInflight.current.delete(key);
+					}
+				})();
+				foldInflight.current.set(key, task);
+			};
 			const rows = (0, react.useMemo)(() => {
 				const out = [];
 				parsed.files.forEach((file, fileIndex) => {
@@ -7263,7 +7586,30 @@ window.__ModuleLoader__.load({
 						type: "path"
 					});
 					if (file.binary || !expandedFiles.has(fileIndex)) return;
+					let prevOldEnd = 0;
+					let prevNewEnd = 0;
 					file.hunks.forEach((hunk, hunkIndex) => {
+						const oldGap = hunk.oldStart - prevOldEnd - 1;
+						const newGap = hunk.newStart - prevNewEnd - 1;
+						if (foldSource !== void 0 && (oldGap > 0 || newGap > 0)) {
+							const key = `f${fileIndex}fold${hunkIndex}`;
+							out.push({
+								key,
+								file,
+								fileIndex,
+								type: "fold",
+								fold: {
+									oldStart: prevOldEnd + 1,
+									oldEnd: Math.max(hunk.oldStart - 1, prevOldEnd),
+									newStart: prevNewEnd + 1,
+									newEnd: Math.max(hunk.newStart - 1, prevNewEnd)
+								},
+								count: Math.max(oldGap, newGap, 0),
+								state: foldRows.get(key)
+							});
+						}
+						prevOldEnd = hunkOldEnd(hunk);
+						prevNewEnd = hunkNewEnd(hunk);
 						out.push({
 							key: `f${fileIndex}h${hunkIndex}`,
 							file,
@@ -7284,7 +7630,12 @@ window.__ModuleLoader__.load({
 					});
 				});
 				return out;
-			}, [parsed, expandedFiles]);
+			}, [
+				parsed,
+				expandedFiles,
+				foldRows,
+				foldSource
+			]);
 			const hidden = rows.length - MAX_DIFF_ROWS;
 			const capped = hidden > 0 && !expanded;
 			const headLines = Math.ceil(MAX_DIFF_ROWS / 2);
@@ -7292,6 +7643,29 @@ window.__ModuleLoader__.load({
 			const head = capped ? rows.slice(0, headLines) : rows;
 			const tail = capped ? rows.slice(rows.length - tailLines) : [];
 			if (rows.length === 0) return null;
+			const renderLine = (line, key) => {
+				const lineClass = line.kind === "del" ? sidebar_module_css_default.gitDiffDel : line.kind === "add" ? sidebar_module_css_default.gitDiffAdd : line.kind === "meta" ? sidebar_module_css_default.gitDiffMeta : sidebar_module_css_default.gitDiffCtx;
+				return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					className: clsx(sidebar_module_css_default.gitDiffLine, lineClass),
+					children: line.kind === "meta" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: sidebar_module_css_default.gitDiffMetaText,
+						children: line.text
+					}) : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: sidebar_module_css_default.gitDiffNum,
+							children: line.oldNum ?? ""
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: sidebar_module_css_default.gitDiffNum,
+							children: line.newNum ?? ""
+						}),
+						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+							className: sidebar_module_css_default.gitDiffCode,
+							children: line.text
+						})
+					] })
+				}, key);
+			};
 			const renderRow = (row) => {
 				if (row.type === "path") {
 					const tag = fileTag(row.file);
@@ -7356,28 +7730,21 @@ window.__ModuleLoader__.load({
 						})]
 					}, row.key);
 				}
-				const line = row.line;
-				const lineClass = line.kind === "del" ? sidebar_module_css_default.gitDiffDel : line.kind === "add" ? sidebar_module_css_default.gitDiffAdd : line.kind === "meta" ? sidebar_module_css_default.gitDiffMeta : sidebar_module_css_default.gitDiffCtx;
-				return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
-					className: clsx(sidebar_module_css_default.gitDiffLine, lineClass),
-					children: line.kind === "meta" ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-						className: sidebar_module_css_default.gitDiffMetaText,
-						children: line.text
-					}) : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [
-						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-							className: sidebar_module_css_default.gitDiffNum,
-							children: line.oldNum ?? ""
-						}),
-						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-							className: sidebar_module_css_default.gitDiffNum,
-							children: line.newNum ?? ""
-						}),
-						/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
-							className: sidebar_module_css_default.gitDiffCode,
-							children: line.text
-						})
-					] })
-				}, row.key);
+				if (row.type === "fold") {
+					if (row.state?.status === "ready") return /* @__PURE__ */ (0, react_jsx_runtime.jsx)(react.Fragment, { children: row.state.rows.map((line, index) => renderLine(line, `${row.key}r${index}`)) }, row.key);
+					const loading = row.state?.status === "loading";
+					const failed = row.state?.status === "failed";
+					return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+						type: "button",
+						className: clsx(sidebar_module_css_default.gitFoldRow, failed && sidebar_module_css_default.gitFoldRowFailed),
+						disabled: loading || failed,
+						onClick: () => {
+							resolveFold(row.key, row.file, row.fold);
+						},
+						children: failed ? t("gitFoldFailed") : loading ? t("gitFoldLoading") : t("gitFoldExpand", { count: row.count })
+					}, row.key);
+				}
+				return renderLine(row.line, row.key);
 			};
 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
 				className: sidebar_module_css_default.gitDiff,
@@ -7501,7 +7868,18 @@ window.__ModuleLoader__.load({
 						diff: "",
 						untrackedPath: diff.kind === "worktree" ? diff.path : "",
 						untrackedContent: data.untracked
-					}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)(DiffView, { diff: data.diff }), data.diff === "" && data.untracked === void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+					}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)(DiffView, {
+						diff: data.diff,
+						foldSource: {
+							scope: {
+								sessionId,
+								cwd,
+								...diff.repoRoot !== void 0 ? { repoRoot: diff.repoRoot } : {}
+							},
+							ref: diff,
+							cwd
+						}
+					}), data.diff === "" && data.untracked === void 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
 						className: sidebar_module_css_default.gitEmpty,
 						children: t("diffEmpty")
 					})] })
@@ -7815,58 +8193,58 @@ Mode: this is a continuable side conversation. Your answers stay in this side th
 			document.head.appendChild(tag);
 		}
 		var SubagentView_module_css_default = {
-			"subagentErrorRetry": "F2T6aa_subagentErrorRetry",
-			"subagentDot": "F2T6aa_subagentDot",
-			"subagentCount": "F2T6aa_subagentCount",
-			"jobsRowSettled": "F2T6aa_jobsRowSettled",
-			"jobsKillArmed": "F2T6aa_jobsKillArmed",
-			"jobsPaneLabel": "F2T6aa_jobsPaneLabel",
-			"jobsLabel": "F2T6aa_jobsLabel",
-			"jobsHeader": "F2T6aa_jobsHeader",
-			"jobsPanePre": "F2T6aa_jobsPanePre",
-			"jobsTitle": "F2T6aa_jobsTitle",
 			"jobsPaneStatus": "F2T6aa_jobsPaneStatus",
+			"jobsPaneClose": "F2T6aa_jobsPaneClose",
+			"subagentError": "F2T6aa_subagentError",
+			"jobsPaneHint": "F2T6aa_jobsPaneHint",
+			"jobsKillArmed": "F2T6aa_jobsKillArmed",
+			"jobsRowSettled": "F2T6aa_jobsRowSettled",
+			"jobsPanePre": "F2T6aa_jobsPanePre",
+			"subagentRow": "F2T6aa_subagentRow",
+			"jobsKind": "F2T6aa_jobsKind",
+			"jobsContent": "F2T6aa_jobsContent",
+			"jobsPaneError": "F2T6aa_jobsPaneError",
+			"jobsPaneLabel": "F2T6aa_jobsPaneLabel",
+			"subagentLiveTool": "F2T6aa_subagentLiveTool",
 			"subagent": "F2T6aa_subagent",
 			"subagentContent": "F2T6aa_subagentContent",
+			"jobsTitle": "F2T6aa_jobsTitle",
+			"jobsRowSelected": "F2T6aa_jobsRowSelected",
+			"jobsKillError": "F2T6aa_jobsKillError",
+			"subagentEmptyHint": "F2T6aa_subagentEmptyHint",
+			"jobsPaneHeader": "F2T6aa_jobsPaneHeader",
+			"jobsHeader": "F2T6aa_jobsHeader",
+			"subagentCount": "F2T6aa_subagentCount",
+			"subagentLiveText": "F2T6aa_subagentLiveText",
+			"jobsLabelLine": "F2T6aa_jobsLabelLine",
+			"historyToggle": "F2T6aa_historyToggle",
+			"jobsPaneDot": "F2T6aa_jobsPaneDot",
+			"subagentDot": "F2T6aa_subagentDot",
+			"jobsList": "F2T6aa_jobsList",
+			"jobsKill": "F2T6aa_jobsKill",
+			"jobs": "F2T6aa_jobs",
+			"subagentHeader": "F2T6aa_subagentHeader",
+			"subagentBody": "F2T6aa_subagentBody",
+			"subagentSecondary": "F2T6aa_subagentSecondary",
+			"subagentLabel": "F2T6aa_subagentLabel",
 			"subagentNode": "F2T6aa_subagentNode",
+			"subagentRowDisabled": "F2T6aa_subagentRowDisabled",
+			"subagentErrorRetry": "F2T6aa_subagentErrorRetry",
+			"jobsRow": "F2T6aa_jobsRow",
+			"jobsDot": "F2T6aa_jobsDot",
+			"subagentTitle": "F2T6aa_subagentTitle",
+			"jobsRowMain": "F2T6aa_jobsRowMain",
 			"subagentRefresh": "F2T6aa_subagentRefresh",
 			"subagentLive": "F2T6aa_subagentLive",
-			"subagentError": "F2T6aa_subagentError",
-			"jobsKill": "F2T6aa_jobsKill",
-			"jobsPaneHeader": "F2T6aa_jobsPaneHeader",
-			"jobs": "F2T6aa_jobs",
 			"subagentLiveArgs": "F2T6aa_subagentLiveArgs",
-			"jobsRowMain": "F2T6aa_jobsRowMain",
-			"subagentHeader": "F2T6aa_subagentHeader",
-			"jobsKind": "F2T6aa_jobsKind",
-			"subagentSecondary": "F2T6aa_subagentSecondary",
-			"subagentBody": "F2T6aa_subagentBody",
-			"historyToggle": "F2T6aa_historyToggle",
-			"jobsLabelLine": "F2T6aa_jobsLabelLine",
-			"jobsSecondary": "F2T6aa_jobsSecondary",
-			"jobsPaneHint": "F2T6aa_jobsPaneHint",
-			"subagentLabel": "F2T6aa_subagentLabel",
-			"subagentLiveText": "F2T6aa_subagentLiveText",
 			"subagentRowLoading": "F2T6aa_subagentRowLoading",
-			"subagentEmpty": "F2T6aa_subagentEmpty",
-			"subagentEmptyHint": "F2T6aa_subagentEmptyHint",
 			"subagentRowActive": "F2T6aa_subagentRowActive",
-			"jobsContent": "F2T6aa_jobsContent",
-			"jobsList": "F2T6aa_jobsList",
-			"jobsRow": "F2T6aa_jobsRow",
-			"jobsPaneClose": "F2T6aa_jobsPaneClose",
-			"jobsPane": "F2T6aa_jobsPane",
-			"jobsPaneError": "F2T6aa_jobsPaneError",
-			"jobsPaneDot": "F2T6aa_jobsPaneDot",
-			"subagentRow": "F2T6aa_subagentRow",
-			"subagentRowDisabled": "F2T6aa_subagentRowDisabled",
+			"subagentChildren": "F2T6aa_subagentChildren",
+			"subagentEmpty": "F2T6aa_subagentEmpty",
 			"jobsCount": "F2T6aa_jobsCount",
-			"subagentTitle": "F2T6aa_subagentTitle",
-			"jobsRowSelected": "F2T6aa_jobsRowSelected",
-			"jobsDot": "F2T6aa_jobsDot",
-			"subagentLiveTool": "F2T6aa_subagentLiveTool",
-			"jobsKillError": "F2T6aa_jobsKillError",
-			"subagentChildren": "F2T6aa_subagentChildren"
+			"jobsLabel": "F2T6aa_jobsLabel",
+			"jobsSecondary": "F2T6aa_jobsSecondary",
+			"jobsPane": "F2T6aa_jobsPane"
 		};
 		//#endregion
 		//#region src/client/SubagentView.tsx
@@ -8973,45 +9351,45 @@ Mode: this is a continuable side conversation. Your answers stay in this side th
 			document.head.appendChild(tag);
 		}
 		var SideChatView_module_css_default = {
-			"sidechatRowMono": "_64UoUa_sidechatRowMono",
-			"sidechatStatusText": "_64UoUa_sidechatStatusText",
-			"sidechatHeroDesc": "_64UoUa_sidechatHeroDesc",
-			"sidechatPrimaryBtn": "_64UoUa_sidechatPrimaryBtn",
-			"sidechatRowMeta": "_64UoUa_sidechatRowMeta",
-			"sidechatRowBody": "_64UoUa_sidechatRowBody",
 			"sidechatSendBtn": "_64UoUa_sidechatSendBtn",
-			"sidechatRowStatic": "_64UoUa_sidechatRowStatic",
-			"sidechatFadeIn": "_64UoUa_sidechatFadeIn",
-			"sidechatRowProse": "_64UoUa_sidechatRowProse",
-			"sidechatHint": "_64UoUa_sidechatHint",
-			"sidechatAgentBadge": "_64UoUa_sidechatAgentBadge",
-			"sidechatShimmerText": "_64UoUa_sidechatShimmerText",
-			"sidechatComposerMeta": "_64UoUa_sidechatComposerMeta",
-			"sidechatDetailHeader": "_64UoUa_sidechatDetailHeader",
-			"sidechatComposerBar": "_64UoUa_sidechatComposerBar",
-			"sidechatRowIn": "_64UoUa_sidechatRowIn",
-			"sidechatAssistant": "_64UoUa_sidechatAssistant",
-			"sidechatRow": "_64UoUa_sidechatRow",
-			"sidechatRowChevron": "_64UoUa_sidechatRowChevron",
-			"sidechatSweep": "_64UoUa_sidechatSweep",
-			"sidechatHeaderSpacer": "_64UoUa_sidechatHeaderSpacer",
-			"sidechatHeroTitle": "_64UoUa_sidechatHeroTitle",
-			"sidechat": "_64UoUa_sidechat",
-			"sidechatRowFailed": "_64UoUa_sidechatRowFailed",
-			"sidechatComposerInput": "_64UoUa_sidechatComposerInput",
-			"sidechatIconBtn": "_64UoUa_sidechatIconBtn",
-			"sidechatComposer": "_64UoUa_sidechatComposer",
 			"sidechatHeaderDot": "_64UoUa_sidechatHeaderDot",
-			"sidechatRowCode": "_64UoUa_sidechatRowCode",
-			"sidechatUser": "_64UoUa_sidechatUser",
-			"sidechatStatus": "_64UoUa_sidechatStatus",
-			"sidechatRowLine": "_64UoUa_sidechatRowLine",
-			"sidechatHero": "_64UoUa_sidechatHero",
-			"sidechatScroll": "_64UoUa_sidechatScroll",
-			"sidechatError": "_64UoUa_sidechatError",
+			"sidechatShimmerText": "_64UoUa_sidechatShimmerText",
+			"sidechatAgentBadge": "_64UoUa_sidechatAgentBadge",
+			"sidechatComposerMeta": "_64UoUa_sidechatComposerMeta",
+			"sidechatFadeIn": "_64UoUa_sidechatFadeIn",
+			"sidechatRowFailed": "_64UoUa_sidechatRowFailed",
+			"sidechatHeaderSpacer": "_64UoUa_sidechatHeaderSpacer",
+			"sidechatDetailHeader": "_64UoUa_sidechatDetailHeader",
+			"sidechat": "_64UoUa_sidechat",
+			"sidechatRow": "_64UoUa_sidechatRow",
 			"sidechatRowSummary": "_64UoUa_sidechatRowSummary",
+			"sidechatSweep": "_64UoUa_sidechatSweep",
+			"sidechatRowBody": "_64UoUa_sidechatRowBody",
+			"sidechatHint": "_64UoUa_sidechatHint",
+			"sidechatRowMeta": "_64UoUa_sidechatRowMeta",
+			"sidechatStatus": "_64UoUa_sidechatStatus",
+			"sidechatHeroTitle": "_64UoUa_sidechatHeroTitle",
+			"sidechatPrimaryBtn": "_64UoUa_sidechatPrimaryBtn",
+			"sidechatHero": "_64UoUa_sidechatHero",
+			"sidechatIconBtn": "_64UoUa_sidechatIconBtn",
 			"sidechatBtnIn": "_64UoUa_sidechatBtnIn",
-			"sidechatRowLabel": "_64UoUa_sidechatRowLabel"
+			"sidechatComposer": "_64UoUa_sidechatComposer",
+			"sidechatRowMono": "_64UoUa_sidechatRowMono",
+			"sidechatRowProse": "_64UoUa_sidechatRowProse",
+			"sidechatHeroDesc": "_64UoUa_sidechatHeroDesc",
+			"sidechatAssistant": "_64UoUa_sidechatAssistant",
+			"sidechatUser": "_64UoUa_sidechatUser",
+			"sidechatRowLine": "_64UoUa_sidechatRowLine",
+			"sidechatRowIn": "_64UoUa_sidechatRowIn",
+			"sidechatRowStatic": "_64UoUa_sidechatRowStatic",
+			"sidechatRowChevron": "_64UoUa_sidechatRowChevron",
+			"sidechatRowLabel": "_64UoUa_sidechatRowLabel",
+			"sidechatError": "_64UoUa_sidechatError",
+			"sidechatStatusText": "_64UoUa_sidechatStatusText",
+			"sidechatComposerBar": "_64UoUa_sidechatComposerBar",
+			"sidechatScroll": "_64UoUa_sidechatScroll",
+			"sidechatComposerInput": "_64UoUa_sidechatComposerInput",
+			"sidechatRowCode": "_64UoUa_sidechatRowCode"
 		};
 		//#endregion
 		//#region src/client/SideChatView.tsx
@@ -12062,7 +12440,7 @@ Mode: this is a continuable side conversation. Your answers stay in this side th
 		}
 		/** Render the content of one tab (dispatched by type). */
 		const TabContent = (0, react.memo)(function TabContent(props) {
-			const { tab, effectiveTabId, sessionId, cwd, expanded, revealed, onToggleDir, onReferenceFile, ctx, store, visible, onSubagentJump, onOpenDiff } = props;
+			const { tab, effectiveTabId, sessionId, cwd, expanded, revealed, onToggleDir, onReferenceFile, ctx, store, visible, onSubagentJump, onOpenDiff, onPathRenamed, onPathRemoved } = props;
 			const scope = {
 				sessionId,
 				cwd
@@ -12935,6 +13313,39 @@ Mode: this is a continuable side conversation. Your answers stay in this side th
 				sessionId,
 				cwd
 			]);
+			/** Tree-row rename reconciliation: retarget every open tab whose path was
+			*  the renamed file (the editor content survives and later saves land on
+			*  the new path; the title follows the new base name). */
+			const onPathRenamed = (0, react.useCallback)((oldPath, newPath) => {
+				const service = ctx.get("betterSidebar");
+				if (service === void 0) return;
+				const snapshot = store.getSnapshot().state;
+				if (snapshot === void 0) return;
+				for (const leaf of allLeaves(snapshot.splits)) for (const tab of leaf.tabs) if (tab.path === oldPath) service.updateTab(tab.id, {
+					path: newPath,
+					title: baseName$1(newPath)
+				});
+				for (const float of snapshot.floats) if (float.tab.path === oldPath) service.updateTab(float.tab.id, {
+					path: newPath,
+					title: baseName$1(newPath)
+				});
+			}, [ctx, store]);
+			/** Tree-row delete reconciliation: close every open tab at or under the
+			*  removed path (a stale tab's next save would fail against a missing
+			*  path). Floating tabs are as open as docked ones. */
+			const onPathRemoved = (0, react.useCallback)((target) => {
+				const service = ctx.get("betterSidebar");
+				if (service === void 0) return;
+				const snapshot = store.getSnapshot().state;
+				if (snapshot === void 0) return;
+				const tabs = [];
+				for (const leaf of allLeaves(snapshot.splits)) tabs.push(...leaf.tabs);
+				for (const float of snapshot.floats) tabs.push(float.tab);
+				for (const tab of tabs) {
+					const path = tab.path;
+					if (path !== void 0 && (path === target || isWithinWorkspace(target, path))) service.closeTab(tab.id);
+				}
+			}, [ctx, store]);
 			if (state === void 0 || sessionId === void 0) return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
 				"data-dsh-panel-host": true,
 				...osFileDragShield,
@@ -12986,6 +13397,12 @@ Mode: this is a continuable side conversation. Your answers stay in this side th
 			* strip must never break because a plugin's badge computation failed.
 			*/
 			const tabBadgeOf = (tab) => {
+				if (isAgentTabId(tab.id)) {
+					if (state.agentWaits?.[agentUuidOf(tab.id)] !== void 0) return /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+						className: sidebar_module_css_default.tabBadge,
+						children: "⏳"
+					});
+				}
 				const descriptor = ctx.get("betterSidebar")?.getTab(tab.type);
 				if (descriptor?.badge === void 0) return null;
 				let value;
@@ -13026,6 +13443,8 @@ Mode: this is a continuable side conversation. Your answers stay in this side th
 						store.reduce((s) => toggleExpanded(s, path));
 					},
 					onReferenceFile: referenceInChat,
+					onPathRenamed,
+					onPathRemoved,
 					ctx,
 					store,
 					visible: placement === "float" ? true : state.panelOpen && active,
