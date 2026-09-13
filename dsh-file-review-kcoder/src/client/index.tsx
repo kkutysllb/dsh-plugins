@@ -12,7 +12,10 @@
  *    turn Location data — this plugin registers no Definition of its own, a
  *    second `deliverables` kind would collide with and crash the built-in);
  *    the card's diff stats and undo ride the session derive (session-changes
- *    argument-contract reconstruction); and
+ *    argument-contract reconstruction). Because an elected chain entry owns
+ *    the WHOLE row, the registered component is `Deliverables`, which also
+ *    renders dsh 0.1.5-alpha.2's explicit-delivery cards (`present`) — see
+ *    Deliverables.tsx; and
  * 2. the 'file-review' better-sidebar tab (per-session change list + inline
  *    red/green diffs + per-turn/per-file undo).
  *
@@ -35,16 +38,20 @@ import type {
 } from '../change-types.ts'
 import { TYPERT_REMOTE } from '../remote.ts'
 import { FileReviewTab } from './FileReviewTab.tsx'
-import { resolveConversationStore } from './conversation-store.ts'
+import { resolveConversationStore, turnChangesFingerprint } from './conversation-store.ts'
 import type { ConversationFace } from './conversation-store.ts'
 import { fileReviewDefinition } from './definition.ts'
-import { ProducedFiles } from './ProducedFiles.tsx'
+import { Deliverables } from './Deliverables.tsx'
+import { inspectionKey } from './ProducedFiles.tsx'
+import { PresentedOpenController } from './present-open.ts'
 import { attachLocale, en, LOCALE_NS, t, zh } from './locales.ts'
 import {
   en as chatEn, NS as CHAT_NS, zh as chatZh, type DeliverablesKey,
 } from './chat-locales.ts'
-import { countChangedFiles, deriveTimelineChanges, splitArchivedTurns } from './session-changes.ts'
-import { selectDeliverablePaths } from './turn-deliverables.ts'
+import {
+  countChangedFiles, deriveTimelineChanges, resolveSessionPath, splitArchivedTurns,
+} from './session-changes.ts'
+import { basename, selectDeliverables } from './turn-deliverables.ts'
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
@@ -161,6 +168,15 @@ export function apply(ctx: Context): void {
     'file-review-tab: chat dictionaries',
   )
 
+  // Native-open controller for declared deliveries (the `present` tool's
+  // cards). One instance for the whole plugin: its state is keyed by the
+  // per-file action URL, which already carries the Session, and the card
+  // section reads it through the slot's inject face. `connection/reset`
+  // invalidates cached desktop metadata; disposal cancels in-flight requests.
+  const presentedOpen = new PresentedOpenController()
+  ctx.effect(() => () => { void presentedOpen.dispose() }, 'file-review-tab: presented opens')
+  ctx.effect(() => ctx.on('connection/reset', () => { presentedOpen.resetHost() }), 'file-review-tab: presented host reset')
+
   ctx.effect(() => {
     let disposed = false
     let disposeRemote: (() => Promise<void>) | undefined
@@ -223,12 +239,15 @@ export function apply(ctx: Context): void {
   // claim input is the BUILT-IN ui-deliverables turn data (paths only); the
   // card's hunks/stats/undo are reconstructed per turn from the session
   // snapshot derive (the same argument-contract vocabulary the tab uses).
-  // When this plugin is composed out, the built-in row (or the -1 chip row)
-  // takes over again — the off state needs no cleanup here.
+  // The same turn data now also carries `presented` (explicit deliveries,
+  // dsh >= 0.1.5-alpha.2): the claim reads both faces and `Deliverables`
+  // renders both sections, so electing the chain never hides the built-in
+  // delivery cards. When this plugin is composed out, the built-in row (or
+  // the -1 chip row) takes over again — the off state needs no cleanup here.
   ctx.effect(
     () => ctx.slots.inject('conversation.chat.turnTail', () => ctx.slots.register({
       name: 'conversation.chat.turnTail',
-      select: selectDeliverablePaths,
+      select: selectDeliverables,
       priority: -2,
       locale: CHAT_NS,
       registrant: 'dsh-file-review-tab',
@@ -295,8 +314,17 @@ export function apply(ctx: Context): void {
           // resolve the underlying store PER CALL so a not-yet-bound session
           // (cold start) self-heals once the service is ready; the wrapper
           // object itself is constant so the hook subscribes exactly once.
+          // getTurnSnapshot hands each card a TURN-SCOPED content fingerprint
+          // (conversation-store.turnChangesFingerprint) instead of the session
+          // face: streaming publications swap the face reference per event,
+          // and a face-keyed subscription re-rendered — and the card's then
+          // identity-keyed effect re-inspected host state on — every mounted
+          // card non-stop while ANY turn ran (the blinking 撤销 button). A
+          // card must re-render only when its OWN turn's review content moves.
           changesStore: {
             getSnapshot: () => getStore()?.getSnapshot() ?? null,
+            getTurnSnapshot: (turn: number) =>
+              turnChangesFingerprint(getStore()?.getSnapshot() ?? null, turn),
             subscribe: (listener: () => void) => getStore()?.subscribe(listener) ?? (() => {}),
           },
           // 审查 button / per-file chip: open (or focus) the sidebar tab with
@@ -324,9 +352,31 @@ export function apply(ctx: Context): void {
             sidebar.openTab({ type: 'file-review', path: first, meta }, scope)
             sidebar.activateTab('file-review', scope)
           },
+          // Non-code artifacts (images / media / office / reports): open the
+          // SIDEBAR's own viewer pipeline — the editor tab runs
+          // matchFileViewer over the path (image / pdf / markdown / html
+          // built-ins; office/video via its viewer plugins) — instead of the
+          // diff review tab, which has no hunks to show for them. Falls back
+          // to the card's Host openFile (OS default app) when the carrier
+          // has no sidebar; ProducedFiles owns that fallback.
+          openPreview: (path: string) => {
+            const sidebar = ctx.betterSidebar
+            if (sidebar === undefined) return
+            const absolute = resolveSessionPath(projectRoot, path)
+            sidebar.openFile(
+              { sessionId, ...(projectRoot !== undefined ? { cwd: projectRoot } : {}) },
+              absolute,
+              basename(absolute),
+            )
+          },
+          // Native-open face for the delivery cards. The controller instance
+          // is shared (its state is keyed per file action URL), so this entry
+          // is stable across session re-binds; the section reads both stores
+          // through useSyncExternalStore.
+          presentedController: presentedOpen,
         }
       },
-    }, ProducedFiles)),
+    }, Deliverables)),
     'file-review-tab: turn-tail row',
   )
 
@@ -348,3 +398,12 @@ export function apply(ctx: Context): void {
     ),
   } satisfies TabDescriptor), 'file-review-tab: register tab')
 }
+
+// Pure helpers re-exported for the package smoke regression checks
+// (scripts/smoke-plugin.mjs asserts the blink-fix, artifact, and
+// delivery-claim invariants on lib/client.js).
+export { turnChangesFingerprint }
+export { inspectionKey }
+export { captureArtifacts, classifyPath } from './artifacts.ts'
+export { presentedForClosing, selectDeliverables } from './turn-deliverables.ts'
+export { Deliverables } from './Deliverables.tsx'
