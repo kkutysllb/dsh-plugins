@@ -43208,24 +43208,242 @@ globalThis.__dshChunks__["editor"] = (require) => {
 	//#endregion
 	//#region src/client/conversation-draft.ts
 	/**
-	* Append `text` to the session's composer draft (space-separated, like the
-	* @-mentions). Returns false — and logs — when the conversation service or
-	* the session scope is unavailable.
+	* Splice `text` into `draft` at `caret` (replacing any live selection) with
+	* whitespace-aware joins and report the caret position right after the
+	* inserted text. `caret === null` (position unknown) appends at the end,
+	* exactly like the original behavior.
+	*/
+	function spliceInsert(draft, text, caret) {
+		if (caret === null || draft === "") {
+			const next = draft.trim() === "" ? text : `${draft} ${text}`;
+			return {
+				draft: next,
+				caretAfter: next.length
+			};
+		}
+		const prefix = draft.slice(0, caret.start);
+		const suffix = draft.slice(caret.end);
+		if (prefix === "" && suffix === "") return {
+			draft: text,
+			caretAfter: text.length
+		};
+		const left = prefix === "" || /\s$/.test(prefix) ? "" : " ";
+		return {
+			draft: `${prefix}${left}${text}${suffix === "" || /^\s/.test(suffix) ? "" : " "}${suffix}`,
+			caretAfter: prefix.length + left.length + text.length
+		};
+	}
+	/**
+	* Locate the composer `<textarea>` in the conversation column: prefer the
+	* `data-phase`-tagged textarea (the composer's marker), falling back to any
+	* textarea in the column, then to a bare data-phase textarea (older host
+	* layouts without the column attribute). Null in jsdom-less hosts.
+	*/
+	function findComposerTextarea() {
+		if (typeof document === "undefined") return null;
+		const column = document.querySelector("#root [data-slot=\"conversation\"]");
+		const find = (scope) => scope.querySelector("textarea[data-phase]") ?? scope.querySelector("textarea");
+		return column !== null ? find(column) : document.querySelector("textarea[data-phase]");
+	}
+	/**
+	* Resolve the composer's live caret from its DOM `<textarea>`. The draft
+	* store has no caret API, so the sidebar reads the composed input's selection
+	* directly; the value-sync check (`el.value === draft`) discards stale or
+	* wrong-composer reads — a caret must never be applied against a draft it
+	* was not measured on.
+	*
+	* Returns null when the composer is missing, disabled/read-only, out of
+	* sync with the store draft, or has no measurable selection (odd hosts
+	* report null selectionStart/End).
+	*/
+	function probeComposerCaret(draft) {
+		const el = findComposerTextarea();
+		if (el === null || el.disabled || el.readOnly) return null;
+		if (el.value !== draft) return null;
+		let start = el.selectionStart;
+		let end = el.selectionEnd;
+		if (typeof start !== "number" || typeof end !== "number") return null;
+		if (!Number.isFinite(start) || !Number.isFinite(end)) return null;
+		start = Math.max(0, Math.min(start, draft.length));
+		end = Math.max(start, Math.min(end, draft.length));
+		return {
+			start,
+			end
+		};
+	}
+	/**
+	* Restore the composer caret to `caretIndex` after a programmatic
+	* `setDraft` commit. A controlled textarea update resets the caret (React
+	* commits the value asynchronously and the browser moves the caret to the
+	* start/end), so the placement is scheduled and retried across at most two
+	* animation frames (setTimeout fallback), and only applied when the textarea
+	* still matches `expectedDraft` — a newer edit or a different composer wins
+	* the race untouched. The caret is clamped into the value bounds, mirroring
+	* how browsers clamp type-in positions.
+	*/
+	function placeComposerCaretAfterInsert(expectedDraft, caretIndex) {
+		let remaining = 2;
+		let scheduled = false;
+		const schedule = (fn) => {
+			if (scheduled) return;
+			scheduled = true;
+			if (typeof requestAnimationFrame === "function") requestAnimationFrame(fn);
+			else setTimeout(fn, 0);
+		};
+		const place = () => {
+			scheduled = false;
+			if (remaining <= 0) return;
+			remaining -= 1;
+			const el = findComposerTextarea();
+			if (el === null || el.disabled || el.readOnly) return;
+			if (el.value !== expectedDraft) {
+				schedule(place);
+				return;
+			}
+			const clamped = Math.max(0, Math.min(caretIndex, el.value.length));
+			el.setSelectionRange(clamped, clamped);
+		};
+		schedule(place);
+	}
+	/**
+	* Insert `text` into the session's composer draft at the composer's live
+	* caret (see {@link probeComposerCaret}), falling back to appending at the
+	* end when the caret cannot be resolved. Returns false — and logs — when the
+	* conversation service or the session scope is unavailable.
 	*/
 	function appendToDraft(ctx, sessionId, text) {
 		try {
 			const actx = ctx.sessions.scope(sessionId);
-			if (actx === void 0) return false;
+			if (actx === void 0) {
+				console.warn("[dsh-coding-sidebar] draft insert skipped: no session scope", sessionId);
+				return false;
+			}
 			const conversation = ctx.get("conversation");
-			if (conversation === void 0) return false;
+			if (conversation === void 0) {
+				console.warn("[dsh-coding-sidebar] draft insert skipped: conversation service unavailable");
+				return false;
+			}
 			const input = conversation.input.for(actx);
 			const draft = input.state.getSnapshot().draft;
-			input.setDraft(draft.trim() === "" ? text : `${draft} ${text}`);
+			const { draft: next, caretAfter } = spliceInsert(draft, text, probeComposerCaret(draft));
+			input.setDraft(next);
+			placeComposerCaretAfterInsert(next, caretAfter);
 			return true;
 		} catch (error) {
 			console.warn("[dsh-coding-sidebar] draft insert failed:", error);
 			return false;
 		}
+	}
+	//#endregion
+	//#region src/client/selection-popup.ts
+	/**
+	* The floating "add selection to conversation" popup shared by the text
+	* viewer: a viewport-anchored button portaled to `document.body`, kept alive
+	* across the selection gesture and committed on click.
+	*
+	* Dismissal contract (upstream issue #425): the popup must never outlive its
+	* editor surface. The sidebar keeps every tab MOUNTED — switching tabs only
+	* flips the pane cell to `display:none` and collapsing the panel translates
+	* it off-screen — while the portaled `position:fixed` button stays pinned to
+	* its viewport anchor, ignoring both. The caller already hides on surface
+	* scrolls, selection collapse and content swaps; this hook adds the global
+	* dismissal that covers everything else:
+	*
+	* - any `mousedown` outside the button (tab bar, composer, another pane,
+	*   the collapse toggle, …) closes it;
+	* - `Escape` closes it;
+	* - the document going hidden (`visibilitychange`) or the window losing
+	*   focus closes it;
+	* - an `IntersectionObserver` on the editor surface closes it as soon as the
+	*   surface leaves the viewport — the tab-switch (`display:none`) and
+	*   panel-collapse (translated off-screen) paths have no DOM events of their
+	*   own, so the geometry signal is the only reliable one.
+	*
+	* The button's own `mousedown` is never treated as an outside click: the
+	* caller preventDefaults it to keep the selection/caret alive until the
+	* click commits (the hook's capture-phase listener runs first and must not
+	* hide for it).
+	*/
+	function useSelectionPopup(options) {
+		const onCommitRef = (0, react.useRef)(options.onCommit);
+		const getSurfaceRef = (0, react.useRef)(options.getSurface);
+		onCommitRef.current = options.onCommit;
+		getSurfaceRef.current = options.getSurface;
+		const [popup, setPopup] = (0, react.useState)(null);
+		/** Live mirror for click/event-time reads (no re-render race). */
+		const popupRef = (0, react.useRef)(null);
+		/** The portaled button itself (for the outside-click guard). */
+		const buttonRef = (0, react.useRef)(null);
+		/** The surface visibility observer (created lazily on open). */
+		const observerRef = (0, react.useRef)(null);
+		const show = (insert, left, top) => {
+			const next = {
+				insert,
+				left: Math.min(Math.max(left, 80), window.innerWidth - 80),
+				top
+			};
+			popupRef.current = next;
+			setPopup(next);
+		};
+		const hide = () => {
+			popupRef.current = null;
+			setPopup(null);
+		};
+		const commit = () => {
+			const current = popupRef.current;
+			if (current === null) return;
+			onCommitRef.current(current.insert);
+			hide();
+		};
+		(0, react.useEffect)(() => {
+			const onMouseDown = (event) => {
+				if (popupRef.current === null) return;
+				const button = buttonRef.current;
+				if (button !== null && (button === event.target || button.contains(event.target))) return;
+				hide();
+			};
+			const onKeyDown = (event) => {
+				if (event.key === "Escape" && popupRef.current !== null) hide();
+			};
+			const onVisibilityChange = () => {
+				if (document.hidden && popupRef.current !== null) hide();
+			};
+			const onWindowBlur = () => {
+				if (popupRef.current !== null) hide();
+			};
+			document.addEventListener("mousedown", onMouseDown, true);
+			document.addEventListener("keydown", onKeyDown, true);
+			document.addEventListener("visibilitychange", onVisibilityChange);
+			window.addEventListener("blur", onWindowBlur);
+			return () => {
+				document.removeEventListener("mousedown", onMouseDown, true);
+				document.removeEventListener("keydown", onKeyDown, true);
+				document.removeEventListener("visibilitychange", onVisibilityChange);
+				window.removeEventListener("blur", onWindowBlur);
+				observerRef.current?.disconnect();
+				observerRef.current = null;
+			};
+		}, []);
+		(0, react.useEffect)(() => {
+			if (popup === null) return;
+			observerRef.current?.disconnect();
+			observerRef.current = null;
+			if (typeof IntersectionObserver === "undefined") return;
+			const surface = getSurfaceRef.current();
+			if (surface === null) return;
+			const observer = new IntersectionObserver((entries) => {
+				for (const entry of entries) if (!entry.isIntersecting) hide();
+			}, { threshold: 0 });
+			observerRef.current = observer;
+			observer.observe(surface);
+		}, [popup !== null]);
+		return {
+			popup,
+			buttonRef,
+			show,
+			hide,
+			commit
+		};
 	}
 	//#endregion
 	//#region src/client/paths.ts
@@ -43368,6 +43586,7 @@ globalThis.__dshChunks__["editor"] = (require) => {
 		terminalDepsFailed: "终端依赖 node-pty 加载失败",
 		terminalDepsHint: "在 DSH 所在环境的终端或 cmd 中执行以下命令修复，然后点重试（node-pty 与 DSH 核心保持同一版本）：",
 		terminalDepsProfile: "（检测到 profile：{profile}）",
+		terminalShellNotFound: "未找到配置的 Shell：{name}，请到 设置 → 侧边卡片 → 终端 检查 Shell 路径",
 		refresh: "刷新",
 		refreshUnsavedConfirm: "文件已在磁盘更新，刷新将丢弃未保存编辑。继续吗？",
 		save: "保存",
@@ -43491,10 +43710,10 @@ globalThis.__dshChunks__["editor"] = (require) => {
 		settingsConflict: "设置已被其他窗口修改，请重试",
 		binaryNoPreview: "此文件类型不支持预览",
 		downloadToView: "下载查看",
-		settingsSubagentTitle: "检测到子代理时自动展开任务管理页",
-		settingsSubagentDesc: "当前会话产生新的子代理时，自动展开侧边栏并打开任务管理页；关闭后需手动打开",
-		settingsJobsTitle: "有新后台任务时自动展开后台任务页",
-		settingsJobsDesc: "当前会话出现新的后台任务时，自动展开侧边栏并打开后台任务页（每个新任务都会触发）；关闭后需手动打开",
+		settingsSubagentTitle: "检测到子代理时自动激活任务管理页",
+		settingsSubagentDesc: "当前会话产生新的子代理时，自动激活任务管理页；宽屏同时展开侧边栏，窄屏不强制展开全屏抽屉；关闭后需手动打开",
+		settingsJobsTitle: "有新后台任务时自动激活后台任务页",
+		settingsJobsDesc: "当前会话出现新的后台任务时，自动激活后台任务页（每个新任务都会触发）；宽屏同时展开侧边栏，窄屏不强制展开全屏抽屉；关闭后需手动打开",
 		settingsToolsTitle: "为模型注入终端工具",
 		settingsToolsDesc: "开启后，模型可通过 terminal_create 等 8 个工具创建并操作侧边栏终端（默认关闭）",
 		settingsFontFamilyTitle: "终端字体",
@@ -43703,6 +43922,7 @@ globalThis.__dshChunks__["editor"] = (require) => {
 		terminalDepsFailed: "Terminal dependency node-pty failed to load",
 		terminalDepsHint: "Run the command below in a terminal or cmd on the DSH machine to repair it, then retry (node-pty stays in sync with the DSH core version):",
 		terminalDepsProfile: " (detected profile: {profile})",
+		terminalShellNotFound: "Configured shell not found: {name} — check the shell path under Settings → Side card → Terminal",
 		refresh: "Refresh",
 		refreshUnsavedConfirm: "The file changed on disk. Refreshing will discard unsaved edits. Continue?",
 		save: "Save",
@@ -43826,10 +44046,10 @@ globalThis.__dshChunks__["editor"] = (require) => {
 		settingsConflict: "The setting changed in another window — please retry",
 		binaryNoPreview: "This file type cannot be previewed",
 		downloadToView: "Download to view",
-		settingsSubagentTitle: "Auto-open the Tasks page when a subagent appears",
-		settingsSubagentDesc: "Expand the side card and open the Tasks page when the current conversation spawns a new subagent; turn off to open it manually",
-		settingsJobsTitle: "Auto-open the Jobs page on a new background job",
-		settingsJobsDesc: "Expand the side card and open the Jobs page whenever a new background job appears for the current conversation (every new job triggers); turn off to open it manually",
+		settingsSubagentTitle: "Auto-activate the Tasks page when a subagent appears",
+		settingsSubagentDesc: "Activate the Tasks page when the current conversation spawns a new subagent; on wide screens the side card expands with it, narrow screens never force the full-screen drawer; turn off to open it manually",
+		settingsJobsTitle: "Auto-activate the Jobs page on a new background job",
+		settingsJobsDesc: "Activate the Jobs page whenever a new background job appears for the current conversation (every new job triggers); on wide screens the side card expands with it, narrow screens never force the full-screen drawer; turn off to open it manually",
 		settingsToolsTitle: "Inject terminal tools for the model",
 		settingsToolsDesc: "When enabled, the model can create and drive sidebar terminals through the 8 terminal_* tools (off by default)",
 		settingsFontFamilyTitle: "Terminal font family",
@@ -43991,207 +44211,207 @@ globalThis.__dshChunks__["editor"] = (require) => {
 		document.head.appendChild(tag);
 	}
 	var sidebar_module_css_default = {
-		"gitLogMore": "S5HVoW_gitLogMore",
+		"browserStart": "S5HVoW_browserStart",
 		"gitBadge": "S5HVoW_gitBadge",
-		"browserLiveStatus": "S5HVoW_browserLiveStatus",
-		"browserBlockedTitle": "S5HVoW_browserBlockedTitle",
-		"explorerRowRevealed": "S5HVoW_explorerRowRevealed",
-		"editorSearchInput": "S5HVoW_editorSearchInput",
-		"producedMore": "S5HVoW_producedMore",
-		"panelHidden": "S5HVoW_panelHidden",
-		"browserBlockedDesc": "S5HVoW_browserBlockedDesc",
-		"gitDiff": "S5HVoW_gitDiff",
-		"uploadDropChatCard": "S5HVoW_uploadDropChatCard",
-		"editorDownloadLink": "S5HVoW_editorDownloadLink",
-		"floatWindow": "S5HVoW_floatWindow",
-		"paneCard": "S5HVoW_paneCard",
-		"gitBranchSelect": "S5HVoW_gitBranchSelect",
-		"explorerName": "S5HVoW_explorerName",
-		"uploadOverlayStatus": "S5HVoW_uploadOverlayStatus",
-		"gitDiffTabTitle": "S5HVoW_gitDiffTabTitle",
-		"tabBarPlus": "S5HVoW_tabBarPlus",
-		"gitHeader": "S5HVoW_gitHeader",
-		"gitDiffFileChevronExpanded": "S5HVoW_gitDiffFileChevronExpanded",
-		"dropRight": "S5HVoW_dropRight",
-		"split": "S5HVoW_split",
-		"paneDrop": "S5HVoW_paneDrop",
-		"dropUp": "S5HVoW_dropUp",
-		"explorerEmpty": "S5HVoW_explorerEmpty",
-		"editorBanner": "S5HVoW_editorBanner",
-		"selectionPopup": "S5HVoW_selectionPopup",
-		"gitDiffLine": "S5HVoW_gitDiffLine",
-		"gitDiffMeta": "S5HVoW_gitDiffMeta",
-		"floatWindowDragging": "S5HVoW_floatWindowDragging",
-		"iconButton": "S5HVoW_iconButton",
-		"dropLeft": "S5HVoW_dropLeft",
-		"dividerCol": "S5HVoW_dividerCol",
-		"paneTab": "S5HVoW_paneTab",
-		"explorerSymlink": "S5HVoW_explorerSymlink",
-		"editorTreePanel": "S5HVoW_editorTreePanel",
-		"browserFrame": "S5HVoW_browserFrame",
-		"gitDiffCode": "S5HVoW_gitDiffCode",
-		"gitLogLine2": "S5HVoW_gitLogLine2",
-		"gitLogSubject": "S5HVoW_gitLogSubject",
-		"splitRow": "S5HVoW_splitRow",
-		"browserBar": "S5HVoW_browserBar",
-		"floatContent": "S5HVoW_floatContent",
-		"explorerCopied": "S5HVoW_explorerCopied",
+		"gitLogLine1": "S5HVoW_gitLogLine1",
 		"editorTreeResize": "S5HVoW_editorTreeResize",
+		"explorerRowRevealed": "S5HVoW_explorerRowRevealed",
+		"floatDropHintLabel": "S5HVoW_floatDropHintLabel",
+		"pinnedTab": "S5HVoW_pinnedTab",
+		"producedMore": "S5HVoW_producedMore",
+		"browserLiveCanvas": "S5HVoW_browserLiveCanvas",
+		"editorTreePanel": "S5HVoW_editorTreePanel",
+		"gitHeader": "S5HVoW_gitHeader",
+		"producedChip": "S5HVoW_producedChip",
+		"terminal": "S5HVoW_terminal",
+		"paneCard": "S5HVoW_paneCard",
+		"boundaryError": "S5HVoW_boundaryError",
+		"gitDiffHunk": "S5HVoW_gitDiffHunk",
+		"dividerRow": "S5HVoW_dividerRow",
+		"gitDiffCode": "S5HVoW_gitDiffCode",
+		"gitDiffDel": "S5HVoW_gitDiffDel",
+		"explorerHeader": "S5HVoW_explorerHeader",
+		"tabBarDrop": "S5HVoW_tabBarDrop",
+		"gitLogRow": "S5HVoW_gitLogRow",
+		"gitError": "S5HVoW_gitError",
+		"explorerBody": "S5HVoW_explorerBody",
+		"explorerSymlink": "S5HVoW_explorerSymlink",
+		"uploadOverlayTitle": "S5HVoW_uploadOverlayTitle",
+		"editorPlaceholder": "S5HVoW_editorPlaceholder",
+		"gitDiffFileOld": "S5HVoW_gitDiffFileOld",
+		"dsh-toc-flash": "S5HVoW_dsh-toc-flash",
+		"gitDiffMeta": "S5HVoW_gitDiffMeta",
+		"floatDropHint": "S5HVoW_floatDropHint",
+		"browserInput": "S5HVoW_browserInput",
+		"gitDiffFile": "S5HVoW_gitDiffFile",
+		"gitDiffMetaText": "S5HVoW_gitDiffMetaText",
+		"iconButton": "S5HVoW_iconButton",
+		"openWithName": "S5HVoW_openWithName",
+		"sandboxStatus": "S5HVoW_sandboxStatus",
+		"splitCol": "S5HVoW_splitCol",
+		"dropOverlay": "S5HVoW_dropOverlay",
+		"uploadOverlayCard": "S5HVoW_uploadOverlayCard",
+		"paneContent": "S5HVoW_paneContent",
+		"gitDiffFilePath": "S5HVoW_gitDiffFilePath",
+		"gitDiffLine": "S5HVoW_gitDiffLine",
+		"browserLiveTarget": "S5HVoW_browserLiveTarget",
+		"tabClose": "S5HVoW_tabClose",
+		"browserMessage": "S5HVoW_browserMessage",
+		"gitDiffHunkHeader": "S5HVoW_gitDiffHunkHeader",
+		"explorerRef": "S5HVoW_explorerRef",
+		"browserBlocked": "S5HVoW_browserBlocked",
+		"panelResize": "S5HVoW_panelResize",
+		"floatResize": "S5HVoW_floatResize",
+		"tabActive": "S5HVoW_tabActive",
+		"gitWorktreeLabel": "S5HVoW_gitWorktreeLabel",
+		"editorHeader": "S5HVoW_editorHeader",
+		"sandboxAction": "S5HVoW_sandboxAction",
+		"gitLogMore": "S5HVoW_gitLogMore",
+		"panelHidden": "S5HVoW_panelHidden",
+		"paneTabHidden": "S5HVoW_paneTabHidden",
+		"editorTitle": "S5HVoW_editorTitle",
+		"gitLogRef": "S5HVoW_gitLogRef",
+		"dropUp": "S5HVoW_dropUp",
+		"uploadDropZoneText": "S5HVoW_uploadDropZoneText",
+		"editorStatus": "S5HVoW_editorStatus",
+		"uploadDropZone": "S5HVoW_uploadDropZone",
+		"gitName": "S5HVoW_gitName",
+		"floatHeader": "S5HVoW_floatHeader",
+		"editorCm": "S5HVoW_editorCm",
+		"gitDiffTabTitle": "S5HVoW_gitDiffTabTitle",
+		"terminalRetry": "S5HVoW_terminalRetry",
+		"gitDiffHunkSection": "S5HVoW_gitDiffHunkSection",
+		"editorBinaryNotice": "S5HVoW_editorBinaryNotice",
+		"editorBanner": "S5HVoW_editorBanner",
+		"dividerActive": "S5HVoW_dividerActive",
+		"editorBody": "S5HVoW_editorBody",
+		"openWithChevron": "S5HVoW_openWithChevron",
+		"browserLiveStatus": "S5HVoW_browserLiveStatus",
+		"splitChild": "S5HVoW_splitChild",
+		"editorBinary": "S5HVoW_editorBinary",
+		"editorTreeToggleActive": "S5HVoW_editorTreeToggleActive",
+		"producedRow": "S5HVoW_producedRow",
+		"pane": "S5HVoW_pane",
+		"gitLogHash": "S5HVoW_gitLogHash",
+		"gitCommitInput": "S5HVoW_gitCommitInput",
+		"gitDiffCtx": "S5HVoW_gitDiffCtx",
+		"uploadDropHero": "S5HVoW_uploadDropHero",
+		"sandboxDot": "S5HVoW_sandboxDot",
+		"dsh-row-in": "S5HVoW_dsh-row-in",
+		"uploadOverlayCancel": "S5HVoW_uploadOverlayCancel",
+		"browserBlockedDesc": "S5HVoW_browserBlockedDesc",
+		"gitSection": "S5HVoW_gitSection",
+		"editorSearchResult": "S5HVoW_editorSearchResult",
+		"explorerCopied": "S5HVoW_explorerCopied",
+		"divider": "S5HVoW_divider",
+		"editorPathInput": "S5HVoW_editorPathInput",
+		"terminalDepsBanner": "S5HVoW_terminalDepsBanner",
+		"gitRowMain": "S5HVoW_gitRowMain",
+		"gitDiffFileTag": "S5HVoW_gitDiffFileTag",
+		"gitConfirmDesc": "S5HVoW_gitConfirmDesc",
+		"editorTreeDock": "S5HVoW_editorTreeDock",
+		"uploadDropZonePill": "S5HVoW_uploadDropZonePill",
+		"openWithPinActive": "S5HVoW_openWithPinActive",
+		"tabBarPlus": "S5HVoW_tabBarPlus",
+		"editorError": "S5HVoW_editorError",
+		"gitDiffNum": "S5HVoW_gitDiffNum",
+		"explorerBroken": "S5HVoW_explorerBroken",
+		"uploadOverlayProgress": "S5HVoW_uploadOverlayProgress",
+		"gitLink": "S5HVoW_gitLink",
+		"terminalBannerUrl": "S5HVoW_terminalBannerUrl",
+		"terminalDepsTitle": "S5HVoW_terminalDepsTitle",
+		"gitDiffExpand": "S5HVoW_gitDiffExpand",
+		"gitCommit": "S5HVoW_gitCommit",
+		"tabBadge": "S5HVoW_tabBadge",
+		"panelResizeActive": "S5HVoW_panelResizeActive",
+		"explorerHidden": "S5HVoW_explorerHidden",
+		"sandboxStatusOff": "S5HVoW_sandboxStatusOff",
+		"gitBranchSelect": "S5HVoW_gitBranchSelect",
+		"browserFrame": "S5HVoW_browserFrame",
+		"floatTitle": "S5HVoW_floatTitle",
+		"floatWindowDragging": "S5HVoW_floatWindowDragging",
+		"paneDrop": "S5HVoW_paneDrop",
+		"browserBlockedButton": "S5HVoW_browserBlockedButton",
+		"dropCenter": "S5HVoW_dropCenter",
+		"gitDiffFileChevron": "S5HVoW_gitDiffFileChevron",
+		"gitLogMeta": "S5HVoW_gitLogMeta",
+		"openWithPin": "S5HVoW_openWithPin",
+		"gitWorktreeRow": "S5HVoW_gitWorktreeRow",
+		"browserBar": "S5HVoW_browserBar",
+		"browserBlockedTitle": "S5HVoW_browserBlockedTitle",
+		"git": "S5HVoW_git",
+		"tabBar": "S5HVoW_tabBar",
+		"uploadDropChatHint": "S5HVoW_uploadDropChatHint",
+		"terminalDepsCommandRow": "S5HVoW_terminalDepsCommandRow",
+		"gitRow": "S5HVoW_gitRow",
+		"floatClose": "S5HVoW_floatClose",
+		"terminalDepsHint": "S5HVoW_terminalDepsHint",
+		"gitDiff": "S5HVoW_gitDiff",
 		"editorTreeSearch": "S5HVoW_editorTreeSearch",
 		"browser": "S5HVoW_browser",
-		"uploadDropZoneText": "S5HVoW_uploadDropZoneText",
-		"browserBlocked": "S5HVoW_browserBlocked",
-		"explorerBody": "S5HVoW_explorerBody",
-		"gitDiffHunkHeader": "S5HVoW_gitDiffHunkHeader",
-		"tabActive": "S5HVoW_tabActive",
-		"splitCol": "S5HVoW_splitCol",
-		"sandboxAction": "S5HVoW_sandboxAction",
-		"editorSearchResult": "S5HVoW_editorSearchResult",
-		"gitError": "S5HVoW_gitError",
-		"tabBoundaryError": "S5HVoW_tabBoundaryError",
-		"producedRow": "S5HVoW_producedRow",
-		"browserLiveTarget": "S5HVoW_browserLiveTarget",
-		"git": "S5HVoW_git",
-		"boundaryError": "S5HVoW_boundaryError",
-		"gitDiffNum": "S5HVoW_gitDiffNum",
-		"gitLogLine1": "S5HVoW_gitLogLine1",
-		"gitLogRef": "S5HVoW_gitLogRef",
-		"gitRowSelected": "S5HVoW_gitRowSelected",
-		"paneContent": "S5HVoW_paneContent",
-		"toggleButton": "S5HVoW_toggleButton",
 		"sandboxStatusText": "S5HVoW_sandboxStatusText",
-		"gitCommitInput": "S5HVoW_gitCommitInput",
-		"editorMain": "S5HVoW_editorMain",
-		"browserLiveCanvas": "S5HVoW_browserLiveCanvas",
-		"explorerRow": "S5HVoW_explorerRow",
-		"explorerBroken": "S5HVoW_explorerBroken",
-		"divider": "S5HVoW_divider",
-		"explorerRoot": "S5HVoW_explorerRoot",
-		"gitWorktreeRow": "S5HVoW_gitWorktreeRow",
-		"gitDiffHunk": "S5HVoW_gitDiffHunk",
-		"browserInput": "S5HVoW_browserInput",
-		"browserMessage": "S5HVoW_browserMessage",
+		"editorSearchInput": "S5HVoW_editorSearchInput",
 		"terminalWrap": "S5HVoW_terminalWrap",
-		"terminalRepairCommand": "S5HVoW_terminalRepairCommand",
-		"uploadOverlayTitle": "S5HVoW_uploadOverlayTitle",
-		"sandboxStatusOn": "S5HVoW_sandboxStatusOn",
-		"gitEmpty": "S5HVoW_gitEmpty",
-		"terminal": "S5HVoW_terminal",
-		"gitDiffFileOld": "S5HVoW_gitDiffFileOld",
-		"panelBody": "S5HVoW_panelBody",
-		"editorPlaceholder": "S5HVoW_editorPlaceholder",
-		"gitDiffMetaText": "S5HVoW_gitDiffMetaText",
-		"dropOverlay": "S5HVoW_dropOverlay",
-		"gitDiffCtx": "S5HVoW_gitDiffCtx",
-		"explorerHeader": "S5HVoW_explorerHeader",
-		"gitPlaceholder": "S5HVoW_gitPlaceholder",
-		"editorError": "S5HVoW_editorError",
-		"sandboxStatus": "S5HVoW_sandboxStatus",
-		"terminalDepsTitle": "S5HVoW_terminalDepsTitle",
-		"editorCm": "S5HVoW_editorCm",
-		"tabClose": "S5HVoW_tabClose",
-		"editorPathInput": "S5HVoW_editorPathInput",
-		"gitDiffExpand": "S5HVoW_gitDiffExpand",
-		"uploadOverlayProgress": "S5HVoW_uploadOverlayProgress",
-		"gitLogHash": "S5HVoW_gitLogHash",
-		"dividerActive": "S5HVoW_dividerActive",
-		"panelResizeActive": "S5HVoW_panelResizeActive",
-		"gitRow": "S5HVoW_gitRow",
-		"floatResize": "S5HVoW_floatResize",
-		"sandboxDot": "S5HVoW_sandboxDot",
-		"dividerRow": "S5HVoW_dividerRow",
-		"uploadOverlay": "S5HVoW_uploadOverlay",
-		"terminalDepsBanner": "S5HVoW_terminalDepsBanner",
-		"pinnedTab": "S5HVoW_pinnedTab",
-		"gitLink": "S5HVoW_gitLink",
-		"openWithPinActive": "S5HVoW_openWithPinActive",
-		"gitConfirmDesc": "S5HVoW_gitConfirmDesc",
-		"explorerDir": "S5HVoW_explorerDir",
-		"uploadDropZonePill": "S5HVoW_uploadDropZonePill",
-		"editorTreeToggleActive": "S5HVoW_editorTreeToggleActive",
-		"gitRowMain": "S5HVoW_gitRowMain",
-		"browserLive": "S5HVoW_browserLive",
-		"editorBinary": "S5HVoW_editorBinary",
-		"explorerError": "S5HVoW_explorerError",
-		"explorerHidden": "S5HVoW_explorerHidden",
-		"panelResize": "S5HVoW_panelResize",
-		"tabBarDrop": "S5HVoW_tabBarDrop",
-		"floatClose": "S5HVoW_floatClose",
-		"explorerRef": "S5HVoW_explorerRef",
-		"terminalBanner": "S5HVoW_terminalBanner",
-		"terminalDepsHint": "S5HVoW_terminalDepsHint",
-		"producedLabel": "S5HVoW_producedLabel",
-		"uploadOverlayCard": "S5HVoW_uploadOverlayCard",
-		"browserBlockedActions": "S5HVoW_browserBlockedActions",
-		"floatTitle": "S5HVoW_floatTitle",
-		"editorTitle": "S5HVoW_editorTitle",
-		"gitName": "S5HVoW_gitName",
-		"browserStart": "S5HVoW_browserStart",
-		"tab": "S5HVoW_tab",
-		"tabBadge": "S5HVoW_tabBadge",
-		"editor": "S5HVoW_editor",
-		"gitSectionHeader": "S5HVoW_gitSectionHeader",
-		"toggleCluster": "S5HVoW_toggleCluster",
-		"explorerRowDropTarget": "S5HVoW_explorerRowDropTarget",
-		"uploadOverlayProgressFill": "S5HVoW_uploadOverlayProgressFill",
-		"terminalRetry": "S5HVoW_terminalRetry",
-		"gitLogRow": "S5HVoW_gitLogRow",
-		"openWithChevron": "S5HVoW_openWithChevron",
-		"floatHeader": "S5HVoW_floatHeader",
-		"splitChild": "S5HVoW_splitChild",
-		"gitWorktreeLabel": "S5HVoW_gitWorktreeLabel",
-		"gitDiffFileChevron": "S5HVoW_gitDiffFileChevron",
-		"editorTreePanelFull": "S5HVoW_editorTreePanelFull",
-		"terminalDepsActions": "S5HVoW_terminalDepsActions",
-		"gitCommit": "S5HVoW_gitCommit",
-		"gitCommitButton": "S5HVoW_gitCommitButton",
-		"gitDiffAdd": "S5HVoW_gitDiffAdd",
-		"gitLogMeta": "S5HVoW_gitLogMeta",
-		"dropDown": "S5HVoW_dropDown",
-		"floatDropHintLabel": "S5HVoW_floatDropHintLabel",
-		"terminalBannerUrl": "S5HVoW_terminalBannerUrl",
-		"editorStatusError": "S5HVoW_editorStatusError",
-		"terminalDepsCommandRow": "S5HVoW_terminalDepsCommandRow",
-		"producedChip": "S5HVoW_producedChip",
-		"tabTitle": "S5HVoW_tabTitle",
-		"paneEmptyCards": "S5HVoW_paneEmptyCards",
-		"editorBody": "S5HVoW_editorBody",
-		"gitDiffHunkSection": "S5HVoW_gitDiffHunkSection",
-		"gitDiffTab": "S5HVoW_gitDiffTab",
-		"editorBinaryNotice": "S5HVoW_editorBinaryNotice",
-		"sandboxStatusOff": "S5HVoW_sandboxStatusOff",
-		"floatDropHint": "S5HVoW_floatDropHint",
-		"dropCenter": "S5HVoW_dropCenter",
-		"editorSearchHint": "S5HVoW_editorSearchHint",
-		"gitSection": "S5HVoW_gitSection",
-		"editorHeader": "S5HVoW_editorHeader",
 		"terminalDepsNote": "S5HVoW_terminalDepsNote",
-		"editorStatus": "S5HVoW_editorStatus",
-		"gitDiffFile": "S5HVoW_gitDiffFile",
-		"paneTabHidden": "S5HVoW_paneTabHidden",
-		"uploadOverlayCancel": "S5HVoW_uploadOverlayCancel",
-		"explorer": "S5HVoW_explorer",
-		"gitDiffDel": "S5HVoW_gitDiffDel",
-		"gitDiffTabHeader": "S5HVoW_gitDiffTabHeader",
-		"gitDiffFileTag": "S5HVoW_gitDiffFileTag",
-		"uploadDropZone": "S5HVoW_uploadDropZone",
-		"tabBar": "S5HVoW_tabBar",
-		"dsh-row-in": "S5HVoW_dsh-row-in",
-		"uploadDropHero": "S5HVoW_uploadDropHero",
-		"uploadDropChatHint": "S5HVoW_uploadDropChatHint",
-		"dirtyDot": "S5HVoW_dirtyDot",
-		"gitDiffFilePath": "S5HVoW_gitDiffFilePath",
-		"openWithLabel": "S5HVoW_openWithLabel",
-		"openWithPin": "S5HVoW_openWithPin",
-		"openWithName": "S5HVoW_openWithName",
-		"dsh-toc-flash": "S5HVoW_dsh-toc-flash",
-		"pane": "S5HVoW_pane",
-		"workbench": "S5HVoW_workbench",
-		"tabList": "S5HVoW_tabList",
-		"orphanedType": "S5HVoW_orphanedType",
-		"browserBlockedButton": "S5HVoW_browserBlockedButton",
+		"toggleButton": "S5HVoW_toggleButton",
+		"toggleCluster": "S5HVoW_toggleCluster",
+		"uploadOverlay": "S5HVoW_uploadOverlay",
+		"uploadOverlayStatus": "S5HVoW_uploadOverlayStatus",
+		"gitDiffAdd": "S5HVoW_gitDiffAdd",
+		"gitLogSubject": "S5HVoW_gitLogSubject",
+		"explorerRoot": "S5HVoW_explorerRoot",
+		"explorerName": "S5HVoW_explorerName",
+		"browserLive": "S5HVoW_browserLive",
+		"dividerCol": "S5HVoW_dividerCol",
 		"panel": "S5HVoW_panel",
-		"editorTreeDock": "S5HVoW_editorTreeDock"
+		"gitEmpty": "S5HVoW_gitEmpty",
+		"producedLabel": "S5HVoW_producedLabel",
+		"explorerEmpty": "S5HVoW_explorerEmpty",
+		"editorSearchHint": "S5HVoW_editorSearchHint",
+		"paneTab": "S5HVoW_paneTab",
+		"terminalDepsActions": "S5HVoW_terminalDepsActions",
+		"tabTitle": "S5HVoW_tabTitle",
+		"openWithLabel": "S5HVoW_openWithLabel",
+		"workbench": "S5HVoW_workbench",
+		"paneEmptyCards": "S5HVoW_paneEmptyCards",
+		"uploadOverlayProgressFill": "S5HVoW_uploadOverlayProgressFill",
+		"orphanedType": "S5HVoW_orphanedType",
+		"floatContent": "S5HVoW_floatContent",
+		"explorerError": "S5HVoW_explorerError",
+		"explorerRowDropTarget": "S5HVoW_explorerRowDropTarget",
+		"editorTreePanelFull": "S5HVoW_editorTreePanelFull",
+		"explorerRow": "S5HVoW_explorerRow",
+		"selectionPopup": "S5HVoW_selectionPopup",
+		"terminalBanner": "S5HVoW_terminalBanner",
+		"dropRight": "S5HVoW_dropRight",
+		"gitPlaceholder": "S5HVoW_gitPlaceholder",
+		"uploadDropChatCard": "S5HVoW_uploadDropChatCard",
+		"gitSectionHeader": "S5HVoW_gitSectionHeader",
+		"gitDiffTabHeader": "S5HVoW_gitDiffTabHeader",
+		"gitCommitButton": "S5HVoW_gitCommitButton",
+		"gitLogLine2": "S5HVoW_gitLogLine2",
+		"panelBody": "S5HVoW_panelBody",
+		"explorer": "S5HVoW_explorer",
+		"dropLeft": "S5HVoW_dropLeft",
+		"explorerDir": "S5HVoW_explorerDir",
+		"sandboxStatusOn": "S5HVoW_sandboxStatusOn",
+		"floatWindow": "S5HVoW_floatWindow",
+		"browserBlockedActions": "S5HVoW_browserBlockedActions",
+		"gitDiffFileChevronExpanded": "S5HVoW_gitDiffFileChevronExpanded",
+		"gitRowSelected": "S5HVoW_gitRowSelected",
+		"gitDiffTab": "S5HVoW_gitDiffTab",
+		"tab": "S5HVoW_tab",
+		"editorMain": "S5HVoW_editorMain",
+		"editorDownloadLink": "S5HVoW_editorDownloadLink",
+		"editorStatusError": "S5HVoW_editorStatusError",
+		"dirtyDot": "S5HVoW_dirtyDot",
+		"terminalRepairCommand": "S5HVoW_terminalRepairCommand",
+		"splitRow": "S5HVoW_splitRow",
+		"tabList": "S5HVoW_tabList",
+		"dropDown": "S5HVoW_dropDown",
+		"editor": "S5HVoW_editor",
+		"split": "S5HVoW_split",
+		"tabBoundaryError": "S5HVoW_tabBoundaryError"
 	};
 	//#endregion
 	//#region src/client/TextEditor.tsx
@@ -44222,38 +44442,26 @@ globalThis.__dshChunks__["editor"] = (require) => {
 		const themeCompRef = (0, react.useRef)(null);
 		/** The app's resolved color scheme; the editor re-themes in place on flips. */
 		const [dark, setDark] = (0, react.useState)(() => isDarkScheme());
-		/** The floating "add to conversation" popup (viewport-anchored; null = hidden). */
-		const [popup, setPopup] = (0, react.useState)(null);
-		/** Live mirror of the popup state for click-time reads (no re-render race). */
-		const popupRef = (0, react.useRef)(null);
-		const hidePopup = () => {
-			popupRef.current = null;
-			setPopup(null);
-		};
-		/** Anchor the popup above the selection center; clamp inside the viewport. */
-		const showPopup = (insert, left, top) => {
-			const next = {
-				insert,
-				left: Math.min(Math.max(left, 80), window.innerWidth - 80),
-				top
-			};
-			popupRef.current = next;
-			setPopup(next);
-		};
-		/** The popup button's click: insert the stored payload into the draft. */
-		const commitPopup = () => {
-			const current = popupRef.current;
-			if (current === null) return;
-			appendToDraft(ctx, scope.sessionId, current.insert);
-			hidePopup();
-		};
+		/**
+		* The floating "add to conversation" popup (viewport-anchored; null =
+		* hidden). The hook owns show/hide/commit plus the global dismissal
+		* listeners (outside mousedown, Escape, hidden tab/window, and the editor
+		* surface leaving the viewport — the tab-switch/panel-collapse paths have
+		* no DOM events of their own) — see selection-popup.ts.
+		*/
+		const selectionPopup = useSelectionPopup({
+			onCommit: (insert) => {
+				appendToDraft(ctx, scope.sessionId, insert);
+			},
+			getSurface: () => hostRef.current
+		});
 		(0, react.useEffect)(() => subscribeColorScheme(() => {
 			setDark(isDarkScheme());
 		}), []);
 		(0, react.useEffect)(() => {
 			setDirty(false);
 			setSaveState("idle");
-			hidePopup();
+			selectionPopup.hide();
 		}, [content]);
 		(0, react.useEffect)(() => {
 			if (content === void 0) return;
@@ -44291,31 +44499,31 @@ globalThis.__dshChunks__["editor"] = (require) => {
 						]),
 						EditorView.updateListener.of((update) => {
 							if (update.geometryChanged || update.viewportChanged) {
-								hidePopup();
+								selectionPopup.hide();
 								return;
 							}
 							if (!update.view.hasFocus) {
-								hidePopup();
+								selectionPopup.hide();
 								return;
 							}
 							if (!(update.selectionSet || update.docChanged || update.focusChanged)) return;
 							const sel = update.state.selection.main;
 							if (sel.empty) {
-								hidePopup();
+								selectionPopup.hide();
 								return;
 							}
 							const text = update.state.sliceDoc(sel.from, sel.to);
 							if (text.trim() === "") {
-								hidePopup();
+								selectionPopup.hide();
 								return;
 							}
 							const rect = update.view.coordsAtPos(sel.head);
 							if (rect === null) {
-								hidePopup();
+								selectionPopup.hide();
 								return;
 							}
 							const doc = update.state.doc;
-							showPopup(buildSelectionInsert(path, scope.cwd, {
+							selectionPopup.show(buildSelectionInsert(path, scope.cwd, {
 								start: doc.lineAt(sel.from).number,
 								end: doc.lineAt(sel.to).number
 							}, text), rect.left - window.scrollX + (rect.right - rect.left) / 2, rect.top - window.scrollY);
@@ -44403,17 +44611,18 @@ globalThis.__dshChunks__["editor"] = (require) => {
 				className: sidebar_module_css_default.editorCm,
 				ref: hostRef
 			})] }),
-			popup !== null && (0, react_dom.createPortal)(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+			selectionPopup.popup !== null && (0, react_dom.createPortal)(/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
 				type: "button",
+				ref: selectionPopup.buttonRef,
 				className: sidebar_module_css_default.selectionPopup,
 				style: {
-					left: popup.left,
-					top: popup.top
+					left: selectionPopup.popup.left,
+					top: selectionPopup.popup.top
 				},
 				onMouseDown: (event) => {
 					event.preventDefault();
 				},
-				onClick: commitPopup,
+				onClick: selectionPopup.commit,
 				children: t("addToConversation")
 			}), document.body)
 		] });
