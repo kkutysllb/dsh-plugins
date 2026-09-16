@@ -1,4 +1,7 @@
+import { existsSync } from 'node:fs';
+import { BUILTIN_TEMPLATES } from './builtin-templates.js';
 import { TemplateStoreError, addTemplate, deleteTemplate, loadRegistry, renameTemplate, setDefaultTemplate, updatePrefs, writeUploadTemp, } from './templates.js';
+import { TASK_STATUSES, TaskStoreError, confirmOutline, createTask, deleteTask, listTasks, loadTask, removeMaterial, saveOutline, setMaterialStatus, updateTask, writeMaterial, } from './tasks.js';
 /** wire 层可预期失败。 */
 export class PptsRouteError extends Error {
     code;
@@ -73,6 +76,11 @@ function writeError(res, error) {
         writeJson(res, status, { ok: false, error: { code: error.code, message: error.message } });
         return;
     }
+    if (error instanceof TaskStoreError) {
+        const status = error.code === 'not-found' ? 404 : error.code === 'fs-error' ? 500 : 400;
+        writeJson(res, status, { ok: false, error: { code: error.code, message: error.message } });
+        return;
+    }
     // 未知异常不回传 message（可能含绝对路径等内部细节）：详情只进 host 日志
     console.error('[dsh-super-ppts] internal error:', error);
     writeJson(res, 500, { ok: false, error: { code: 'internal', message: 'internal error' } });
@@ -95,10 +103,12 @@ function optionalString(payload, key) {
         throw new PptsRouteError('bad-request', `invalid "${key}"`);
     return value;
 }
-/** JSON 操作面：method → handler（templates.* / prefs.*）。 */
+/** JSON 操作面：method → handler（templates.* / prefs.* / tasks.*）。 */
 export function buildPptsApiHandlers() {
     return {
-        'templates.list': () => loadRegistry(),
+        // templates.list 附带内置模板元数据：用户模板字段口径不变（向后兼容），
+        // builtinTemplates 为新增字段，面板据此分组展示两类来源。
+        'templates.list': () => ({ ...loadRegistry(), builtinTemplates: BUILTIN_TEMPLATES }),
         'templates.rename': (payload) => {
             const id = requireString(payload, 'id');
             const name = requireString(payload, 'name');
@@ -120,6 +130,97 @@ export function buildPptsApiHandlers() {
         'prefs.update': (payload) => {
             const record = payload;
             return updatePrefs(record?.patch);
+        },
+        'tasks.list': (payload) => {
+            const record = payload;
+            const filter = {};
+            const status = record?.status;
+            // 状态白名单：非法值直接 400，而不是原样透传给 listTasks —— 拼错状态（buiding）
+            // 会被过滤器全部拒掉、静默返回空列表，在面板上表现为「任务全丢了」，排查成本极高。
+            if (status !== undefined && status !== null && status !== '') {
+                if (typeof status !== 'string' || !TASK_STATUSES.includes(status)) {
+                    throw new PptsRouteError('bad-request', `未知任务状态：${String(status)}（限 ${TASK_STATUSES.join(' / ')}）`);
+                }
+                filter.status = status;
+            }
+            const workspaceId = record?.workspaceId;
+            if (typeof workspaceId === 'string' && workspaceId !== '')
+                filter.workspaceId = workspaceId;
+            return { tasks: listTasks(filter) };
+        },
+        'tasks.get': (payload) => {
+            const id = requireString(payload, 'id');
+            const task = loadTask(id);
+            if (task === null)
+                throw new PptsRouteError('not-found', `任务不存在：${id}`, 404);
+            // 产物存在性投影（只读）：产物文件在工作区，用户可能移走 / 删除，甚至只是外置盘没挂载。
+            // 每次读详情按 existsSync 重算 status，面板才能提示「产物缺失，可重新生成」。
+            // 刻意不落盘：读路径不产生写副作用，文件恢复原位后状态自然回到 ready。
+            return {
+                ...task,
+                artifacts: task.artifacts.map(item => ({
+                    ...item,
+                    status: existsSync(item.path) ? 'ready' : 'missing',
+                })),
+            };
+        },
+        'tasks.create': (payload) => {
+            const record = payload;
+            const brief = record?.brief;
+            if (brief === null || typeof brief !== 'object') {
+                throw new PptsRouteError('bad-request', 'missing or invalid "brief"');
+            }
+            // workspace 与 brief 同等对待：兜底成空串 id 会让该任务既被 tasks.list 的
+            // workspaceId 过滤拒绝、又无法经 UpdateTaskPatch（无 workspace 键）补救。
+            const workspace = record?.workspace;
+            if (workspace === null || typeof workspace !== 'object') {
+                throw new PptsRouteError('bad-request', 'missing or invalid "workspace"');
+            }
+            return createTask({
+                title: requireString(payload, 'title'),
+                brief: brief,
+                workspace: workspace,
+            });
+        },
+        'tasks.update': (payload) => {
+            const record = payload;
+            const patch = record?.patch;
+            if (patch === null || typeof patch !== 'object') {
+                throw new PptsRouteError('bad-request', 'missing or invalid "patch"');
+            }
+            return updateTask(requireString(payload, 'id'), patch);
+        },
+        'tasks.delete': (payload) => {
+            deleteTask(requireString(payload, 'id'));
+            return { deleted: true };
+        },
+        'tasks.outline': (payload) => {
+            const record = payload;
+            const pages = record?.pages;
+            if (!Array.isArray(pages))
+                throw new PptsRouteError('bad-request', 'missing or invalid "pages"');
+            return saveOutline(requireString(payload, 'id'), pages);
+        },
+        'tasks.confirmOutline': (payload) => {
+            const record = payload;
+            const version = record?.version;
+            if (typeof version !== 'number')
+                throw new PptsRouteError('bad-request', 'missing or invalid "version"');
+            return confirmOutline(requireString(payload, 'id'), version);
+        },
+        // 素材变更面：删除（失败素材可删掉后继续，见规格失败模式表）与状态回报
+        // （Agent 读取素材后回写 ready / error，面板据此显示「解析失败 · 可重试或删除」）。
+        'tasks.materialDelete': (payload) => {
+            return removeMaterial(requireString(payload, 'id'), requireString(payload, 'materialId'));
+        },
+        'tasks.materialStatus': (payload) => {
+            const record = payload;
+            const status = record?.status;
+            // 白名单前置校验：非法状态一旦透传，存储层虽会抛错，但错误码语义不如这里直白。
+            if (status !== 'ready' && status !== 'error') {
+                throw new PptsRouteError('bad-request', `未知素材状态：${String(status)}（限 ready / error）`);
+            }
+            return setMaterialStatus(requireString(payload, 'id'), requireString(payload, 'materialId'), status, optionalString(payload, 'error'));
         },
     };
 }
@@ -182,6 +283,30 @@ export function registerPptsRoutes(ctx, options) {
             }
         },
     }), 'dsh-super-ppts: /super-ppts/upload route'));
+    // 素材上传：任务目录内的原始流式落盘（与 /upload 同款信任围栏与限额）。
+    disposers.push(ctx.effect(() => ctx.webServer.register({
+        kind: 'exact',
+        path: '/super-ppts/tasks/upload',
+        handler: async (req, res) => {
+            if (!fenceRequest(req, trustedHosts)) {
+                writeJson(res, 403, { ok: false, error: { code: 'forbidden', message: 'forbidden' } });
+                return;
+            }
+            if (req.method !== 'POST') {
+                writeJson(res, 405, { ok: false, error: { code: 'method-error', message: 'method not allowed' } });
+                return;
+            }
+            try {
+                const url = new URL(req.url ?? '/', 'http://dsh.internal');
+                const taskId = url.searchParams.get('taskId') ?? '';
+                const name = url.searchParams.get('name') ?? '';
+                writeOk(res, await writeMaterial(taskId, name, req, options.uploadLimitBytes));
+            }
+            catch (error) {
+                writeError(res, error);
+            }
+        },
+    }), 'dsh-super-ppts: /super-ppts/tasks/upload route'));
     return () => {
         for (const dispose of disposers) {
             try {
