@@ -8,7 +8,7 @@ import { collectArtifacts } from "./artifacts.js";
 import { resolveModel } from "../model-catalog.js";
 import { isStage } from "../stages.js";
 export const PLUGIN_ID = 'dsh-video-generator';
-export const PLUGIN_VERSION = '1.0.4';
+export const PLUGIN_VERSION = '2.0.0';
 // 仅精确 loopback 名（'127.0.0.1' 的 URL hostname 形态已剥括号，故 '::1'/'[::1]' 双收录无害）
 const TRUSTED_LOCAL = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 // DNS-rebind / 跨站防御（非认证）：Host 头存在即权威精确匹配；remote 仅在 Host 缺失时兜底——
@@ -169,6 +169,10 @@ function dispatch(ctx, name, args) {
         case 'settings.get': {
             const d = ctx.vault.load();
             return { defaultChannelId: d.defaultChannelId, budget: d.budget, gateDefaults: d.gateDefaults };
+        }
+        case 'diagnostics.get': {
+            // 设置页「环境与诊断」（§8）：异步探测 ffmpeg/drawtext 与 TTS 能力（handleApi 支持 Promise 透传）
+            return import("./diagnostics.js").then((m) => m.collectDiagnostics({ vault: ctx.vault, runs: ctx.runs, version: PLUGIN_VERSION }));
         }
         case 'settings.update': {
             // null 不再静默清零：undefined=不更新；非有限数字拒绝

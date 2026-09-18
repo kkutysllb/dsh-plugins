@@ -1,9 +1,14 @@
-/** LLM 三段交接工具（规格 §5 表）：会话模型产出结构化 JSON → 校验 + 落盘 + run 推进。 */
+/** LLM 三段交接工具（规格 §5 表）：会话模型产出结构化 JSON → 校验 + 落盘 + run 推进。
+ *  漫剧改编任务（§6.4）：vgen_* 三段携带 projectId/adaptationId/workspaceId 时，
+ *  工具把 story/script/storyboard 产物镜像回项目 adaptations/<id>/ 并回填 run-link。 */
 import type { VaultStore } from '../store/vault.ts';
 import type { RunStore } from '../store/runs.ts';
+import type { DramaHost } from '../drama/gateway.ts';
 export interface HandoffContext {
     vault: VaultStore;
     runs: RunStore;
+    /** 漫剧工坊网关（可选：缺省时改编参数直接报 bad-request）。 */
+    drama?: DramaHost;
 }
 export type ToolResult = {
     ok: true;

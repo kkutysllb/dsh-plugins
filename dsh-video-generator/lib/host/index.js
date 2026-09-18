@@ -1,8 +1,6 @@
 /** DSH 插件入口：cordis 风格注册 webServer 路由（effect 生命周期管理）。 */
-import { copyFileSync, createReadStream, existsSync, mkdirSync, statSync } from 'node:fs';
-import { homedir } from 'node:os';
-import { basename, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { createReadStream, existsSync, statSync } from 'node:fs';
+import { basename } from 'node:path';
 import { VaultStore } from "../store/vault.js";
 import { RunStore } from "../store/runs.js";
 import { probeChannel } from "../probe.js";
@@ -11,13 +9,23 @@ import { buildGenerateTools, generateToolDefs } from "../tools/generate.js";
 import { buildProvideTools, provideToolDefs } from "../tools/provide.js";
 import { buildReviewTools, reviewToolDefs } from "../tools/review.js";
 import { buildChannelsTools, channelsToolDefs } from "../tools/channels.js";
+import { buildDramaTools, dramaToolDefs } from "../tools/drama.js";
+import { DramaHost } from "../drama/gateway.js";
+import { handleDramaApi } from "./project-routes.js";
 import { modelUnavailableFrom } from "../model-selection.js";
 import { PLUGIN_ID, handleApi, healthPayload, isLoopbackRequest, resolveMediaPath, mediaContentType } from "./routes.js";
 export const name = PLUGIN_ID;
-/** cordis 依赖声明：这些服务就绪后才 apply（对齐 super-ppts 的模块级 inject 约定）。 */
-export const inject = ['webServer', 'tools', 'systemPrompt'];
-/** Agent 能力通告：能力 + 三段交接工作流 + JSON 形状简例 + M4 工具面（不重复技能正文，避免上下文膨胀）。 */
-export const vgenGuidance = `本机已安装 dsh-video-generator 插件（短视频/短剧/漫剧生成管线，竖屏 9:16 成片 mp4+SRT）。三段交接工作流：会话模型自己产出结构化 JSON 并依次调用 vgen_story → vgen_script → vgen_storyboard，之后接 vgen_generate 推进非 LLM 段。
+/** cordis 依赖声明：这些服务就绪后才 apply（对齐 super-ppts 的模块级 inject 约定）。
+ *  workspaceRegistry 为 2.0 硬依赖（漫剧工坊项目存储解析 workspace 目录；
+ *  automation 插件同款宿主契约，0.1.5+ 提供）。 */
+export const inject = ['webServer', 'tools', 'systemPrompt', 'workspaceRegistry'];
+/** Agent 能力通告（规格 §9：工作台 + 工具导向，不再引导切换预设）。
+ *  漫剧工坊页面管项目/审核/执行；会话 Agent 负责推理与产出，内容一律走提案闭环。 */
+export const vgenGuidance = `本机已安装 dsh-video-generator 插件（漫剧工坊：小说/剧情创作工作台 + 短视频/短剧/漫剧管线，竖屏 9:16 成片 mp4+SRT）。
+【漫剧工坊】用户在 Web 侧边栏「漫剧工坊」建项目（灵感前提/故事架构/世界观/角色/大纲/章节/审稿/漫剧改编），项目数据存在 workspace 内。收到「[漫剧工坊任务]」开头的任务指令时，指令含 workspaceId/projectId 与目标资产。创作纪律：先 drama_read 读权威资产拿 revision → 产出建议 → drama_propose 一次性提交完整替换内容（落提案，绝不直接写权威文件）；baseRevision 失配返回 stale-revision，须重读再提案；未经 drama_read 不得提案；一次只提案一个资产；用户在页面「应用」之前不得声称已保存。
+- drama_read {workspaceId, projectId, assetRef}：读单资产（premise/architecture/worldbuilding/outline/characters/chapters/<nnnn>/<blueprint|draft|review|final>），内容超 512KiB 截断；
+- drama_propose {workspaceId, projectId, assetRef, baseRevision, replacement, summary}：落提案（pending），replacement 为目标资产完整替换内容（json 资产为对象，markdown 资产为字符串）。
+【视频管线】三段交接工作流：会话模型自己产出结构化 JSON 并依次调用 vgen_story → vgen_script → vgen_storyboard，之后接 vgen_generate 推进非 LLM 段。漫剧改编任务中 vgen_story 必须携带 workspaceId/projectId/adaptationId（工具自动把三段产物镜像回项目改编任务并记录 run-link）。
 1) vgen_story 提交故事 JSON 开新 run：{ title, logline, style, characters: [{ id（^[a-z0-9_-]+$，≤48）, name, appearance }], chapters: [...] }；
 2) vgen_script 提交剧本 JSON：scenes: [{ id, name, description, characters: [id] }]、dialog: [{ sceneId, characterId, line }]，引用必须存在；
 3) vgen_storyboard 提交分镜数组：每镜 { index（从 1 连续）, line, prompt, characterIds, sceneId?, camera?, durationSec 2..10, voiceHint? }，工具自动注入四层提示词；
@@ -26,49 +34,23 @@ export const vgenGuidance = `本机已安装 dsh-video-generator 插件（短视
 6) vgen_review { runId, shot, score?, negativeHint?, confirm? } 质量闭环：不带 score → 返回成片 25/50/75% 三帧路径（用读图工具逐帧查看后评分）；带 score 1-5 → ≥3 记通过；≤2 自动追加负面词重拍（每镜 ≤2 次，重拍花费同 confirm 语义），重拍后返回新帧继续评；
 7) vgen_provide { runId, stage, files: [{ path, shot?, name? }] }：manual gate 产物注入（master-asset 文件名 char-*/scene-*；shot-assets/video 逐镜 shot 号，video 须全镜覆盖且时长≥0.5s；final-cut 首文件 .mp4 注入后 run 直接 done）；
 8) vgen_channels { action: 'list'|'health'|'spend' }：通道面板（脱敏列表/探测健康+估价/累计消耗）。
-用户通道在 Web 设置页「视频工坊」管理（三要素自配，官方/中转皆可）。注意：happyhorse 等免费档视频模型可能带平台水印，介意请提醒用户换付费模型。错误信封 { ok: false, error: { code, message } }；未知 runId = not-found。`;
+用户通道在 Web 设置页「漫剧工坊」管理（三要素自配，官方/中转皆可）。注意：happyhorse 等免费档视频模型可能带平台水印，介意请提醒用户换付费模型。错误信封 { ok: false, error: { code, message } }；未知 runId = not-found。`;
 const SECTION_ORDER = 207;
 /** 请求体超限：显式字段形式（erasableSyntaxOnly 禁参数属性），接线 catch 借此区分 413/400。 */
 class BodyTooLargeError extends Error {
 }
+/** drama RPC 载荷上限：对齐宿主 connection 通道 4MB（规格 §13）。 */
+const DRAMA_BODY_LIMIT_BYTES = 4 * 1024 * 1024;
 function registerHandoffTools(ctx, handoff) {
     return handoffToolDefs(handoff).map((def) => ctx.tools.register(def));
 }
-/** 包根：lib/host/index.js（构建产物）与 src/host/index.ts（测试直跑）上溯两级均为包根。 */
-function packageRoot() {
-    return fileURLToPath(new URL('../../', import.meta.url));
-}
-/** 预设安装目标：跟随宿主 harness home——`DSH_HOME` 优先，未设回退用户主目录
- *  （与 resolveVaultPath/resolveRunsDir 同一优先级语义；stock dsh 启动器缺省 home 为
- *  ~/.dsh，KCoder 等品牌部署由其启动器注入自己的 DSH_HOME，如 ~/.kcoder）。
- *  预设发现面 = <harnessHome>/.agent-presets/<插件名>/，禁止写死任何品牌目录。 */
-function presetInstallDir(env) {
-    const base = env['DSH_HOME'] ?? homedir();
-    return join(base, '.agent-presets', 'dsh-video-generator');
-}
-/** 预设安装（幂等，跟随 harness home）；失败静默——预设缺失不阻断插件加载。 */
-function ensurePresetInstalled(env) {
-    try {
-        const src = resolve(packageRoot(), 'presets');
-        if (!existsSync(src))
-            return;
-        const dest = presetInstallDir(env);
-        mkdirSync(dest, { recursive: true });
-        for (const f of ['preset.yml', 'agent.cordis.yml']) {
-            const p = join(src, f);
-            if (existsSync(p))
-                copyFileSync(p, join(dest, f));
-        }
-    }
-    catch {
-        // 预设安装失败不阻断插件加载
-    }
-}
 export function apply(ctx) {
-    ensurePresetInstalled(process.env);
     const vault = VaultStore.open({ env: process.env });
     const runs = RunStore.open({ env: process.env });
     const web = ctx.webServer;
+    // 漫剧工坊网关：workspaceRegistry 软探测（宿主 ≤0.1.4 缺服务时 resolve 返回 workspace-unknown，
+    // 工具与 RPC 都拿到稳定错误码，不崩载）。
+    const dramaHost = new DramaHost({ registry: typeof ctx.workspaceRegistry?.get === 'function' ? ctx.workspaceRegistry : null });
     const disposers = [];
     // Agent 能力通告：软探测 section 可用性（漏声明 inject 宿主会抛 without inject，这里 tolerance 防崩载）。
     const sectionAvailable = typeof ctx.systemPrompt?.section === 'function';
@@ -76,7 +58,7 @@ export function apply(ctx) {
         disposers.push(ctx.systemPrompt.section({ name: `plugin:${PLUGIN_ID}`, order: SECTION_ORDER, text: vgenGuidance }));
     }
     // 原生工具：直接注册（super-ppts 模式，不用回调式 inject）。
-    const handoff = buildHandoffTools({ vault, runs });
+    const handoff = buildHandoffTools({ vault, runs, drama: dramaHost });
     // 默认通道解析：generate 与 review 共用（按当前 defaultChannelId 现取，切通道即时生效）。
     const resolveChannel = () => {
         const d = vault.load().defaultChannelId;
@@ -98,12 +80,14 @@ export function apply(ctx) {
     const provideTools = buildProvideTools({ runs, env: process.env });
     const reviewTools = buildReviewTools({ vault, runs, channel: resolveChannel });
     const channelsTools = buildChannelsTools({ vault, runs });
+    const dramaTools = buildDramaTools(dramaHost);
     for (const dispose of [
         ...registerHandoffTools(ctx, handoff),
         ...generateToolDefs(generateTools).map((def) => ctx.tools.register(def)),
         ...provideToolDefs(provideTools).map((def) => ctx.tools.register(def)),
         ...reviewToolDefs(reviewTools).map((def) => ctx.tools.register(def)),
         ...channelsToolDefs(channelsTools).map((def) => ctx.tools.register(def)),
+        ...dramaToolDefs(dramaTools).map((def) => ctx.tools.register(def)),
     ]) {
         disposers.push(dispose);
     }
@@ -134,6 +118,36 @@ export function apply(ctx) {
             json(res, envelope.ok ? 200 : errorStatus(envelope), envelope);
         },
     }), `${PLUGIN_ID}: runs routes`);
+    ctx.effect(() => web.register({
+        // 前缀路由：方法名跟在 /drama/ 之后（同 /api 面形态）
+        kind: 'prefix',
+        path: `/${PLUGIN_ID}/drama`,
+        handler: async (req, res) => {
+            if (!isLoopbackRequest(req.headers.host, req.socket.remoteAddress)) {
+                json(res, 403, { ok: false, error: { code: 'forbidden', message: '仅限本机回环访问' } });
+                return;
+            }
+            if (req.method !== 'POST') {
+                json(res, 405, { ok: false, error: { code: 'method-not-allowed', message: '仅 POST' } });
+                return;
+            }
+            const methodName = (req.url ?? '').split('/drama/')[1]?.split('?')[0] ?? '';
+            let body = {};
+            try {
+                body = await readJsonBody(req, DRAMA_BODY_LIMIT_BYTES);
+            }
+            catch (err) {
+                if (err instanceof BodyTooLargeError) {
+                    json(res, 413, { ok: false, error: { code: 'too-large', message: '请求体超过 4MB' } });
+                }
+                else {
+                    json(res, 400, { ok: false, error: { code: 'bad-json', message: '请求体非法 JSON' } });
+                }
+                return;
+            }
+            json(res, 200, handleDramaApi(dramaHost, methodName, body));
+        },
+    }), `${PLUGIN_ID}: drama route`);
     ctx.effect(() => web.register({
         kind: 'prefix',
         path: `/${PLUGIN_ID}/media`,
@@ -261,11 +275,13 @@ function errorStatus(envelope) {
     const code = envelope.error?.code;
     if (code === 'not-found')
         return 404;
-    if (code === 'conflict')
+    if (code === 'conflict' || code === 'stale-revision' || code === 'proposal-stale' || code === 'project-exists' || code === 'proposal-limit')
         return 409;
     if (code === 'forbidden')
         return 403;
-    if (code === 'bad-request' || code === 'unknown-method' || code === 'bad-json')
+    if (code === 'too-large')
+        return 413;
+    if (code === 'bad-request' || code === 'workspace-unknown' || code === 'unknown-method' || code === 'bad-json')
         return 400;
     return 500;
 }
