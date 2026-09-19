@@ -4,7 +4,7 @@
 import { fetchPricing, estimateCny } from "../pricing.js";
 import { SpendLedger } from "../spend.js";
 import { providerForModel } from "../registry.js";
-import { advanceRun, ManualGateError, AskGateRejectedError } from "../pipeline/machine.js";
+import { advanceRun, ManualGateError, AskGateRejectedError, RunInterruptedError } from "../pipeline/machine.js";
 import { isStage } from "../stages.js";
 import { locateFfmpeg } from "../finalcut/render-ffmpeg.js";
 import { HandoffError } from "../schema/handoff.js";
@@ -98,6 +98,7 @@ export function buildGenerateTools(ctx) {
                         tts: ctx.tts ?? configuredCloudTts(channel, env),
                         concurrency: typeof args['concurrency'] === 'number' ? args['concurrency'] : undefined,
                         fetchImpl: ctx.fetchImpl,
+                        signal: ctx.signal,
                     });
                     ledger.totals(); // 触碰记账文件，保证 open 语义生效（空读容错）
                     return {
@@ -129,6 +130,9 @@ export function buildGenerateTools(ctx) {
                     }
                     if (err instanceof AskGateRejectedError) {
                         return { ok: false, error: { code: 'gate-approval', message: `${err.message}。请与用户确认该段执行，然后携带 gateApprovals（如 ["master-asset"]）重新调用；或改 gates 为 auto/manual。` } };
+                    }
+                    if (err instanceof RunInterruptedError) {
+                        return { ok: false, error: { code: 'interrupted', message: `${err.message}。run 已置 failed(host-interrupted)；插件重新启用后可对未完成段用 rerunStage 续跑。` } };
                     }
                     if (err instanceof HandoffError)
                         return { ok: false, error: { code: err.code, message: err.message } };

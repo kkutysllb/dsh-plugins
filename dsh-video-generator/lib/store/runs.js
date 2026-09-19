@@ -3,8 +3,10 @@ import { mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { randomBytes } from 'node:crypto';
+import { harnessHome } from "./home.js";
 export function resolveRunsDir(env = process.env) {
-    const base = env['DSH_HOME'] ? join(env['DSH_HOME'], '.dsh-video-generator') : join(homedir(), '.dsh-video-generator');
+    const home = harnessHome(env);
+    const base = home !== null ? join(home, '.dsh-video-generator') : join(homedir(), '.dsh-video-generator');
     return join(base, 'runs');
 }
 /** 解析成功后的最小形状守卫：id 必须与目录一致，核心字段缺失/类型不符的记录按损坏处理（对齐 vault）。 */

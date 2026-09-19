@@ -2,6 +2,7 @@
 import { chmodSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { harnessHome } from "./home.js";
 export function defaultVaultData() {
     return {
         version: 1,
@@ -12,7 +13,8 @@ export function defaultVaultData() {
     };
 }
 export function resolveVaultPath(env = process.env) {
-    const base = env['DSH_HOME'] ? join(env['DSH_HOME'], '.dsh-video-generator') : join(homedir(), '.dsh-video-generator');
+    const home = harnessHome(env);
+    const base = home !== null ? join(home, '.dsh-video-generator') : join(homedir(), '.dsh-video-generator');
     return join(base, 'vault.json');
 }
 export function maskCredential(s) {

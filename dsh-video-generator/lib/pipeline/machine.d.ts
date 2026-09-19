@@ -32,6 +32,14 @@ export interface MachineDeps {
     tts?: CloudTtsConfig;
     /** 状态轮询基础间隔（ms），默认 1000。 */
     pollDelayMs?: number;
+    /** 宿主生命周期信号：插件停用/卸载（HMR）时 abort，在飞的段执行在下一个
+     *  检查点停下并置 run 为 failed(host-interrupted)，不再继续调用通道 API。 */
+    signal?: AbortSignal;
+}
+/** 宿主停用中断：段执行在检查点抛出，工具层转 interrupted 信封。 */
+export declare class RunInterruptedError extends Error {
+    readonly runId: string;
+    constructor(runId: string);
 }
 /** manual gate 拦截（工具层转 manual-gate 信封，指引 vgen_provide）。 */
 export declare class ManualGateError extends Error {

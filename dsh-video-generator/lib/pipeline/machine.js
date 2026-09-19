@@ -16,6 +16,15 @@ import { generateShotClip, saveUrl, SHOT_MOTION_PROMPT } from "./shot-clip.js";
 import { buildTimeline, writeSrt, Timeline } from "../finalcut/timeline.js";
 import { renderTimeline, probeDurationSec } from "../finalcut/render-ffmpeg.js";
 import { resolveVoice, buildMacSayCommand, buildSapiScript, synthesizeCloudSpeech } from "../finalcut/voice.js";
+/** 宿主停用中断：段执行在检查点抛出，工具层转 interrupted 信封。 */
+export class RunInterruptedError extends Error {
+    runId;
+    constructor(runId) {
+        super(`run ${runId} 因宿主停用中断（plugin deactivated）`);
+        this.name = 'RunInterruptedError';
+        this.runId = runId;
+    }
+}
 function selectStageModel(deps, kind, injected) {
     return injected ?? selectConfiguredModel(deps.channel, kind);
 }
@@ -73,13 +82,14 @@ function lastEvent(events, type) {
     return hits.length ? hits[hits.length - 1] : undefined;
 }
 /** 简单并发泵：按 index 顺序发起，至多 limit 个在飞；任一失败即熔断（在飞任务自然完成，不再取新任务）。 */
-async function pump(items, limit, worker) {
+async function pump(items, limit, worker, live) {
     let next = 0;
     let stopped = false;
     const runners = Array.from({ length: Math.min(Math.max(1, limit), items.length) }, async () => {
         for (;;) {
             if (stopped)
                 return;
+            live?.(); // 宿主停用检查点：在飞任务自然结束，不再取新任务
             const i = next++;
             if (i >= items.length)
                 return;
@@ -144,7 +154,30 @@ export async function advanceRun(deps) {
                 throw new AskGateRejectedError(`段 ${stage} 在 ask 审批中被拒绝`);
         }
     };
+    /** 宿主停用检查点：置当前 running 段 failed + 事件留痕，再抛中断。
+     *  与 dsh-kylin-automation 的 host_interrupted 语义同款；
+     *  interruptMarked 保证并发泵多 runner 同时命中时事件只记一次。 */
+    let interruptMarked = false;
+    const ensureLive = () => {
+        if (deps.signal?.aborted !== true)
+            return;
+        if (!interruptMarked) {
+            interruptMarked = true;
+            const live = runs.get(runId);
+            if (live !== null) {
+                for (const [stage, state] of Object.entries(live.stages)) {
+                    if (state === 'running')
+                        runs.setStage(runId, stage, 'failed');
+                }
+            }
+            runs.setStatus(runId, 'failed');
+            runs.appendEvent(runId, 'run-interrupted', { reason: 'host-deactivated' });
+        }
+        throw new RunInterruptedError(runId);
+    };
+    ensureLive();
     const begin = (st) => {
+        ensureLive(); // 段边界检查点：停用后不再开启新段
         runs.setStage(runId, st, 'running');
         runs.appendEvent(runId, 'stage-start', { stage: st });
     };
@@ -186,7 +219,7 @@ export async function advanceRun(deps) {
                     runs.appendEvent(runId, 'spend', { stage: st, model: imageModel, estCny: est, jobId: String(url).slice(0, 80) });
                     await saveUrl(fetchImpl, url, job.file);
                     urls.push({ key: job.file, url });
-                });
+                }, ensureLive);
                 done(st);
             }
             catch (err) {
@@ -230,7 +263,7 @@ export async function advanceRun(deps) {
                     const file = join(shotsDir, `shot-${String(shot.index).padStart(3, '0')}.png`);
                     await saveUrl(fetchImpl, url, file);
                     shotImages.push({ index: shot.index, url, file });
-                });
+                }, ensureLive);
                 shotImages.sort((a, b) => a.index - b.index);
                 result.shotImages = shotImages;
                 runs.appendEvent(runId, 'shot-urls', { urls: shotImages });
@@ -295,7 +328,7 @@ export async function advanceRun(deps) {
                         throw new Error(`shot ${shot.index}: ${err instanceof Error ? err.message : String(err)}`);
                     }
                     clipFiles.push(file);
-                });
+                }, ensureLive);
                 clipFiles.sort();
                 result.clipFiles = clipFiles;
                 runs.appendEvent(runId, 'clips', { files: clipFiles });

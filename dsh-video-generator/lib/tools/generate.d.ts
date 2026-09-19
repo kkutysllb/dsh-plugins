@@ -26,6 +26,8 @@ export interface GenerateContext {
     fetchImpl?: typeof fetch;
     /** 测试注入：云端 TTS 配置；生产路径按当前通道 models[] 动态选择。 */
     tts?: CloudTtsConfig;
+    /** 宿主生命周期信号：插件停用/卸载（HMR）时 abort，在飞生成在检查点停下。 */
+    signal?: AbortSignal;
 }
 export declare function configuredCloudTts(channel: ChannelRef, env?: NodeJS.ProcessEnv): CloudTtsConfig | undefined;
 export interface GenerateArgs {

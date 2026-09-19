@@ -76,7 +76,10 @@ export function apply(ctx) {
             models: Array.isArray(c.models) ? c.models : [],
         };
     };
-    const generateTools = buildGenerateTools({ vault, runs, channel: resolveChannel });
+    // 宿主生命周期信号：disposer 里 abort，在飞 vgen_generate 在段边界/并发泵
+    // 检查点停下（置 run failed(host-interrupted)），不再继续调用通道 API 计费。
+    const lifecycle = new AbortController();
+    const generateTools = buildGenerateTools({ vault, runs, channel: resolveChannel, signal: lifecycle.signal });
     const provideTools = buildProvideTools({ runs, env: process.env });
     const reviewTools = buildReviewTools({ vault, runs, channel: resolveChannel });
     const channelsTools = buildChannelsTools({ vault, runs });
@@ -261,6 +264,8 @@ export function apply(ctx) {
         },
     }), `${PLUGIN_ID}: api face`);
     return () => {
+        // 先中断在飞生成（幂等），再回收注册面：工具/路由注销后不再有新任务进入。
+        lifecycle.abort();
         for (const dispose of disposers) {
             try {
                 dispose();
