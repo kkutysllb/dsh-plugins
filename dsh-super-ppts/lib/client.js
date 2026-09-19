@@ -697,7 +697,7 @@ window.__ModuleLoader__.load({
 			".sp-btn:hover{border-color:var(--sl-color-primary-500,#7aa2f7);color:var(--sl-color-primary-500,#7aa2f7);}",
 			".sp-btn[disabled]{opacity:.45;cursor:not-allowed;}",
 			".sp-btn-primary{background:var(--sl-color-primary-600,#3b5fd9);border-color:var(--sl-color-primary-600,#3b5fd9);color:#fff;}",
-			".sp-btn-primary:hover{color:#fff;}",
+			".sp-btn-primary:hover{background:var(--sl-color-primary-500,#4468e8);border-color:var(--sl-color-primary-500,#4468e8);color:#fff;}",
 			".sp-btn-danger:hover{border-color:#e5484d;color:#e5484d;}",
 			".sp-field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}",
 			".sp-field label{font-size:12px;opacity:.75;}",
@@ -729,14 +729,14 @@ window.__ModuleLoader__.load({
 			// 不设 width / height / overflow——宽度、高度与滚动全部归宿主；全文件
 			// 不使用视口单位（vw / vh），也不使用固定定位（冒烟有断言）；颜色与
 			// 边框统一走宿主 token（var(--dsw-alias-*, 回退值)），与既有 .sp-panel 一致。
-			".sp-panels{display:flex;flex-direction:column;gap:16px;font-size:13px;line-height:1.5;color:inherit;box-sizing:border-box;max-width:960px;width:100%;margin:0 auto;}",
+			".sp-panels{display:flex;flex-direction:column;gap:16px;font-size:13px;line-height:1.5;color:inherit;box-sizing:border-box;max-width:960px;width:100%;margin:0 auto;height:100%;overflow-y:auto;overflow-x:hidden;padding:2px 4px 28px 2px;}",
 			".sp-styles-warning{border:1px solid #e5484d;background:rgba(229,72,77,.08);color:#e5484d;border-radius:8px;padding:8px 12px;font-size:12px;line-height:1.5;}",
 			".sp-panels-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-300,#333));}",
-			".sp-panels-title{margin:0;font-size:16px;font-weight:600;}",
+			".sp-panels-title{margin:0;font-size:16px;font-weight:600;padding-left:10px;border-left:3px solid var(--sl-color-primary-500,#3b5fd9);}",
 			".sp-tabs{display:flex;gap:6px;margin-left:auto;}",
-			".sp-tab{border:1px solid transparent;border-radius:999px;background:transparent;color:inherit;padding:4px 14px;font-size:12px;cursor:pointer;transition:background .15s,border-color .15s;}",
-			".sp-tab:hover{background:var(--dsw-alias-interactive-bg-hover,var(--sl-color-neutral-300,#333));}",
-			".sp-tab-active{border-color:var(--dsw-alias-border-l,var(--sl-color-neutral-400,#555));background:var(--dsw-alias-interactive-bg-active,var(--sl-color-neutral-400,#555));font-weight:600;}",
+			".sp-tab{border:1px solid transparent;border-radius:999px;background:transparent;color:inherit;padding:4px 14px;font-size:12px;cursor:pointer;transition:background .15s,border-color .15s,color .15s;}",
+			".sp-tab:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(59,95,217,.08));color:inherit;}",
+			".sp-tab-active,.sp-tab-active:hover{border-color:var(--sl-color-primary-600,#3b5fd9);background:var(--sl-color-primary-600,#3b5fd9);color:#fff;font-weight:600;}",
 			// 视图根：两个视图都是单列纵向流（视图自持类名，壳层不下发 className）
 			".sp-view-new-task,.sp-view-recent{display:flex;flex-direction:column;gap:14px;}",
 			// 新建任务视图：主题 → 快速开始 → 交付形态 → 更多选项 → 摘要 → 素材
@@ -744,11 +744,11 @@ window.__ModuleLoader__.load({
 			".sp-topic-input{min-height:76px;}",
 			".sp-quick-row{display:flex;flex-wrap:wrap;gap:8px;}",
 			".sp-quick-chip{border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-400,#555));border-radius:999px;background:transparent;color:inherit;padding:4px 12px;font-size:12px;cursor:pointer;transition:background .15s,border-color .15s;}",
-			".sp-quick-chip:hover{background:var(--dsw-alias-interactive-bg-hover,var(--sl-color-neutral-300,#333));}",
+			".sp-quick-chip:hover{border-color:var(--sl-color-primary-500,#3b5fd9);color:var(--sl-color-primary-600,#3b5fd9);background:rgba(59,95,217,.06);}",
 			".sp-formats{display:grid;grid-template-columns:1fr 1fr;gap:10px;}",
 			".sp-format-card{border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-300,#333));border-radius:10px;padding:12px 14px;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;transition:border-color .15s,background .15s;}",
 			".sp-format-card:hover{border-color:var(--dsw-alias-interactive-bg-hover,var(--sl-color-primary-500,#3b5fd9));}",
-			".sp-format-card-active{border-color:var(--dsw-alias-interactive-bg-active,var(--sl-color-primary-500,#3b5fd9));background:var(--dsw-alias-button-elevated-fill,transparent);}",
+			".sp-format-card-active{border-color:var(--sl-color-primary-500,#3b5fd9);background:rgba(59,95,217,.08);box-shadow:inset 0 0 0 1px var(--sl-color-primary-500,#3b5fd9);}",
 			".sp-fmt-title{font-size:13px;font-weight:600;}",
 			".sp-fmt-hint{font-size:12px;opacity:.68;line-height:1.45;}",
 			".sp-advanced-toggle{border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-300,#333));border-radius:8px;background:transparent;color:inherit;padding:6px 12px;font-size:12px;cursor:pointer;text-align:left;}",
@@ -781,7 +781,8 @@ window.__ModuleLoader__.load({
 			".sp-tpl-group-user{border-left:2px solid var(--dsw-alias-interactive-bg-active,var(--sl-color-neutral-400,#555));padding-left:10px;}",
 			".sp-tpl-body{display:flex;flex-direction:column;gap:4px;}",
 			".sp-tpl-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}",
-			".sp-tpl-thumb{width:100%;height:44px;border-radius:8px;background:var(--dsw-alias-interactive-bg-hover,var(--sl-color-neutral-300,#333));}",
+			".sp-tpl-thumb{position:relative;width:100%;aspect-ratio:16/9;border-radius:8px;overflow:hidden;background:var(--dsw-alias-interactive-bg-hover,var(--sl-color-neutral-300,#333));}",
+			".sp-tpl-thumb-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}",
 			".sp-tpl-scenario{font-size:11px;opacity:.6;}",
 			".sp-tpl-tags{display:flex;flex-wrap:wrap;gap:4px;}",
 			".sp-tpl-tag{border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-400,#555));border-radius:999px;padding:0 8px;font-size:11px;opacity:.75;}",
@@ -834,8 +835,9 @@ window.__ModuleLoader__.load({
 			".sp-steps{display:flex;flex-wrap:wrap;gap:8px;}",
 			".sp-step{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-300,#333));border-radius:999px;padding:4px 12px;font-size:12px;opacity:.6;}",
 			".sp-step-idx{width:16px;height:16px;border-radius:999px;border:1px solid currentColor;display:inline-flex;align-items:center;justify-content:center;font-size:10px;opacity:.8;}",
-			".sp-step-done{opacity:.9;}",
-			".sp-step-active{border-color:var(--dsw-alias-interactive-bg-active,var(--sl-color-primary-500,#3b5fd9));font-weight:600;opacity:1;}",
+			".sp-step-done{opacity:1;border-color:var(--sl-color-primary-500,#3b5fd9);color:var(--sl-color-primary-600,#3b5fd9);}",
+			".sp-step-done .sp-step-idx{background:var(--sl-color-primary-500,#3b5fd9);border-color:var(--sl-color-primary-500,#3b5fd9);color:#fff;}",
+			".sp-step-active{border-color:var(--sl-color-primary-600,#3b5fd9);background:var(--sl-color-primary-600,#3b5fd9);color:#fff;font-weight:600;opacity:1;}",
 			".sp-step-pending{opacity:.55;}",
 			".sp-progress-events{display:flex;flex-direction:column;gap:4px;font-size:12px;opacity:.8;}",
 			".sp-event{border-left:2px solid var(--dsw-alias-border-l,var(--sl-color-neutral-300,#333));padding-left:8px;}",
@@ -857,7 +859,7 @@ window.__ModuleLoader__.load({
 			".sp-result-summary{font-size:13px;font-weight:600;}",
 			".sp-artifacts{display:flex;flex-direction:column;gap:8px;}",
 			".sp-artifact{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-300,#333));border-radius:10px;padding:8px 12px;font-size:12px;}",
-			".sp-artifact-type{font-weight:700;font-size:11px;letter-spacing:.04em;border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-400,#555));border-radius:6px;padding:1px 6px;}",
+			".sp-artifact-type{font-weight:700;font-size:11px;letter-spacing:.04em;color:var(--sl-color-primary-600,#3b5fd9);border:1px solid var(--sl-color-primary-500,#3b5fd9);border-radius:6px;padding:1px 6px;}",
 			".sp-artifact-status{opacity:.75;}",
 			".sp-artifact-path{flex:1;min-width:160px;overflow-wrap:anywhere;opacity:.85;}",
 			".sp-artifact-copy,.sp-artifact-regen{border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-400,#555));background:transparent;color:inherit;border-radius:8px;padding:3px 10px;font-size:12px;cursor:pointer;}",
@@ -902,7 +904,9 @@ window.__ModuleLoader__.load({
 		function stylesBlocked() { return STYLES_BLOCKED; }
 
 		function ensureStyles() {
-			if (typeof document === "undefined" || !document) return;
+			if (typeof document === "undefined" || !document) return null;
+			var ownedSheet = null; // 本次调用新建的 adopted sheet（卸载时精确移除，不动他实例）
+			var ownedTag = null;   // 本次调用新建的 <style> 标签（同上）
 			var adoptedOk = false;
 			try {
 				if (typeof CSSStyleSheet === "function"
@@ -916,6 +920,7 @@ window.__ModuleLoader__.load({
 						sheet.replaceSync(CSS);
 						sheet.__dshSuperPpts = true;
 						document.adoptedStyleSheets = document.adoptedStyleSheets.concat([sheet]);
+						ownedSheet = sheet;
 						adoptedOk = true;
 					} else adoptedOk = true;
 				}
@@ -932,6 +937,7 @@ window.__ModuleLoader__.load({
 				} catch (nonceError) { /* 读不到 nonce：交给 C 通道语义 */ }
 				tag.textContent = CSS;
 				document.head.appendChild(tag);
+				ownedTag = tag;
 			}
 			// 自检：adopted 未成功时，检查标签通道的规则是否真的进了 CSSOM；
 			// adopted 成功（或本次评估通过）即视为当前可用——flag 表达「现状」而非「曾经」。
@@ -952,6 +958,21 @@ window.__ModuleLoader__.load({
 					}
 				} catch (readError) { /* cssRules 不可读按未拦截处理，避免误报 */ }
 			}
+			/* 卸载收口（运行时停用/HMR）：只移除本次调用新建的 sheet/标签；
+			 * 既存（他实例或上次挂载留下）返回 null，避免误摘别人的样式。 */
+			if (ownedSheet === null && ownedTag === null) return null;
+			return function () {
+				try {
+					if (ownedSheet !== null && Array.isArray(document.adoptedStyleSheets)) {
+						document.adoptedStyleSheets = document.adoptedStyleSheets.filter(function (s) {
+							return s !== ownedSheet;
+						});
+					}
+				} catch (dropError) { /* adopted 不可写：标签通道仍会被摘除 */ }
+				try {
+					if (ownedTag !== null && ownedTag.parentNode) ownedTag.parentNode.removeChild(ownedTag);
+				} catch (tagError) { /* 已随宿主重渲染移除 */ }
+			};
 		}
 
 		/* ── 设置页导航图标：给本插件的导航行打标记 ────────────
@@ -1426,7 +1447,31 @@ window.__ModuleLoader__.load({
 				// 样式注入自检失败的显性警告（详见 ensureStyles：静默降级不可接受）
 				var warn = stylesBlocked() ? React.createElement("div", { className: "sp-styles-warning" }, t("stylesBlockedWarning")) : null;
 
-				return React.createElement("div", { className: "sp-panels" },
+				// 滚动兜底（真实 React 挂载后执行）：规格假设「滚动归宿主」，实测
+				// 宿主 main 容器裁剪内容且自身不可滚——展开卡片后面板变长就再也
+				// 看不到下方内容。检测父容器 overflowY 为 visible/clip（不滚）时，
+				// 面板根按父容器可视高度自管滚动；父容器本可滚则不动。
+				var rootRef = React.useRef(null);
+				React.useEffect(function () {
+					var root = rootRef.current;
+					if (!root || !root.parentElement) return undefined;
+					if (typeof window === "undefined" || !window.getComputedStyle) return undefined;
+					var parent = root.parentElement;
+					function fitToParent() {
+						try {
+							var cs = window.getComputedStyle(parent);
+							var oy = cs && cs.overflowY;
+							if (oy === "auto" || oy === "scroll" || oy === "overlay") return;
+							var h = parent.clientHeight;
+							if (h > 0) { root.style.maxHeight = h + "px"; root.style.overflowY = "auto"; }
+						} catch (measureError) { /* 度量失败：保持 CSS 默认行为 */ }
+					}
+					fitToParent();
+					window.addEventListener("resize", fitToParent);
+					return function () { window.removeEventListener("resize", fitToParent); };
+				}, []);
+
+				return React.createElement("div", { className: "sp-panels", ref: rootRef },
 					warn,
 					React.createElement("div", { className: "sp-panels-head" },
 						React.createElement("h2", { className: "sp-panels-title" }, t("panelTitle")),
@@ -2989,11 +3034,26 @@ window.__ModuleLoader__.load({
 			var cardOf = function (item, source) {
 				var isBuiltin = source === "builtin";
 				var tags = isBuiltin && Array.isArray(item.tags) ? item.tags : [];
+				// 真实缩略图：内置模板带 thumbSvg（16:9 版式样张，SVG 源码）→
+				// 编为 data URI 交给 <img>；加载失败隐藏 img，露出容器 accent 底。
+				// 无 thumbSvg（用户模板 / 旧数据）保持原占位底色。
+				var thumbSvg = isBuiltin && typeof item.thumbSvg === "string" && item.thumbSvg.indexOf("<svg") !== -1
+					? item.thumbSvg : null;
 				return React.createElement("div", { className: "sp-tpl-card", key: source + "-" + String(item.id) },
 					React.createElement("div", {
 						className: "sp-tpl-thumb", "aria-hidden": "true",
 						style: { background: isBuiltin && item.accent ? String(item.accent) : SP_TPL_USER_THUMB },
-					}),
+					},
+						thumbSvg ? React.createElement("img", {
+							className: "sp-tpl-thumb-img",
+							src: "data:image/svg+xml," + encodeURIComponent(thumbSvg),
+							alt: "",
+							onError: function (event) {
+								var img = event && event.currentTarget;
+								if (img && img.style) img.style.display = "none";
+							},
+						}) : null,
+					),
 					React.createElement("div", { className: "sp-tpl-body" },
 						React.createElement("div", { className: "sp-tpl-head" },
 							React.createElement("span", { className: "sp-tpl-name" }, String(item.name || item.id || "")),
@@ -3438,7 +3498,11 @@ window.__ModuleLoader__.load({
 		var inject = ["slots", "locale", "sessions", "uiConversation", "uiWorkspace", "workspaces", "layout"];
 
 		function apply(ctx) {
-			ensureStyles();
+			var removeStyles = ensureStyles();
+			if (removeStyles !== null && typeof ctx.effect === "function") {
+				// 样式随插件 fiber 卸载回收（adopted sheet + <style> 标签双通道）
+				ctx.effect(function () { return removeStyles; }, "dsh-super-ppts: styles");
+			}
 			if (ctx.locale && typeof ctx.locale.register === "function") {
 				ctx.effect(function () {
 					return ctx.locale.register(NS, { zh: zh, en: en });
