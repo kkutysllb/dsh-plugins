@@ -6792,6 +6792,7 @@ function toAutomationView(definition, options) {
 
 // src/service.ts
 import { randomUUID as randomUUID2 } from "node:crypto";
+import { statSync } from "node:fs";
 
 // src/scheduler.ts
 function planTick(options) {
@@ -26870,6 +26871,21 @@ var AutomationStore = class _AutomationStore {
       await this.runTable().delete(run.id);
     }
   }
+  /** Delete one terminal run record (历史管理). Active runs are refused. */
+  async deleteRun(id) {
+    const run = this.runTable().get(id);
+    if (run === void 0) return false;
+    if (run.status === "queued" || run.status === "running") return false;
+    return this.runTable().delete(id);
+  }
+  /** Delete every terminal run of one automation; returns the cleared count. */
+  async clearRuns(automationId) {
+    const terminal = this.runsOf(automationId).filter((run) => run.status !== "queued" && run.status !== "running");
+    for (const run of terminal) {
+      await this.runTable().delete(run.id);
+    }
+    return terminal.length;
+  }
   runTable() {
     return this.domain.table("runs");
   }
@@ -27135,6 +27151,20 @@ var AutomationService = class _AutomationService {
     if (workspace === void 0) return void 0;
     return { path: workspace.path, title: workspace.title };
   }
+  /** Register a server-side directory as a workspace (管理页「新建工作区」).
+   * The path must be an absolute, existing directory on the engine host —
+   * never client-invented write targets; the registry derives id/title. */
+  async registerWorkspace(path) {
+    if (!path.startsWith("/")) throw new ServiceError("invalid", "\u5DE5\u4F5C\u533A\u8DEF\u5F84\u5FC5\u987B\u662F\u7EDD\u5BF9\u8DEF\u5F84");
+    let stats;
+    try {
+      stats = statSync(path);
+    } catch {
+      throw new ServiceError("not-found", `\u76EE\u5F55\u4E0D\u5B58\u5728\uFF1A${path}`);
+    }
+    if (!stats.isDirectory()) throw new ServiceError("invalid", `\u8DEF\u5F84\u4E0D\u662F\u76EE\u5F55\uFF1A${path}`);
+    return this.resolveWorkspace(path);
+  }
   /** Resolve (registering if needed) the workspace bound to a session cwd. */
   async resolveWorkspace(cwd) {
     const existing = this.ctx.workspaceRegistry.list().find((workspace) => workspace.path === cwd);
@@ -27171,6 +27201,7 @@ var AutomationService = class _AutomationService {
       updatedAt: now2
     };
     await this.store.putAutomation(definition);
+    await this.store.advanceCursor(definition.id, this.clock());
     this.requestTick();
     return definition;
   }
@@ -27228,6 +27259,24 @@ var AutomationService = class _AutomationService {
     }
     return await this.queueRun(definition, this.clock(), "manual");
   }
+  /** 历史管理：删除一条终态运行记录（queued/running 拒绝删除）。 */
+  async deleteRun(automationId, runId) {
+    this.requireDefinition(automationId);
+    const run = this.store.run(runId);
+    if (run === void 0 || run.automationId !== automationId) {
+      throw new ServiceError("not-found", `\u672A\u627E\u5230\u8FD0\u884C\u8BB0\u5F55 ${runId}`);
+    }
+    if (run.status === "queued" || run.status === "running") {
+      throw new ServiceError("invalid", "\u8FD0\u884C\u4E2D\u7684\u8BB0\u5F55\u4E0D\u80FD\u5220\u9664");
+    }
+    const removed = await this.store.deleteRun(runId);
+    if (!removed) throw new ServiceError("not-found", `\u672A\u627E\u5230\u8FD0\u884C\u8BB0\u5F55 ${runId}`);
+  }
+  /** 历史管理：清空某任务的全部终态运行记录，返回清除条数。 */
+  async clearRuns(automationId) {
+    this.requireDefinition(automationId);
+    return this.store.clearRuns(automationId);
+  }
   async queueRun(definition, scheduledForMs, trigger) {
     const selection = this.resolveSelection(definition.target.modelTarget);
     const run = {
@@ -27278,24 +27327,26 @@ var AutomationService = class _AutomationService {
     return definition;
   }
   // ── reads ──────────────────────────────────────────────────────────────────
-  /** Full panel snapshot scoped to the caller session's workspace cwd. */
+  /** Full panel snapshot. With a live source session, `workspace` carries the
+   * session's own workspace (and the create form defaults to it); without
+   * one the panel runs standalone — automations list across all workspaces
+   * and the create form requires an explicit 工作区 selection. */
   async snapshot(params) {
     const cwd = this.cwdForSession(params.sessionId);
-    if (cwd === void 0) {
-      return { unavailable: "requires a live source session" };
-    }
     let workspace;
-    try {
-      const resolved = await this.resolveWorkspace(cwd);
-      workspace = { id: resolved.id, title: resolved.title, cwd: resolved.path, registered: true };
-    } catch {
-      const segments = cwd.split("/").filter(Boolean);
-      workspace = {
-        id: "",
-        title: segments[segments.length - 1] ?? cwd,
-        cwd,
-        registered: false
-      };
+    if (cwd !== void 0) {
+      try {
+        const resolved = await this.resolveWorkspace(cwd);
+        workspace = { id: resolved.id, title: resolved.title, cwd: resolved.path, registered: true };
+      } catch {
+        const segments = cwd.split("/").filter(Boolean);
+        workspace = {
+          id: "",
+          title: segments[segments.length - 1] ?? cwd,
+          cwd,
+          registered: false
+        };
+      }
     }
     const workspaces = this.ctx.workspaceRegistry.list().map((registryWorkspace) => ({
       id: String(registryWorkspace.id),
@@ -27306,7 +27357,7 @@ var AutomationService = class _AutomationService {
     const byId = new Map(views.map((view) => [view.id, view]));
     const runs = this.store.allRuns().filter((run) => byId.has(run.automationId)).sort((a, b) => Date.parse(b.scheduledFor) - Date.parse(a.scheduledFor) || Date.parse(b.queuedAt) - Date.parse(a.queuedAt)).slice(0, SNAPSHOT_RUNS_LIMIT).map((run) => toRunView(run));
     return {
-      workspace,
+      ...workspace !== void 0 ? { workspace } : {},
       workspaces,
       automations: views,
       runs,
@@ -27581,6 +27632,23 @@ async function handleAutomationRpc(service, endpoint, payload, signal) {
         }
         await service.mutate(automationId, mutation);
         return ok({ id: automationId, mutation });
+      }
+      case "register-workspace": {
+        const path = string4(body.path, "path", 1024);
+        if (!path.startsWith("/")) return fail("invalid", "\u5DE5\u4F5C\u533A\u8DEF\u5F84\u5FC5\u987B\u662F\u7EDD\u5BF9\u8DEF\u5F84");
+        const workspace = await service.registerWorkspace(path);
+        return ok(workspace);
+      }
+      case "delete-run": {
+        const automationId = string4(body.automationId, "automationId", MAX_ID);
+        const runId = string4(body.runId, "runId", MAX_ID);
+        await service.deleteRun(automationId, runId);
+        return ok({ id: runId });
+      }
+      case "clear-runs": {
+        const automationId = string4(body.automationId, "automationId", MAX_ID);
+        const cleared = await service.clearRuns(automationId);
+        return ok({ cleared });
       }
       case "run-now": {
         const automationId = string4(body.automationId, "automationId", MAX_ID);

@@ -16,6 +16,9 @@ export interface AutomationsViewProps {
     readonly backToConversation: () => void;
     /** Optional model catalog loader for the pinned-model editor. */
     readonly loadModelCatalog?: (() => Promise<ModelCatalog>) | undefined;
+    /** Directory picker chain (desktop bridge, then host OS chooser). Throws
+     * when neither exists — the editor surfaces the message inline. */
+    readonly pickDirectory?: (() => Promise<string | null>) | undefined;
 }
 /** The full panel. */
 export declare function AutomationsView(props: AutomationsViewProps): React.ReactElement;
