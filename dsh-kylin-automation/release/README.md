@@ -9,6 +9,7 @@
 
 | 版本 | 日期 | 说明 |
 |---|---|---|
+| [v0.3.1](v0.3.1.md) | 2026-09-26 | 对齐宿主 0.1.7-rc.2：审批 ask 双文案（审计 reason + 本地化 displayReason）+ notice 摘要 120 字上限 + 能力公告瘦身 20% |
 | [v0.3.0](v0.3.0.md) | 2026-09-22 | 运行历史管理（删单条/清空历史）+ runtime.notice 通知通道 + 打开会话走官方导航 + 目录选择器宿主回退链 |
 | [v0.2.0](v0.2.0.md) | 2026-09-22 | 管理页独立运行（无活跃会话不再锁死）+ register-workspace 注册工作区 + 桌面目录选择器 |
 | [v0.1.2](v0.1.2.md) | 2026-09-19 | QiLin 双通道适配（qilin.bundle.patch/client + 引擎包 peerDependencies）+ 修复定时调度未启动 + dispose 中止并排空在途执行 |
@@ -30,7 +31,7 @@
 ## 发版 checklist
 
 1. `package.json` bump `version`（semver：修复 → patch，功能 → minor，破坏性 → major）
-2. `pnpm check && node scripts/smoke-plugin.mjs` 全绿（typecheck + 47 用例 + 双 bundle + 冒烟）
+2. `pnpm check && node scripts/smoke-plugin.mjs` 全绿（typecheck + 59 用例 + 双 bundle + 冒烟）
 3. 写 `release/vX.Y.Z.md`（对照上述章节）
 4. 提交并打 tag：`git tag -a vX.Y.Z -m "..."`
 5. 推送（含 tag）：`git push origin main --tags`
@@ -45,7 +46,11 @@
    （把 `release/vX.Y.Z.md` 发布为对应 tag 的 Release 页面；幂等可重跑；需 gh CLI 已登录）
 8. 镜像仓对账：`node scripts/sync-to-dsh-plugins.mjs && cd ../dsh-plugins && git add -A && git commit -m "sync dsh-kylin-automation vX.Y.Z" && git push`
    再回本仓 `node scripts/sync-to-dsh-plugins.mjs --check` 零差异
-9. 双入口对账：npm / GitHub / dsh-plugins 三个安装源包内容一致（files 白名单为准）
+9. 双入口对账：npm / GitHub / dsh-plugins 三个安装源包内容一致（files 白名单 + `package.json` 为准）
+   ——**镜像目录必须含 `package.json`**：`files` 里从不写它（npm 打包自动带上），
+   但镜像目录是按路径安装的，缺 manifest 时 pnpm 会装成 0.0.0 空壳、插件加载不起来
+   （v0.3.1 修）。装完可验：`pnpm add <镜像目录>` 后 `node_modules/dsh-kylin-automation/package.json`
+   存在且 `dsh.bundle.patch` / `exports` 齐全。
 
 ## 安装渠道
 
