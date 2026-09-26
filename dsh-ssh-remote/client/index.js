@@ -521,17 +521,15 @@ window.__ModuleLoader__.load({
         fetch('/ssh-remote/api/hosts').then(function (r) { return r.json() }).then(function (res) {
           render({ hosts: res && res.ok && res.value ? res.value : [] })
         }).catch(function () { render({ error: '读取主机列表失败' }) })
-        var bridge = window.dshDesktop
-        if (bridge && bridge.remoteWorlds) {
-          bridge.remoteWorlds().then(function (w) { render({ worlds: w || [] }) }).catch(function () {})
-        }
+        fetch('/ssh-remote/api/worlds').then(function (r) { return r.json() }).then(function (res) {
+          render({ worlds: res && res.ok && res.value ? res.value : [] })
+        }).catch(function () {})
       }, [open])
       if (!open) return null
       var byId = {}
       st.hosts.forEach(function (h) { byId[h.id] = h })
       var worldOf = {}
       st.worlds.forEach(function (w) { worldOf[w.hostId] = w })
-      var bridge = window.dshDesktop
       var pickLocal = function () {
         if (!props.ui || !props.ui.pickDirectory) { props.onError('当前载体没有本地目录选择能力'); return }
         props.ui.pickDirectory().then(function (path) {
@@ -539,13 +537,15 @@ window.__ModuleLoader__.load({
         }, function (err) { props.onError(String((err && err.message) || err)) })
       }
       var connect = function (hostId) {
-        if (!bridge || !bridge.openRemoteConnection) { render({ error: '桌面端未提供远程连接入口（请从 KCoder 桌面应用中操作）' }); return }
         render({ busy: true, error: null })
-        bridge.openRemoteConnection(hostId).then(function (msg) {
-          render({ busy: false })
-          props.onCancel()
-          if (window.console) console.info('[ssh-remote]', msg)
-        }, function (err) { render({ busy: false, error: String((err && err.message) || err) }) })
+        postJson('/ssh-remote/api/remote-open', { hostId: hostId }).then(function (res) {
+          if (res && res.ok) {
+            render({ busy: false })
+            props.onCancel()
+          } else {
+            render({ busy: false, error: (res && res.error && res.error.message) || '无法请求打开远程窗口' })
+          }
+        }, function (err) { render({ busy: false, error: '请求失败：' + String((err && err.message) || err) }) })
       }
       var provision = function (hostId) {
         render({ busy: true, error: null, log: ['开始引导…'] })
@@ -554,7 +554,9 @@ window.__ModuleLoader__.load({
           if (res && res.ok) {
             var done = res.value && res.value.spec ? res.value.spec.workspace : ''
             render({ busy: false, log: log.concat(['完成：远端工作区 ' + done]) })
-            if (bridge && bridge.remoteWorlds) bridge.remoteWorlds().then(function (w) { render({ worlds: w || [] }) }).catch(function () {})
+            fetch('/ssh-remote/api/worlds').then(function (r) { return r.json() }).then(function (wr) {
+              render({ worlds: wr && wr.ok && wr.value ? wr.value : [] })
+            }).catch(function () {})
           } else {
             render({ busy: false, log: log, error: (res && res.error && res.error.message) || '引导失败', detail: res && res.error && res.error.detail })
           }
