@@ -628,6 +628,14 @@ export function apply(ctx, config) {
             }).catch(() => respond(res, 400, { ok: false, error: { code: 'bad-json', message: 'invalid json body' } }))
             return
           }
+          // 本进程的执行世界自述：远程世界时 ctx.ssh 在挂载（dsh-ssh 的连接服务）。
+          // 渲染层据此决定目录来源形态——远程世界里没有「本机」这个来源（那台
+          // 机器就是本机），也不该再开一个远程窗口。
+          if (m === 'GET' && p === '/ssh-remote/api/world') {
+            const remote = ctx.get('ssh') !== undefined
+            respond(res, 200, { ok: true, value: { remote } })
+            return
+          }
           // 已登记的执行世界（引导产物）。由插件自己读，渲染层不必经桌面桥——
           // dsh Web UI 那个窗口没有 preload（sandbox + 无桌面 API，有意的姿态）。
           if (m === 'GET' && p === '/ssh-remote/api/worlds') {
