@@ -22,6 +22,7 @@ dsh-skills-bundle / dsh-stats-panel / dsh-terminal）
 | [dsh-super-ppts](./dsh-super-ppts) | 演示文稿超级插件（开发真源 kkutysllb/dsh-super-ppts 的分发镜像，由其 scripts/sync-to-dsh-plugins.mjs 同步，--check 对账）：可编辑 PPTX（pptx-designer 引擎+渲染验收闭环）与 HTML 在线演示（8 形态）双交付线 + 「演示文稿专家」Agent 预设 |
 | [dsh-animations](./dsh-animations) | 动效技能包（开发真源 kkutysllb/dsh-animations 的分发镜像，由其 scripts/sync-to-dsh-plugins.mjs 同步，--check 对账）：8 个 HTML 动画技能（PPT 翻页 / 流程图 / 协议可视化 / 架构图 / 学霸笔记 / 卡片剧场 / 视频分镜 / 手机 UI）注册为 runtime skill + 「动画演示专家」Agent 预设，案例画廊随 docs/ 分发 |
 | [dsh-video-generator](./dsh-video-generator)（npm: dsh-video-generator） | 短视频/AI 短剧/漫剧生成管线（开发真源 kkutysllb/dsh-video-generator 的分发镜像，由其 scripts/sync-to-dsh-plugins.mjs 同步，--check 对账）：三段交接（story→script→storyboard）+ 评审重拍闭环（抽帧评分，≤2 自动重拍）+ gate 三态真实现（vgen_provide 产物注入）+ 设置页双 tab（工坊产物预览 / 通道三要素自配官方中转皆可）+ 竖屏 9:16 成片 mp4+SRT（云 TTS 配音 / crop 消黑边）+ 「漫剧导演」预设（疗愈绘本题材包） |
+| [dsh-ssh-remote](./dsh-ssh-remote)（npm: dsh-ssh-remote） | SSH 远程运维/开发工具套件（开发真源 kkutysllb/dsh-kylin-ssh-tunnel 的分发镜像，由其 scripts/sync-to-dsh-plugins.mjs 同步，--check 对账）：11 个工具（run/read/write/edit/glob/grep/push/pull/hosts/status/target）+ ControlMaster 连接层（失败快返回、ControlPersist daemon 化语义正确处理）+ 三种登录方式（key / agent / 密码——AES-256-GCM 加密凭据库 + SSH_ASKPASS 助手，自管密钥；2FA 不支持）+ 远程目标绑定（本地工作区 ↔ 远程目录：browse 逐层列举 / ssh_target 切换 / 默认 cwd / 系统提示实时注入）+ 设置页（DSH 原生配方：测试连接 / 设为目标 / ★ 当前目标徽章）+ 远端执行世界引导（provision 脚本与 API） |
 
 ## 安装
 
