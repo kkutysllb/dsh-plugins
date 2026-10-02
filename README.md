@@ -42,7 +42,7 @@ git config core.hooksPath hooks
 
 | 插件 | 说明 |
 |---|---|
-| [dsh-skills-bundle](./dsh-skills-bundle) | 方法论技能包（适配自 KSkills，dsh 兼容清洗后物化） |
+| [dsh-skills-bundle](./dsh-skills-bundle) | 方法论技能包（适配自 KSkills，dsh 兼容清洗后物化；QiLin 双通道） |
 | [dsh-skills-stock](./dsh-skills-stock) | A 股量化投研技能包（适配自 KStock 桌面端精选技能体系）：30 个技能（个股研究 / 选股与策略 / 可转债·ETF·期货·期权品种专项 / 市场全景 / 数据查询 / 图表呈现）注册为 runtime skill；策略库·因子库·选股库三库工作区（15 个 agent 工具）+ 侧边栏「投研工作台」+ 设置页数据源凭据配置 |
 | [dsh-super-ppts](./dsh-super-ppts) | 演示文稿超级插件：可编辑 PPTX（pptx-designer 引擎 + 渲染验收闭环）与 HTML 在线演示（8 形态）双交付线 + 「演示文稿专家」Agent 预设 |
 | [dsh-animations](./dsh-animations) | 动效技能包：8 个 HTML 动画技能（PPT 翻页 / 流程图 / 协议可视化 / 架构图 / 学霸笔记 / 卡片剧场 / 视频分镜 / 手机 UI）注册为 runtime skill + 「动画演示专家」Agent 预设，案例画廊随 docs/ 分发 |
