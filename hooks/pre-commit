@@ -1,0 +1,33 @@
+#!/bin/sh
+# 铁律门禁：成员插件变更必须与 README.md 同步提交（详见 README「铁律」一节）。
+# 拦截两类违规：
+#   1) dsh-*/ 有 staged 变更但 README.md 未一并 staged；
+#   2) 顶层存在 README 插件清单未登记的 dsh-* 目录（以链接 ](./dsh-xxx) 为准）。
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+fail=0
+
+staged=$(git diff --cached --name-only --diff-filter=ACMRD)
+
+if [ -n "$staged" ] \
+   && printf '%s\n' "$staged" | grep -q '^dsh-[^/]*./' \
+   && ! printf '%s\n' "$staged" | grep -qx 'README.md'; then
+  echo "✗ 铁律违规：本次提交变更了成员插件（dsh-*/），但 README.md 未一同暂存。" >&2
+  echo "  先同步根 README 的「插件清单」/相关说明，再与插件变更一起提交。" >&2
+  fail=1
+fi
+
+for d in dsh-*/; do
+  name=${d%/}
+  if ! grep -qF "](./$name)" README.md 2>/dev/null; then
+    echo "✗ 铁律违规：插件目录 $name 未在 README.md 插件清单中登记。" >&2
+    fail=1
+  fi
+done
+
+if [ "$fail" = 1 ]; then
+  echo "（提交已被 pre-commit 钩子拦截；README 同步后重新 git commit）" >&2
+  exit 1
+fi
+
+exit 0
