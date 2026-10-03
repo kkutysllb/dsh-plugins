@@ -52,7 +52,7 @@ git config core.hooksPath hooks
 
 | 插件 | 说明 |
 |---|---|
-| [dsh-kylin-memory](./dsh-kylin-memory)（npm: dsh-kylin-memory） | 会话记忆知识图谱（SQLite）：turn 级记忆导航 / 跨会话召回 / PageRank 与社区发现 / 向量检索 + FTS5；记忆全生命周期管理（失效 / 作用域 / 实体归一化 / 审计） |
+| [dsh-kylin-memory](./dsh-kylin-memory)（npm: dsh-kylin-memory） | 会话记忆知识图谱（SQLite）：turn 级记忆导航 / 跨会话召回 / PageRank 与社区发现 / 向量检索 + FTS5；记忆全生命周期管理（失效 / 作用域 / 实体归一化 / 审计）；v0.1.2：事实失效按三元组成对匹配、保留策略保护轮次证据、workspace 级遗忘与探针观测 |
 | [dsh-kylin-vibe](./dsh-kylin-vibe)（npm: dsh-kylin-vibe） | GraphRAG 知识库：把显式授权的本地语料增量索引成知识图谱（实体-关系-社区），以 agent 工具暴露供模型做关系性/全局性推理检索；抽取流护栏（LLM 流超时熔断）+ 证据审查更正闭环（滑选驱动）+ 知识库管理面（文本入库 / 目录导入 / 来源管理表·停用·删除 / 变更同步 / 召回测试）+ 浏览页双列布局（全量图谱视图：世界坐标力导向·枢纽标签·类型过滤·搜索定位·节点详情卡 + 可拖拽分栏）+ 二进制文档与图片多模态抽取（DOCX/PPTX/XLSX/PDF/图片）+ 抽取模型跟随会话（建库选定即生效，无需手改插件配置） |
 | [dsh-kylin-automation](./dsh-kylin-automation)（npm: dsh-kylin-automation） | 定时任务：可复用、可边界化的编码任务按一次性 / 固定间隔 / 每天 / 每周计划投递到全新根 Agent 会话独立执行；Web 侧边栏独立页面与 Agent 工具双入口管理，运行历史持久可审计 |
 
