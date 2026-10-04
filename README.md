@@ -43,7 +43,7 @@ git config core.hooksPath hooks
 | 插件 | 说明 |
 |---|---|
 | [dsh-skills-bundle](./dsh-skills-bundle) | 方法论技能包（适配自 KSkills，dsh 兼容清洗后物化；QiLin 双通道） |
-| [dsh-skills-stock](./dsh-skills-stock) | A 股量化投研技能包（适配自 KStock 2.0 桌面端精选技能体系）：41 个技能（个股研究 / 选股与策略 / **场景编排** / 品种专项 / 市场全景 / 数据查询 / 图表呈现）注册为 runtime skill；策略库·因子库·选股库·**报告库**四库工作区（18 个 agent 工具，report_archive 支持 content_path 文件通道）+ 侧边栏「投研工作台」四 tab + 设置页数据源凭据配置（**多数技能需配置 Tushare Token 与问财 API Key**，纯计算类技能免密钥）。v1.3.0 补丁：修复库工具成功输出模型不可见的接口缺陷（render 需 ContentBlock 部件形状 + lossless 返回）；通告新增探测资产纪律（连通性验证走只读工具）|
+| [dsh-skills-stock](./dsh-skills-stock) | A 股量化投研技能包（适配自 KStock 2.0 桌面端精选技能体系）：41 个技能（个股研究 / 选股与策略 / **场景编排** / 品种专项 / 市场全景 / 数据查询 / 图表呈现）注册为 runtime skill；策略库·因子库·选股库·**报告库**四库工作区（18 个 agent 工具，report_archive 支持 content_path 文件通道）+ 侧边栏「投研工作台」四 tab + 设置页数据源凭据配置（**多数技能需配置 Tushare Token 与问财 API Key**，纯计算类技能免密钥）。v1.3.0 补丁：修复库工具成功输出模型不可见的接口缺陷（render 需 ContentBlock 部件形状 + lossless 返回）；通告新增探测资产纪律（连通性验证走只读工具）。**v1.3.1**：上述修复正式发版 |
 | [dsh-super-ppts](./dsh-super-ppts) | 演示文稿超级插件：可编辑 PPTX（pptx-designer 引擎 + 渲染验收闭环）与 HTML 在线演示（8 形态）双交付线 + 「演示文稿专家」Agent 预设 |
 | [dsh-animations](./dsh-animations) | 动效技能包：8 个 HTML 动画技能（PPT 翻页 / 流程图 / 协议可视化 / 架构图 / 学霸笔记 / 卡片剧场 / 视频分镜 / 手机 UI）注册为 runtime skill + 「动画演示专家」Agent 预设，案例画廊随 docs/ 分发 |
 | [dsh-video-generator](./dsh-video-generator)（npm: dsh-video-generator） | 短视频/AI 短剧/漫剧生成管线：三段交接（story→script→storyboard）+ 评审重拍闭环（抽帧评分，≤2 自动重拍）+ gate 三态真实现（vgen_provide 产物注入）+ 设置页双 tab（工坊产物预览 / 通道三要素自配官方中转皆可）+ 竖屏 9:16 成片 mp4+SRT（云 TTS 配音 / crop 消黑边）+ 「漫剧导演」预设（疗愈绘本题材包） |
