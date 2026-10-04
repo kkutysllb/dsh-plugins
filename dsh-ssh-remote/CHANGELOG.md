@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.1.4 (2026-10-04)
+
+### 修复
+- **dsh `0.2.1-alpha.1` 下整个 bundle 被兼容门静默跳过（peer 上界过窄）**：
+  - **现象**：升级到上游 `dsh-v0.2.1-alpha.1`（2026-10-03 prerelease）后 SSH 远程能力
+    凭空消失——无报错、不崩溃，宿主 stderr 仅一行 `skipping profile bundle`。
+  - **根因**：`@deepseek-ai/dsh` 与 `@deepseek-ai/dsh-tools` 两条 peer 的上界
+    `>=0.1.0-rc.5 <0.2.0` 对运行时 `0.2.1-alpha.1` 求值为 **false**（semver 里
+    `0.2.0-rc.2 < 0.2.0`，故旧范围只在 0.2.0-rc.* 世代侥幸成立）。
+    检查器见 `packages/boot/app-boot/src/plugin-compatibility.ts`
+    （只读 `@deepseek-ai/dsh` 与 `@deepseek-ai/dsh-*` 前缀 peer，`includePrerelease: true`）。
+  - **修复**：两条 peer 与 `engines.dsh`（同口径声明）上界统一改为 **`<1.0.0`**，
+    覆盖 0.1.x 与 0.2.x 全系（含 prerelease）。`@deepseek-ai/schemastery` 不动。
+- 放宽为向后兼容：旧范围覆盖的 `0.1.0-rc.5` → `0.2.0-rc.2` 仍在新范围内。
+
+### 验证
+- `node scripts/smoke-test.mjs` **247/247 通过**（含 T13.6 / T13.7 / T13.9 三条同口径断言）；
+- `npm run typecheck`（11 个 `node --check`）通过。
+
 ## 0.1.3 (2026-09-27)
 
 自 0.1.2 起累计（对齐 dsh 0.1.7-rc.2 世代后的首个功能版本）：

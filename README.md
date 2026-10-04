@@ -32,7 +32,7 @@ git config core.hooksPath hooks
 
 | 插件 | 说明 |
 |---|---|
-| [dsh-coding-sidebar](./dsh-coding-sidebar) | 侧边栏工作台自立包（fork 自 DSH-better-sidebar 0.17.2，底面板移除）：文件树 / CM6 编辑器 / 图片·MD 预览 / 子代理，服务化扩展点；包型产物（lib/），KCoder 预置牵引依赖树 |
+| [dsh-coding-sidebar](./dsh-coding-sidebar) | 侧边栏工作台自立包（fork 自 DSH-better-sidebar 0.17.2，底面板移除）：文件树 / CM6 编辑器 / 图片·MD 预览 / 子代理，服务化扩展点；包型产物（lib/），KCoder 预置牵引依赖树。v1.0.38：页签标题 i18n 修复——新会话种子的「文件」页签与旧 explorer→editor 迁移路径写死字面量 `Files` 绕过 `t('files')`，且标题随 localStorage 持久化，故切语言 / 重渲染都无法自愈（本版一并加一次性自愈迁移 + 无路径文件窗口纳入去重） |
 | [dsh-file-review-kcoder](./dsh-file-review-kcoder) | 改动审查（血缘 left0ver/dsh-file-review，MIT 署名保留，完全自立维护）：行级红绿 diff + undo 审查 agent 产物，chat turn-tail 行 + coding-sidebar 标签页；tsdown 构建型，lib 产物随仓提交 |
 | [dsh-git-panel](./dsh-git-panel)（npm: @kkutysllb/dsh-git-panel） | 独立 git 工作区浮动面板：变更统计 + Codex 风格环境信息区（变更文件列表 / 工作位置·worktree 切换 / 分支选择器 / 提交或推送 / 比较分支外链）+ 任务计划列表 |
 | [dsh-stats-panel](./dsh-stats-panel) | 会话统计图表面板：hover 输入框下方 StatsLine 缩略条 → 底部弹出自绘图表（轮/步、首 token 平均、解码速度、LLM/工具调用耗时、Token 用量、缓存命中率环），zh/en 双时长格式解析 |
@@ -60,7 +60,7 @@ git config core.hooksPath hooks
 
 | 插件 | 说明 |
 |---|---|
-| [dsh-ssh-remote](./dsh-ssh-remote)（npm: dsh-ssh-remote） | SSH 远程运维/开发工具套件（真源仓为 dsh-kylin-ssh-tunnel）：11 个工具（run/read/write/edit/glob/grep/push/pull/hosts/status/target）+ ControlMaster 连接层（失败快返回、ControlPersist daemon 化语义正确处理）+ 三种登录方式（key / agent / 密码——AES-256-GCM 加密凭据库 + SSH_ASKPASS 助手，自管密钥；2FA 不支持）+ 远程目标绑定（本地工作区 ↔ 远程目录：browse 逐层列举 / ssh_target 切换 / 默认 cwd / 系统提示实时注入）+ 设置页（DSH 原生配方：测试连接 / 设为目标 / ★ 当前目标徽章）+ 远端执行世界引导（provision 脚本与 API） |
+| [dsh-ssh-remote](./dsh-ssh-remote)（npm: dsh-ssh-remote） | SSH 远程运维/开发工具套件（真源仓为 dsh-kylin-ssh-tunnel）：11 个工具（run/read/write/edit/glob/grep/push/pull/hosts/status/target）+ ControlMaster 连接层（失败快返回、ControlPersist daemon 化语义正确处理）+ 三种登录方式（key / agent / 密码——AES-256-GCM 加密凭据库 + SSH_ASKPASS 助手，自管密钥；2FA 不支持）+ 远程目标绑定（本地工作区 ↔ 远程目录：browse 逐层列举 / ssh_target 切换 / 默认 cwd / 系统提示实时注入）+ 设置页（DSH 原生配方：测试连接 / 设为目标 / ★ 当前目标徽章）+ 远端执行世界引导（provision 脚本与 API）。v0.1.4：dsh 兼容门上界 `<0.2.0` → `<1.0.0`——上游 0.2.1-alpha.1 下 app-boot 闸门静默跳过整个 bundle 的修复（与 dsh-terminal v1.2.2 同因） |
 
 ## 安装
 
