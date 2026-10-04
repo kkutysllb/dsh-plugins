@@ -36,7 +36,7 @@ git config core.hooksPath hooks
 | [dsh-file-review-kcoder](./dsh-file-review-kcoder) | 改动审查（血缘 left0ver/dsh-file-review，MIT 署名保留，完全自立维护）：行级红绿 diff + undo 审查 agent 产物，chat turn-tail 行 + coding-sidebar 标签页；tsdown 构建型，lib 产物随仓提交 |
 | [dsh-git-panel](./dsh-git-panel)（npm: @kkutysllb/dsh-git-panel） | 独立 git 工作区浮动面板：变更统计 + Codex 风格环境信息区（变更文件列表 / 工作位置·worktree 切换 / 分支选择器 / 提交或推送 / 比较分支外链）+ 任务计划列表 |
 | [dsh-stats-panel](./dsh-stats-panel) | 会话统计图表面板：hover 输入框下方 StatsLine 缩略条 → 底部弹出自绘图表（轮/步、首 token 平均、解码速度、LLM/工具调用耗时、Token 用量、缓存命中率环），zh/en 双时长格式解析 |
-| [dsh-terminal](./dsh-terminal)（npm: @kkutysllb/dsh-terminal） | 嵌入式终端面板：node-pty 多标签 shell、按工作区分桶、xterm.js UI，dsh web 页底部 dock（替代已退役的 Electron 宿主终端） |
+| [dsh-terminal](./dsh-terminal)（npm: @kkutysllb/dsh-terminal） | 嵌入式终端面板：node-pty 多标签 shell、按工作区分桶、xterm.js UI，dsh web 页底部 dock（替代已退役的 Electron 宿主终端）。v1.2.2：dsh 兼容门上界 `<0.2.0` → `<1.0.0`——上游 0.2.1-alpha.1 下 app-boot 闸门静默跳过整个 bundle（终端整块消失无报错）的修复 |
 
 ### 技能 / 内容生成
 
