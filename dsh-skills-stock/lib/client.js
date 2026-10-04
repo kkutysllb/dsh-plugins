@@ -45,6 +45,7 @@ function unwrapRpcResult(response) {
 // src/client/runtime.ts
 var RPC_CHANNEL = "/dsh-skills-stock";
 var LIBRARY_TABS = ["strategies", "factors", "selections"];
+var WORKBENCH_TABS = ["strategies", "factors", "selections", "reports"];
 function createWorkbenchRuntime(deps) {
   let state = { phase: "idle" };
   let refreshPromise;
@@ -142,6 +143,30 @@ function createWorkbenchRuntime(deps) {
         await deps.rpc.call(RPC_CHANNEL, "library_runs", { kind, object_id: objectId, run_ids: [...runIds] })
       );
       return value.runs;
+    },
+    async loadReports() {
+      try {
+        const items = unwrapRpcResult(
+          await deps.rpc.call(RPC_CHANNEL, "reports_list", {})
+        ).items;
+        patch({ reports: { loaded: true, items } });
+      } catch (error) {
+        patch({ reports: { loaded: true, items: [] }, error: error instanceof Error ? error.message : String(error) });
+      }
+    },
+    async openReport(reportId) {
+      patch({ reportLoading: true });
+      try {
+        const data = unwrapRpcResult(
+          await deps.rpc.call(RPC_CHANNEL, "reports_get", { report_id: reportId, content: true })
+        );
+        patch({ reportDetail: { data }, reportLoading: false });
+      } catch (error) {
+        patch({ reportLoading: false, error: error instanceof Error ? error.message : String(error) });
+      }
+    },
+    closeReport() {
+      patch({ reportDetail: void 0 });
     },
     async saveSecrets(input) {
       patch({ saving: true, saveError: void 0, savedKeys: void 0 });
@@ -476,7 +501,8 @@ var import_jsx_runtime3 = require("react/jsx-runtime");
 var TAB_LABEL = {
   strategies: "tabStrategies",
   factors: "tabFactors",
-  selections: "tabSelections"
+  selections: "tabSelections",
+  reports: "tabReports"
 };
 var TOOL_PREFIX = {
   strategies: "strategy",
@@ -492,6 +518,9 @@ function str(value) {
 function num(value) {
   return typeof value === "number" ? String(value) : "\u2014";
 }
+function isLibraryTab(tab) {
+  return LIBRARY_TABS.includes(tab);
+}
 function WorkbenchView(props) {
   const { t, runtime, bridge } = props;
   const state = usePanelState2(runtime);
@@ -501,10 +530,12 @@ function WorkbenchView(props) {
     void runtime.refresh();
   }, [runtime]);
   (0, import_react3.useEffect)(() => {
-    void runtime.loadLibrary(tab);
+    if (tab === "reports") void runtime.loadReports();
+    else void runtime.loadLibrary(tab);
   }, [runtime, tab]);
   (0, import_react3.useEffect)(() => () => {
     runtime.closeDetail();
+    runtime.closeReport();
   }, [runtime]);
   if (state.phase === "error" && state.status === void 0) {
     return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "kss-panel", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "kss-state", children: [
@@ -516,8 +547,10 @@ function WorkbenchView(props) {
     ] }) });
   }
   const libraries = state.libraries;
-  const list = libraries?.[tab] ?? { loaded: false, items: [] };
-  const detail = state.detail?.kind === tab ? state.detail.data : void 0;
+  const reportList = state.reports ?? { loaded: false, items: [] };
+  const reportDetail = state.reportDetail?.data;
+  const list = isLibraryTab(tab) ? libraries?.[tab] ?? { loaded: false, items: [] } : { loaded: false, items: [] };
+  const detail = state.detail?.kind === tab && isLibraryTab(tab) ? state.detail.data : void 0;
   const deliver = (text) => {
     void bridge.send(text).then((result) => {
       setDeliverNote(result === "submitted" ? void 0 : result === "copied" ? t("sendFailed") : t("sendFailed"));
@@ -532,17 +565,19 @@ function WorkbenchView(props) {
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "kss-badges", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { type: "button", className: "kss-btn", onClick: () => {
         void runtime.refresh();
-        void runtime.loadLibrary(tab);
+        if (tab === "reports") void runtime.loadReports();
+        else void runtime.loadLibrary(tab);
       }, children: state.phase === "loading" ? t("refreshing") : t("refresh") }) })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "kss-tabs", children: [
-      LIBRARY_TABS.map((kind) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+      WORKBENCH_TABS.map((kind) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
         "button",
         {
           type: "button",
           className: `kss-tab ${tab === kind ? "is-active" : ""}`,
           onClick: () => {
             runtime.closeDetail();
+            runtime.closeReport();
             setTab(kind);
           },
           children: t(TAB_LABEL[kind])
@@ -563,7 +598,7 @@ function WorkbenchView(props) {
       )
     ] }),
     deliverNote !== void 0 && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "kss-feedback is-warn", children: deliverNote }),
-    detail === void 0 ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(LibraryListTab, { t, runtime, tab, list }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+    tab === "reports" ? reportDetail !== void 0 ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ReportDetailViewPane, { t, runtime, detail: reportDetail }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(ReportListTab, { t, runtime, list: reportList }) : detail === void 0 ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(LibraryListTab, { t, runtime, tab, list }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
       LibraryDetailViewPane,
       {
         t,
@@ -715,6 +750,87 @@ function LibraryDetailViewPane(props) {
 function metricsHeaderLabel(tab) {
   return tab === "strategies" ? "\u6536\u76CA/\u590F\u666E" : tab === "factors" ? "IC/IR" : "\u547D\u4E2D";
 }
+function formatBytes(bytes) {
+  if (typeof bytes !== "number" || !Number.isFinite(bytes)) return "\u2014";
+  if (bytes >= 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+  return `${bytes} B`;
+}
+function ReportListTab(props) {
+  const { t, runtime, list } = props;
+  if (!list.loaded) return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "kss-state", children: t("refreshing") });
+  if (list.items.length === 0) return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "kss-card-hint", children: t("emptyReports") });
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "kss-grid", children: list.items.map((item) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("article", { className: "kss-skill", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "kss-skill-head", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "kss-skill-name", children: str(item["title"]) }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+        "button",
+        {
+          type: "button",
+          className: "kss-skill-copy",
+          onClick: () => {
+            void runtime.openReport(str(item["report_id"]));
+          },
+          children: t("openDetail")
+        }
+      )
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", { className: "kss-skill-desc", children: [
+      str(item["symbol"]) !== "" ? `${str(item["symbol"])} \xB7 ` : "",
+      str(item["report_type"]),
+      str(item["coverage_status"]) === "partial" ? " \xB7 \u6570\u636E\u90E8\u5206\u8986\u76D6" : ""
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "kss-skill-meta", children: [
+      str(item["risk_level"]) !== "" && /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("span", { className: `kss-badge ${str(item["risk_level"]) === "\u9AD8" ? "is-miss" : "is-ok"}`, children: [
+        t("reportRisk"),
+        " ",
+        str(item["risk_level"])
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "kss-field-hint", children: formatBytes(item["size_bytes"]) }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "kss-field-hint", children: str(item["updated_at"]).slice(0, 16).replace("T", " ") })
+    ] })
+  ] }, str(item["report_id"]))) });
+}
+function ReportDetailViewPane(props) {
+  const { t, runtime, detail } = props;
+  const content = str(detail["content"]);
+  const openInNewWindow = () => {
+    try {
+      const url = URL.createObjectURL(new Blob([content], { type: "text/html" }));
+      window.open(url, "_blank", "noopener");
+    } catch {
+    }
+  };
+  return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("section", { className: "kss-card", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "kss-skill-head", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { type: "button", className: "kss-btn", onClick: () => {
+        runtime.closeReport();
+      }, children: t("backToList") }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "kss-skill-name", children: str(detail["title"]) }),
+      str(detail["symbol"]) !== "" && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "kss-badge", children: str(detail["symbol"]) }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "kss-field-hint", children: formatBytes(detail["size_bytes"]) }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "kss-tabs-spacer" }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("button", { type: "button", className: "kss-btn is-primary", onClick: openInNewWindow, children: t("reportOpenNew") })
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("p", { className: "kss-card-hint", children: [
+      str(detail["report_type"]),
+      " \xB7 ",
+      str(detail["generated_at"]).slice(0, 16).replace("T", " "),
+      str(detail["period_start"]) !== "" ? ` \xB7 ${str(detail["period_start"])} ~ ${str(detail["period_end"])}` : "",
+      str(detail["risk_level"]) !== "" ? ` \xB7 ${t("reportRisk")} ${str(detail["risk_level"])}` : ""
+    ] }),
+    /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h3", { className: "kss-group-title", children: t("reportPreview") }),
+    content === "" ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { className: "kss-card-hint", children: t("reportNoContent") }) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
+      "iframe",
+      {
+        className: "kss-report-frame",
+        title: str(detail["title"]) || t("reportPreview"),
+        srcDoc: content,
+        sandbox: ""
+      }
+    )
+  ] });
+}
 
 // src/client/bridge.ts
 function createConversationBridge(ctx) {
@@ -776,9 +892,7 @@ function createConversationBridge(ctx) {
       if (sessionId === null || sessionId === void 0) return clipboardFallback(text);
       try {
         backToChat();
-        const actx = sessions.scope(sessionId);
-        const input = actx?.conversation?.input;
-        const shell = input !== void 0 && typeof input.for === "function" ? input.for(actx) : null;
+        const shell = resolveInputShell(sessionId);
         if (shell !== null && typeof shell.setDraft === "function") {
           shell.setDraft(text);
           if (typeof shell.submit === "function") {
@@ -792,6 +906,29 @@ function createConversationBridge(ctx) {
       return clipboardFallback(text);
     }, () => clipboardFallback(text));
   };
+  const resolveInputShell = (sessionId) => {
+    const sessions = ctx.sessions;
+    if (sessions === void 0 || typeof sessions.scope !== "function") return null;
+    try {
+      const conversation = typeof ctx.get === "function" ? ctx.get("conversation") : ctx.conversation;
+      const input = conversation?.input;
+      if (input !== void 0) {
+        if (typeof input.shell === "function") return input.shell(sessionId);
+        if (typeof input.for === "function") {
+          const actx = sessions.scope(sessionId);
+          if (actx !== void 0) return input.for(actx);
+        }
+      }
+    } catch {
+    }
+    try {
+      const actx = sessions.scope(sessionId);
+      const legacyInput = actx?.conversation?.input;
+      if (legacyInput !== void 0 && typeof legacyInput.for === "function") return legacyInput.for(actx);
+    } catch {
+    }
+    return null;
+  };
   return { send, backToChat };
 }
 
@@ -801,7 +938,7 @@ var zh = {
   "nav": "\u6295\u7814\u5DE5\u4F5C\u53F0",
   "navDataSources": "\u6570\u636E\u6E90",
   "title": "A \u80A1\u91CF\u5316\u6295\u7814\u5DE5\u4F5C\u53F0",
-  "subtitle": "KStock \u6280\u80FD\u5305 \xB7 30 \u4E2A\u6295\u7814\u6280\u80FD + \u7B56\u7565/\u56E0\u5B50/\u9009\u80A1\u4E09\u5E93\u5DE5\u4F5C\u533A",
+  "subtitle": "KStock \u6280\u80FD\u5305 \xB7 41 \u4E2A\u6295\u7814\u6280\u80FD + \u7B56\u7565/\u56E0\u5B50/\u9009\u80A1/\u62A5\u544A\u56DB\u5E93\u5DE5\u4F5C\u533A",
   "refresh": "\u5237\u65B0",
   "refreshing": "\u52A0\u8F7D\u4E2D\u2026",
   "skillsCount": "{count} \u4E2A\u6280\u80FD",
@@ -824,6 +961,7 @@ var zh = {
   "tabStrategies": "\u7B56\u7565\u5E93",
   "tabFactors": "\u56E0\u5B50\u5E93",
   "tabSelections": "\u9009\u80A1\u5E93",
+  "tabReports": "\u62A5\u544A\u5E93",
   "newResearch": "\u65B0\u5EFA\u7814\u7A76\u4EFB\u52A1",
   "emptyLibrary": "\u5E93\u8FD8\u662F\u7A7A\u7684\uFF1A\u5728\u5BF9\u8BDD\u91CC\u8BA9 Agent \u505A\u7B56\u7565\u56DE\u6D4B / \u56E0\u5B50\u68C0\u9A8C / \u6761\u4EF6\u9009\u80A1\uFF0C\u5B83\u4F1A\u7528 strategy_* / factor_* / selection_* \u5DE5\u5177\u628A\u7248\u672C\u4E0E\u8FD0\u884C\u767B\u8BB0\u8FDB\u6765\u3002",
   "openDetail": "\u67E5\u770B",
@@ -840,6 +978,11 @@ var zh = {
   "curveMissingEquity": "\u6240\u9009\u8FD0\u884C\u7F3A\u5C11\u51C0\u503C\u6570\u636E\uFF08*_record \u672A\u5B58 equity\uFF09\uFF0C\u65E0\u6CD5\u53E0\u52A0\u66F2\u7EBF\u3002",
   "curveMissingIc": "\u6240\u9009\u8FD0\u884C\u7F3A\u5C11 IC \u5E8F\u5217\u6570\u636E\uFF08*_record \u672A\u5B58 ic_series\uFF09\uFF0C\u65E0\u6CD5\u53E0\u52A0\u66F2\u7EBF\u3002",
   "noRuns": "\u8FD8\u6CA1\u6709\u8FD0\u884C\u5F52\u6863\uFF1AAgent \u5B8C\u6210{label}\u540E\u4F1A\u7528 *_record \u5DE5\u5177\u767B\u8BB0\u5230\u8FD9\u91CC\u3002",
+  "emptyReports": "\u62A5\u544A\u5E93\u8FD8\u662F\u7A7A\u7684\uFF1A\u8BA9 Agent \u51FA\u7814\u7A76\u62A5\u544A\uFF08html-report \u6280\u80FD\u4EA4\u4ED8\u5355\u6587\u4EF6 HTML \u770B\u677F\uFF09\uFF0C\u5B83\u4F1A\u7528 report_archive \u5DE5\u5177\u5F52\u6863\u5230\u8FD9\u91CC\u3002",
+  "reportRisk": "\u98CE\u9669",
+  "reportOpenNew": "\u65B0\u7A97\u53E3\u6253\u5F00",
+  "reportPreview": "\u62A5\u544A\u9884\u89C8",
+  "reportNoContent": "\u62A5\u544A\u5168\u6587\u672A\u968F\u5F52\u6863\u4FDD\u5B58\uFF0C\u8BF7\u8BA9 Agent \u91CD\u65B0\u5F52\u6863\u3002",
   "hypothesis": "\u6295\u8D44\u5047\u8BBE",
   "criteria": "\u9009\u80A1\u53E3\u5F84",
   "category": "\u7C7B\u522B",
@@ -854,7 +997,7 @@ var zh = {
   "note1": "\u6280\u80FD\u811A\u672C\u5728\u63D2\u4EF6\u5305\u6839\u5185\u8FD0\u884C\uFF0C\u4EA7\u7269\uFF08\u62A5\u544A HTML / \u56FE\u8868 / JSON / Excel\uFF09\u4E00\u5F8B\u5199\u5165\u5F53\u524D\u5DE5\u4F5C\u76EE\u5F55\u3002",
   "note2": "\u6570\u636E\u4F18\u5148\u7EA7\uFF1ATushare \u7ED3\u6784\u5316\u63A5\u53E3 > \u95EE\u8D22\u81EA\u7136\u8BED\u8A00\u67E5\u8BE2 > \u514D\u8D39\u6E90\uFF08akshare\uFF09/ \u7F51\u7EDC\u641C\u7D22\u515C\u5E95\u3002",
   "note3": "\u6570\u636E\u7F3A\u5931\u65F6\u5982\u5B9E\u6807\u6CE8\uFF0C\u7981\u6B62\u7F16\u9020\uFF1B\u91CD\u8981\u7ED3\u8BBA\u987B\u7ED9\u51FA\u6570\u636E\u6765\u6E90\u4E0E\u8BA1\u7B97\u53E3\u5F84\u3002",
-  "note4": "\u7B56\u7565 / \u56E0\u5B50 / \u9009\u80A1\u662F\u7248\u672C\u5316\u8D44\u4EA7\uFF1AAgent \u5165\u5E93\u540E\u5728\u5DE5\u4F5C\u53F0\u53EF\u67E5\u65F6\u95F4\u7EBF\u3001\u8FD0\u884C\u5BF9\u6BD4\u5E76\u4E00\u952E\u91CD\u8DD1\u3002",
+  "note4": "\u7B56\u7565 / \u56E0\u5B50 / \u9009\u80A1\u662F\u7248\u672C\u5316\u8D44\u4EA7\uFF0C\u7814\u7A76\u62A5\u544A\u5F52\u6863\u8FDB\u62A5\u544A\u5E93\uFF1AAgent \u5165\u5E93\u540E\u5728\u5DE5\u4F5C\u53F0\u53EF\u67E5\u65F6\u95F4\u7EBF\u3001\u8FD0\u884C\u5BF9\u6BD4\u3001\u62A5\u544A\u770B\u677F\u5E76\u4E00\u952E\u91CD\u8DD1\u3002",
   "disclaimer": "\u5168\u90E8\u8F93\u51FA\u4EC5\u4F9B\u7814\u7A76\u53C2\u8003\uFF0C\u4E0D\u6784\u6210\u6295\u8D44\u5EFA\u8BAE\uFF1B\u6570\u636E\u7531\u7B2C\u4E09\u65B9\u63A5\u53E3\u63D0\u4F9B\uFF0C\u51C6\u786E\u6027\u4E0D\u4F5C\u4FDD\u8BC1\u3002",
   "errorLoad": "\u5DE5\u4F5C\u53F0\u52A0\u8F7D\u5931\u8D25",
   "retry": "\u91CD\u8BD5"
@@ -865,7 +1008,7 @@ var dictionaries = {
     "nav": "Stock Workbench",
     "navDataSources": "Data Sources",
     "title": "A-share Quant Research Workbench",
-    "subtitle": "KStock skill pack \xB7 30 research skills + strategy/factor/selection libraries",
+    "subtitle": "KStock skill pack \xB7 41 research skills + strategy/factor/selection/report libraries",
     "refresh": "Refresh",
     "refreshing": "Loading\u2026",
     "skillsCount": "{count} skills",
@@ -886,6 +1029,7 @@ var dictionaries = {
     "tabStrategies": "Strategies",
     "tabFactors": "Factors",
     "tabSelections": "Selections",
+    "tabReports": "Reports",
     "newResearch": "New research task",
     "emptyLibrary": "The library is empty: ask the agent to backtest a strategy / test a factor / run a screening in chat \u2014 it registers versions and runs via strategy_* / factor_* / selection_* tools.",
     "openDetail": "Open",
@@ -902,6 +1046,11 @@ var dictionaries = {
     "curveMissingEquity": "Selected runs have no equity data (not stored via *_record), so curves cannot be overlaid.",
     "curveMissingIc": "Selected runs have no IC series data (not stored via *_record), so curves cannot be overlaid.",
     "noRuns": "No runs archived yet: the agent registers here with the *_record tool after each {label}.",
+    "emptyReports": "The report library is empty: ask the agent for an HTML dashboard (html-report skill) \u2014 it archives the self-contained file here via the report_archive tool.",
+    "reportRisk": "Risk",
+    "reportOpenNew": "Open in new window",
+    "reportPreview": "Report preview",
+    "reportNoContent": "Report content was not archived; ask the agent to archive it again.",
     "hypothesis": "Hypothesis",
     "criteria": "Criteria",
     "category": "Category",
@@ -915,7 +1064,7 @@ var dictionaries = {
     "note1": "Skill scripts run inside the plugin root; artifacts (HTML reports / charts / JSON / Excel) go to the current working directory.",
     "note2": "Data priority: Tushare structured API > iWenCai natural language > free sources (akshare) / web search.",
     "note3": "Missing data is reported honestly and never fabricated; key conclusions must state source and method.",
-    "note4": "Strategies / factors / selections are versioned assets: after the agent registers them, the workbench shows timelines, run comparisons, and one-click reruns.",
+    "note4": "Strategies / factors / selections are versioned assets and reports archive into the report library: the workbench shows timelines, run comparisons, report dashboards, and one-click reruns.",
     "disclaimer": "For research reference only, not investment advice; data comes from third-party APIs without accuracy warranty.",
     "errorLoad": "Failed to load workbench",
     "retry": "Retry"
@@ -926,36 +1075,92 @@ var dictionaries = {
 var STYLE_ID = "kss-workbench-styles";
 var CSS = `
 .kss-panel, .kss-root {
-  --kss-fg: var(--dsw-alias-label-primary, #1f2329);
-  --kss-fg-secondary: var(--dsw-alias-label-secondary, #5a6472);
-  --kss-fg-muted: var(--dsw-alias-label-tertiary, #8a94a3);
-  --kss-layer: var(--dsw-alias-bg-layer-2, #ffffff);
-  --kss-layer-3: var(--dsw-alias-bg-layer-3, #f5f6f7);
-  --kss-fill: var(--dsw-alias-bg-skeleton, rgba(127, 127, 127, 0.14));
-  --kss-fill-hover: var(--dsw-alias-interactive-bg-hover, rgba(127, 127, 127, 0.2));
-  --kss-border: var(--dsw-alias-border-l3, rgba(127, 127, 127, 0.3));
+  --kss-fg: var(--dsw-alias-label-primary, #ececf1);
+  --kss-fg-secondary: var(--dsw-alias-label-secondary, #c0c5cd);
+  --kss-fg-muted: var(--dsw-alias-label-tertiary, #9aa0aa);
+  --kss-fill: var(--dsw-specific-sidebar-fill, rgba(127, 127, 127, 0.08));
+  --kss-fill-hover: var(--dsw-alias-interactive-bg-hover, rgba(127, 127, 127, 0.1));
+  --kss-border: var(--dsw-alias-border-l3, #2c2f36);
+  --kss-border-hover: var(--dsw-alias-border-l2, #555);
   --kss-border-strong: var(--dsw-alias-border-l4, rgba(127, 127, 127, 0.48));
-  --kss-primary: var(--dsw-alias-brand-primary-new-colorprimary-new-color, #c7222a);
-  --kss-primary-fg: var(--dsw-alias-label-primary-foreground, #ffffff);
-  --kss-error: var(--dsw-alias-state-error-primary, #d0403d);
-  --kss-success: var(--dsw-alias-state-success-primary, #0f9d58);
-  --kss-info: var(--dsw-alias-state-business-primary, #2e90fa);
-  --kss-warn: var(--dsw-alias-state-warn-primary, #f5a209);
+  --kss-btn-bg: var(--dsw-alias-button-primary-fill, #f5f5f5);
+  --kss-btn-bg-hover: var(--dsw-alias-button-primary-hover, #e8e8e8);
+  --kss-btn-fg: var(--dsw-alias-label-primary-foreground, #141518);
+  --kss-focus: var(--dsw-alias-state-business-primary, #4c6ef5);
+  --kss-error: var(--dsw-alias-state-error-primary, #d64545);
+  --kss-success: var(--dsw-alias-state-success-primary, #2f9e6e);
+  --kss-info: var(--dsw-alias-state-business-primary, #4c6ef5);
+  --kss-warn: var(--dsw-alias-state-warn-primary, #d9a514);
 }
-.kss-panel{display:flex;flex-direction:column;height:100%;min-height:0;overflow:auto;padding:20px 24px 32px;gap:16px;font-size:13px;line-height:1.5;color:var(--kss-fg);background:transparent}
-.kss-root{display:flex;flex-direction:column;gap:16px;max-width:760px;color:var(--kss-fg);font-size:13px;line-height:1.5}
+.kss-panel{display:flex;flex-direction:column;height:100%;min-height:0;overflow:auto;gap:20px;padding:28px clamp(24px,4vw,48px) 48px;font-size:13px;line-height:1.6;color:var(--kss-fg);background:var(--dsw-alias-bg-base,#101114)}
+.kss-panel > *{width:100%;max-width:960px;align-self:center}
+.kss-root{display:flex;flex-direction:column;gap:16px;max-width:760px;color:var(--kss-fg);font-size:13px;line-height:1.6}
+/* \u9875\u6807\u9898\u884C\uFF0820/28/500 \u6807\u9898 + \u4E09\u7EA7\u7070\u526F\u9898\uFF0C\u81EA\u52A8\u5316\u4EFB\u52A1\u9875\u540C\u89C4\u683C\uFF09 */
+.kss-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.kss-title{margin:0;font-size:20px;line-height:28px;font-weight:500}
+.kss-subtitle{margin:2px 0 0;font-size:13px;line-height:21px;color:var(--kss-fg-muted)}
+.kss-badges{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+/* \u80F6\u56CA tab\uFF1A\u53D1\u4E1D\u7EBF\u80F6\u56CA\uFF0C\u6FC0\u6D3B=\u4E2D\u6027\u4E3B\u80F6\u56CA\uFF08button-primary-fill\uFF09 */
 .kss-tabs{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.kss-tab{appearance:none;border:1px solid var(--kss-border);background:var(--kss-layer);color:var(--kss-fg-secondary);border-radius:999px;padding:4px 14px;font-size:12px;cursor:pointer}
-.kss-tab:hover{background:var(--kss-fill-hover)}
-.kss-tab.is-active{background:var(--kss-primary);border-color:var(--kss-primary);color:var(--kss-primary-fg);font-weight:600}
+.kss-tab{appearance:none;height:28px;padding:0 14px;border:.5px solid var(--kss-border);border-radius:999px;background:transparent;color:var(--kss-fg-muted);font:inherit;font-size:13px;line-height:20px;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+.kss-tab:hover{border-color:var(--kss-border-hover);background:var(--kss-fill-hover)}
+.kss-tab.is-active{border-color:transparent;background:var(--kss-btn-bg);color:var(--kss-btn-fg);font-weight:500}
 .kss-tabs-spacer{flex:1}
+/* \u4E2D\u6027\u80F6\u56CA\u6309\u94AE\uFF08h32/r16\uFF0C\u4E3B\u6309\u94AE=button-primary-fill\uFF1B\u6B21\u6309\u94AE=\u53D1\u4E1D\u7EBF\uFF09 */
+.kss-btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;height:32px;padding:0 12px;border:.5px solid var(--kss-border);border-radius:16px;background:transparent;color:var(--kss-fg);font:inherit;font-size:13px;line-height:20px;cursor:pointer;transition:border-color .15s,background .15s}
+.kss-btn:hover:not(:disabled){border-color:var(--kss-border-hover);background:var(--kss-fill-hover)}
+.kss-btn:disabled{opacity:.4;cursor:not-allowed}
+.kss-btn.is-primary{border-color:transparent;background:var(--kss-btn-bg);color:var(--kss-btn-fg)}
+.kss-btn.is-primary:hover:not(:disabled){background:var(--kss-btn-bg-hover)}
+/* \u5361\u7247\uFF08\u5BB6\u65CF\u540C\u6B3E\uFF1A\u900F\u660E\u5E95 + \u53D1\u4E1D\u7EBF + 12px \u5706\u89D2\uFF0Chover \u63D0\u4EAE\uFF09 */
+.kss-card{border:.5px solid var(--kss-border);border-radius:12px;background:transparent;padding:16px;display:flex;flex-direction:column;gap:12px}
+.kss-card-title{margin:0;font-size:14px;line-height:22px;font-weight:500}
+.kss-card-hint{margin:0;font-size:13px;line-height:21px;color:var(--kss-fg-muted)}
+.kss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.kss-skill{display:flex;flex-direction:column;gap:6px;border:.5px solid var(--kss-border);border-radius:12px;padding:14px 16px;background:transparent;transition:border-color .15s,background .15s}
+.kss-skill:hover{border-color:var(--kss-border-hover);background:var(--kss-fill-hover)}
+.kss-skill-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kss-skill-name{overflow:hidden;font-size:14px;line-height:22px;font-weight:500;text-overflow:ellipsis;white-space:nowrap}
+.kss-skill-copy{appearance:none;flex:none;height:24px;padding:0 10px;border:.5px solid var(--kss-border);border-radius:12px;background:transparent;color:var(--kss-fg-muted);font:inherit;font-size:12px;line-height:20px;cursor:pointer;transition:border-color .15s,background .15s,color .15s}
+.kss-skill-copy:hover{border-color:var(--kss-border-hover);background:var(--kss-fill-hover);color:var(--kss-fg)}
+.kss-skill-desc{margin:0;font-size:13px;line-height:21px;color:var(--kss-fg-muted);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kss-skill-keys{font-size:12px;color:var(--kss-warn)}
+.kss-skill-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--kss-fg-muted)}
+/* \u72B6\u6001\u5FBD\u6807\uFF1A\u4F4E\u9971\u548C\u5E95 + \u72B6\u6001\u8272\u6587\u5B57\uFF08notice \u8272\u7CFB\uFF09 */
+.kss-badge{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:11px;line-height:18px;background:var(--kss-fill);color:var(--kss-fg-muted)}
+.kss-badge.is-ok{color:var(--kss-success);background:color-mix(in srgb, var(--kss-success) 12%, transparent)}
+.kss-badge.is-miss{color:var(--kss-warn);background:color-mix(in srgb, var(--kss-warn) 12%, transparent)}
+/* \u7248\u672C\u65F6\u95F4\u7EBF\uFF1A\u53D1\u4E1D\u7EBF\u884C\uFF0Chover \u63D0\u4EAE */
 .kss-versions{display:flex;flex-direction:column;gap:6px}
-.kss-version-row{display:flex;align-items:center;gap:10px;padding:6px 10px;border:1px solid var(--kss-border);border-radius:8px;background:var(--kss-layer-3)}
-.kss-version-tag{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;font-weight:600;color:var(--kss-primary)}
+.kss-version-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border:.5px solid var(--kss-border);border-radius:10px;background:transparent;transition:background .15s}
+.kss-version-row:hover{background:var(--kss-fill-hover)}
+.kss-version-tag{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;font-weight:600;color:var(--kss-fg-secondary)}
 .kss-table{width:100%;border-collapse:collapse;font-size:12px}
-.kss-table th,.kss-table td{border-bottom:1px solid var(--kss-border);padding:5px 8px;text-align:left;white-space:nowrap}
+.kss-table th,.kss-table td{border-bottom:.5px solid var(--kss-border);padding:6px 8px;text-align:left;white-space:nowrap}
 .kss-table th{color:var(--kss-fg-muted);font-weight:500}
 .kss-mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+/* \u5206\u7EC4\u6807\u9898\u4E0E\u53CD\u9988\uFF08notice \u8272\u7CFB\uFF09 */
+.kss-group-title{margin:0 0 8px;font-size:13px;line-height:21px;font-weight:500;color:var(--kss-fg-secondary)}
+.kss-feedback{font-size:12px;line-height:20px}
+.kss-feedback.is-warn{color:var(--kss-warn)}
+.kss-feedback.is-ok{color:var(--kss-success)}
+.kss-feedback.is-err{color:var(--kss-error)}
+/* \u8868\u5355\u5B57\u6BB5\uFF1A\u53D1\u4E1D\u7EBF\u63A7\u4EF6 + 12px \u5706\u89D2 + \u805A\u7126\u63CF\u8FB9\u4E0D\u6253\u73AF\uFF08searchField \u53E3\u5F84\uFF09 */
+.kss-fields{display:flex;flex-direction:column;gap:18px;margin-top:4px}
+.kss-field{display:flex;flex-direction:column;gap:6px}
+.kss-field-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.kss-label{font-size:13px;line-height:21px;font-weight:400;color:var(--kss-fg-muted)}
+.kss-input{width:100%;box-sizing:border-box;height:36px;padding:0 12px;border:.5px solid var(--kss-border);border-radius:12px;background:transparent;color:var(--kss-fg);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;letter-spacing:.3px;transition:border-color .15s}
+.kss-input:hover{border-color:var(--kss-border-hover)}
+.kss-input:focus{outline:none;border-color:var(--kss-focus)}
+.kss-input::placeholder{color:var(--kss-fg-muted);letter-spacing:0}
+.kss-path{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--kss-fg-secondary);background:var(--kss-fill);border-radius:6px;padding:2px 8px}
+.kss-field-hint{font-size:12px;line-height:20px;color:var(--kss-fg-muted)}
+.kss-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+/* \u7EA6\u5B9A/\u8BF4\u660E\uFF08notice \u5757\u53E3\u5F84\uFF09 */
+.kss-notes{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:12px;line-height:20px;color:var(--kss-fg-secondary)}
+.kss-footer{font-size:12px;line-height:20px;color:var(--kss-fg-muted)}
+/* \u8FD0\u884C\u5BF9\u6BD4\u66F2\u7EBF\uFF08SVG \u5750\u6807\u8272\u968F\u6587\u5B57\u5C42\u7EA7\uFF09 */
 .kss-compare{overflow-x:auto}
 .kss-curve-block{display:flex;flex-direction:column;gap:6px;margin-top:4px}
 .kss-curve-svg{display:block;width:100%;max-width:640px;height:auto}
@@ -963,52 +1168,10 @@ var CSS = `
 .kss-curve-axis{fill:var(--kss-fg-muted);font-size:10px}
 .kss-curve-legend{fill:var(--kss-fg-secondary);font-size:11px}
 .kss-curve-line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
-.kss-skill-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.kss-feedback.is-warn{color:var(--kss-warn)}
-.kss-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-.kss-title{margin:0;font-size:17px;font-weight:600;letter-spacing:.2px}
-.kss-subtitle{margin:2px 0 0;font-size:12px;color:var(--kss-fg-muted)}
-.kss-badges{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.kss-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:999px;font-size:11px;border:1px solid var(--kss-border);color:var(--kss-fg-secondary);background:var(--kss-layer)}
-.kss-badge.is-ok{color:var(--kss-success);border-color:color-mix(in srgb, var(--kss-success) 45%, transparent)}
-.kss-badge.is-miss{color:var(--kss-warn);border-color:color-mix(in srgb, var(--kss-warn) 45%, transparent)}
-.kss-btn{appearance:none;border:1px solid var(--kss-border-strong);background:var(--kss-layer);color:var(--kss-fg);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;transition:background .15s ease,border-color .15s ease}
-.kss-btn:hover{background:var(--kss-fill-hover)}
-.kss-btn:disabled{opacity:.55;cursor:default}
-.kss-btn.is-primary{background:var(--kss-primary);border-color:var(--kss-primary);color:var(--kss-primary-fg)}
-.kss-btn.is-primary:hover{filter:brightness(1.06)}
-.kss-card{border:1px solid var(--kss-border);border-radius:12px;background:var(--kss-layer);padding:16px;display:flex;flex-direction:column;gap:12px}
-.kss-card-title{margin:0;font-size:13px;font-weight:600}
-.kss-card-hint{margin:0;font-size:12px;color:var(--kss-fg-muted)}
-.kss-fields{display:flex;flex-direction:column;gap:18px;margin-top:4px}
-.kss-field{display:flex;flex-direction:column;gap:6px}
-.kss-field-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.kss-label{font-size:12.5px;font-weight:600;color:var(--kss-fg-secondary)}
-.kss-input{width:100%;box-sizing:border-box;border:1px solid var(--kss-border-strong);border-radius:8px;background:var(--kss-fill);color:var(--kss-fg);padding:9px 12px;font-size:13px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.3px}
-.kss-input:hover{border-color:var(--kss-primary)}
-.kss-input:focus{outline:none;border-color:var(--kss-primary);background:var(--kss-layer);box-shadow:0 0 0 2px color-mix(in srgb, var(--kss-primary) 18%, transparent)}
-.kss-input::placeholder{color:var(--kss-fg-muted);letter-spacing:0}
-.kss-path{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;color:var(--kss-fg-secondary);background:var(--kss-fill);border:1px solid var(--kss-border);border-radius:6px;padding:2px 8px}
-.kss-field-hint{font-size:11px;color:var(--kss-fg-muted)}
-.kss-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.kss-feedback{font-size:12px}
-.kss-feedback.is-ok{color:var(--kss-success)}
-.kss-feedback.is-err{color:var(--kss-error)}
-.kss-groups{display:flex;flex-direction:column;gap:14px}
-.kss-group-title{margin:0 0 8px;font-size:12px;font-weight:600;color:var(--kss-fg-secondary);letter-spacing:.3px}
-.kss-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.kss-skill{display:flex;flex-direction:column;gap:6px;border:1px solid var(--kss-border);border-radius:10px;padding:10px 12px;background:var(--kss-layer-3);transition:border-color .15s ease}
-.kss-skill:hover{border-color:var(--kss-border-strong)}
-.kss-skill-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.kss-skill-name{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;font-weight:600;color:var(--kss-primary)}
-.kss-skill-copy{appearance:none;border:none;background:transparent;color:var(--kss-fg-muted);font-size:11px;cursor:pointer;padding:2px 4px;border-radius:6px}
-.kss-skill-copy:hover{background:var(--kss-fill);color:var(--kss-fg)}
-.kss-skill-desc{margin:0;font-size:11.5px;color:var(--kss-fg-secondary);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.kss-skill-keys{font-size:10.5px;color:var(--kss-warn)}
-.kss-notes{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--kss-fg-secondary)}
-.kss-footer{font-size:11px;color:var(--kss-fg-muted)}
-.kss-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:48px 0;color:var(--kss-fg-muted);font-size:13px}
-.kss-error{color:var(--kss-error);font-size:12px;word-break:break-all}
+/* \u62A5\u544A\u5185\u5D4C\u9884\u89C8\uFF1A\u53D1\u4E1D\u7EBF + 12px \u5706\u89D2 */
+.kss-report-frame{width:100%;min-height:560px;height:64vh;border:.5px solid var(--kss-border);border-radius:12px;background:var(--kss-fill);display:block}
+.kss-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:56px 0;color:var(--kss-fg-muted);font-size:13px;line-height:21px}
+.kss-error{color:var(--kss-error);font-size:12px;line-height:20px;word-break:break-all}
 `;
 function installStyles() {
   let el = document.getElementById(STYLE_ID);
@@ -1033,6 +1196,7 @@ var inject = [
   "layout",
   "connection",
   "sessions",
+  "conversation",
   "uiWorkspace",
   "workspaces"
 ];
