@@ -42,7 +42,7 @@ git config core.hooksPath hooks
 
 | 插件 | 说明 |
 |---|---|
-| [dsh-skills-bundle](./dsh-skills-bundle) | 方法论技能包（适配自 KSkills，dsh 兼容清洗后物化；QiLin 双通道） |
+| [dsh-skills-bundle](./dsh-skills-bundle) | 方法论技能包（适配自 KSkills，dsh 兼容清洗后物化；QiLin 双通道）。**v1.0.4**：退役 6 个非编码技能（image/video/music/podcast-generation、comic、deep-research），注册面 37 → 31；同时修复真源仓同步脚本的递归排除缺陷——office 批（docx/pptx/xlsx/pdf/microsoft-foundry）的 201 文件脚本载荷此前被静默剔除出镜像，本次首次随包分发 |
 | [dsh-skills-stock](./dsh-skills-stock) | A 股量化投研技能包（适配自 KStock 2.0 桌面端精选技能体系）：41 个技能（个股研究 / 选股与策略 / **场景编排** / 品种专项 / 市场全景 / 数据查询 / 图表呈现）注册为 runtime skill；策略库·因子库·选股库·**报告库**四库工作区（18 个 agent 工具，report_archive 支持 content_path 文件通道）+ 侧边栏「投研工作台」四 tab + 设置页数据源凭据配置（**多数技能需配置 Tushare Token 与问财 API Key**，纯计算类技能免密钥）。v1.3.0 补丁：修复库工具成功输出模型不可见的接口缺陷（render 需 ContentBlock 部件形状 + lossless 返回）；通告新增探测资产纪律（连通性验证走只读工具）。**v1.3.1**：上述修复正式发版 |
 | [dsh-super-ppts](./dsh-super-ppts) | 演示文稿超级插件 1.5.0：三交付线——可编辑 PPTX（pptx-designer 引擎 + 结构机检/渲染验收闭环）、HTML 在线演示（8 形态）、参考图重建；内置 16 方向模板（真 deck 缩略图 + 完整样例预览）+ 用户模板库 + 侧边栏任务面板（大纲确认闸门） |
 | [dsh-animations](./dsh-animations) | 动效技能包：8 个 HTML 动画技能（PPT 翻页 / 流程图 / 协议可视化 / 架构图 / 学霸笔记 / 卡片剧场 / 视频分镜 / 手机 UI）注册为 runtime skill + 左侧栏「动效技能库」工作台（技能选择 + 工作区菜单 + 一键投递会话），案例画廊随 docs/ 分发。v1.2.4：dsh 兼容门上界 `<0.2.0` → `<1.0.0`——上游 0.2.1-alpha.1 下 app-boot 闸门静默禁用插件的修复 |
