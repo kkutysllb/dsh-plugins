@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.5 (2026-10-09)
+
+### 新增
+- **建连瞬时拒绝自动重试**：`Connection closed by …` / `kex_exchange_identification` /
+  `Not allowed at this time` 这类对端或中转拒连（实测见于 frp 与 Windows portproxy 中转）
+  自动重试——默认 3 次、指数退避 2s→8s，可用 `connectRetries` / `retryDelayMs` /
+  `retryMaxDelayMs` 配置；**认证类失败不重试**（无意义且可能触发对端封禁）。成功时返回
+  `retried` 字段标明重试次数。测试：T19.6–T19.9。
+
+### 修复
+- **`ssh_edit` 的防冲突承诺与实现不符**（README 与工具描述承诺「读取记 sha256，提交前校验」，实现只守了自身 read→mv 的窗口）：
+  - **现象**：真机验证 L3.4 红——`ssh_read` 之后文件被外部改动，用旧内容 `ssh_edit` 仍会成功，不报 `stale-edit`。
+  - **根因**：`FsOps.edit` 既没有调用方 token 参数，又在 `readWhole` 后重新取 sha，「自上次 read 后是否被改」无从判断；远端 `exit 75` 只守护自身窗口。
+  - **修复**：`edit(host, path, old, new, { sha256 })` 新增**调用方 token**（取自 `read` 的 `sha256`）：形态非法 `bad-args`；与当前文件不符 `stale-edit` 且**不发关键段**（不触碰远端）。`ssh_edit` 工具同步暴露 `sha256` 参数。
+  - **测试**：`smoke-test` T7.9–T7.12（放行 / 不符 / 不符时不发关键段 / 形态非法）；`live-test` L3.4 改为文档承诺形态 + L3.5 正向用例。
+
 ## 0.1.4 (2026-10-04)
 
 ### 修复

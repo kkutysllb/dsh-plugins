@@ -61,7 +61,7 @@ git config core.hooksPath hooks
 
 | 插件 | 说明 |
 |---|---|
-| [dsh-ssh-remote](./dsh-ssh-remote)（npm: dsh-ssh-remote） | SSH 远程运维/开发工具套件（真源仓为 dsh-kylin-ssh-tunnel）：11 个工具（run/read/write/edit/glob/grep/push/pull/hosts/status/target）+ ControlMaster 连接层（失败快返回、ControlPersist daemon 化语义正确处理）+ 三种登录方式（key / agent / 密码——AES-256-GCM 加密凭据库 + SSH_ASKPASS 助手，自管密钥；2FA 不支持）+ 远程目标绑定（本地工作区 ↔ 远程目录：browse 逐层列举 / ssh_target 切换 / 默认 cwd / 系统提示实时注入）+ 设置页（DSH 原生配方：测试连接 / 设为目标 / ★ 当前目标徽章）+ 远端执行世界引导（provision 脚本与 API）。v0.1.4：dsh 兼容门上界 `<0.2.0` → `<1.0.0`——上游 0.2.1-alpha.1 下 app-boot 闸门静默跳过整个 bundle 的修复（与 dsh-terminal v1.2.2 同因） |
+| [dsh-ssh-remote](./dsh-ssh-remote)（npm: dsh-ssh-remote） | SSH 远程运维/开发工具套件（真源仓为 dsh-kylin-ssh-tunnel）：11 个工具（run/read/write/edit/glob/grep/push/pull/hosts/status/target）+ ControlMaster 连接层（失败快返回、ControlPersist daemon 化语义正确处理）+ 三种登录方式（key / agent / 密码——AES-256-GCM 加密凭据库 + SSH_ASKPASS 助手，自管密钥；2FA 不支持）+ 远程目标绑定（本地工作区 ↔ 远程目录：browse 逐层列举 / ssh_target 切换 / 默认 cwd / 系统提示实时注入）+ 设置页（DSH 原生配方：测试连接 / 设为目标 / ★ 当前目标徽章）+ 远端执行世界引导（provision 脚本与 API）。v0.1.4：dsh 兼容门上界 `<0.2.0` → `<1.0.0`——上游 0.2.1-alpha.1 下 app-boot 闸门静默跳过整个 bundle 的修复（与 dsh-terminal v1.2.2 同因）。v0.1.5：`ssh_edit` 调用方 token（`sha256`，取自 `ssh_read`）落地——防冲突承诺与实现对齐（不符即 `stale-edit` 且**不发关键段**），并修 `ssh_read` 输出截断 12 位导致 token 拿不到的硬伤；建连瞬时拒绝自动重试（默认 3 次、退避 2s→8s；认证类失败不重试） |
 
 ## 安装
 
