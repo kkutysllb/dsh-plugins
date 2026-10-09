@@ -1,0 +1,144 @@
+/**
+ * 通道错误归一。
+ *
+ * 分类口径来自上游 Apimart 生产契约（分析 §5）与 dsh-video-generator 附录 B 实测：
+ * 不同的中转站/官方端点在 HTTP 层信号不一致，但都能归到有限的几类，
+ * 上层据此决定「可重试 / 要改配置 / 要用户确认」。
+ */
+/** 可重试的错误：退避后再试有意义。 */
+const RETRYABLE = ['RATE_LIMITED', 'UNAVAILABLE', 'TIMEOUT', 'NETWORK'];
+export function isRetryable(code) {
+    return RETRYABLE.includes(code);
+}
+export class ImageProviderError extends Error {
+    code;
+    status;
+    retryAfterMs;
+    detail;
+    constructor(code, message, options = {}) {
+        super(message);
+        this.name = 'ImageProviderError';
+        this.code = code;
+        this.status = options.status;
+        this.retryAfterMs = options.retryAfterMs;
+        this.detail = options.detail;
+    }
+}
+export function isImageProviderError(value) {
+    return value instanceof ImageProviderError;
+}
+function textOf(body) {
+    if (typeof body === 'string')
+        return body;
+    if (typeof body !== 'object' || body === null)
+        return '';
+    const record = body;
+    const candidates = [
+        record['message'],
+        record['error'],
+        record['detail'],
+        record['code'],
+    ];
+    const error = record['error'];
+    if (typeof error === 'object' && error !== null) {
+        const nested = error;
+        candidates.push(nested['message'], nested['code'], nested['type']);
+    }
+    return candidates
+        .filter((item) => typeof item === 'string')
+        .join(' ')
+        .toLowerCase();
+}
+/**
+ * 响应体是不是前置代理/反代的 HTML 错误页。
+ *
+ * 真机实证：某些中转站的 nginx 把 /v1/images/generations 整个 403 掉，
+ * 返回 HTML 而不是 API JSON；另一条 /v1/responses 却完全正常。
+ * 这种 403 与「Key 无效」在 HTTP 层一模一样，必须靠响应体区分，
+ * 否则会把配置问题误报成凭据问题，把用户引到错误的方向。
+ */
+function looksLikeGatewayHtml(body) {
+    if (typeof body !== 'string' || body === '')
+        return false;
+    const head = body.trim().slice(0, 240).toLowerCase();
+    return head.startsWith('<') || head.includes('<html') || head.includes('<!doctype');
+}
+/** 从 HTTP 状态 + 响应体判定错误码。 */
+export function classifyStatus(status, body) {
+    if (status >= 400 && looksLikeGatewayHtml(body))
+        return 'ENDPOINT_BLOCKED';
+    const text = textOf(body);
+    if (status === 401 || status === 403) {
+        if (text.includes('moderation') || text.includes('safety'))
+            return 'REQUEST_REJECTED';
+        return 'API_KEY_INVALID';
+    }
+    if (status === 402)
+        return 'BALANCE_REQUIRED';
+    if (status === 429)
+        return 'RATE_LIMITED';
+    if (status === 400 || status === 422) {
+        if (text.includes('moderation') || text.includes('safety') || text.includes('nsfw'))
+            return 'REQUEST_REJECTED';
+        if (text.includes('balance') || text.includes('insufficient') || text.includes('quota'))
+            return 'BALANCE_REQUIRED';
+        return 'REQUEST_REJECTED';
+    }
+    if (status >= 500)
+        return 'UNAVAILABLE';
+    return 'REQUEST_FAILED';
+}
+const MAX_RETRY_AFTER_MS = 60_000;
+const MIN_RETRY_AFTER_MS = 1_000;
+function clampDelay(value) {
+    return Math.min(MAX_RETRY_AFTER_MS, Math.max(MIN_RETRY_AFTER_MS, Math.round(value)));
+}
+/**
+ * 解析 Retry-After（秒数或 HTTP 日期），夹到 1s..60s。
+ * 缺失或非法时返回给定的兜底值。
+ */
+export function retryAfterMs(headers, fallbackMs, nowMs = Date.now()) {
+    const raw = headers?.get('retry-after');
+    if (typeof raw !== 'string' || raw.trim() === '')
+        return fallbackMs;
+    const trimmed = raw.trim();
+    const seconds = Number(trimmed);
+    if (Number.isFinite(seconds) && seconds > 0)
+        return clampDelay(seconds * 1000);
+    const at = Date.parse(trimmed);
+    if (Number.isFinite(at) && at > nowMs)
+        return clampDelay(at - nowMs);
+    return fallbackMs;
+}
+/** 指数退避（基期 * 2^attempt），封顶 15 分钟。 */
+export function backoffMs(attempt, baseMs, maxMs = 15 * 60 * 1000) {
+    const raw = baseMs * Math.pow(2, Math.max(0, attempt));
+    const jitter = raw * 0.1 * Math.random();
+    return Math.min(maxMs, Math.round(raw + jitter));
+}
+/** 面向用户的错误文案（工具面与卡片直接用这段）。 */
+export function describeError(error) {
+    if (!isImageProviderError(error))
+        return error instanceof Error ? error.message : String(error);
+    const advice = {
+        API_KEY_INVALID: '检查 API Key 是否正确、是否被吊销',
+        BALANCE_REQUIRED: '账户余额或配额不足，请充值后重试',
+        RATE_LIMITED: '触发限流，稍后重试或降低并发',
+        REQUEST_REJECTED: '请求被拒（多为内容审核或参数不合法），调整提示词或尺寸后重试',
+        UNAVAILABLE: '上游不可用，稍后重试',
+        REQUEST_FAILED: '请求失败，检查 Base URL 与端点路径',
+        TIMEOUT: '请求超时，可调大超时或检查网络',
+        NETWORK: '网络不可达，检查 Base URL 与代理',
+        BAD_RESPONSE: '响应结构无法识别，确认该通道的端点风格（同步 / 异步任务）',
+        TASK_FAILED: '异步任务失败，查看上游返回的失败原因',
+        URL_EXPIRED: '产物签名 URL 已过期，请重新生成',
+        ENDPOINT_BLOCKED: '该路径被站点前置代理拦截（返回 HTML 而非 API JSON），通常不是 Key 问题：换用另一端点风格（如 openai-responses），或核对 Base URL 与路径前缀。可用 img_channels action=probe 做零成本端点探测',
+    };
+    const parts = ['[' + error.code + '] ' + error.message];
+    if (error.status !== undefined)
+        parts.push('HTTP ' + String(error.status));
+    if (error.detail !== undefined && error.detail !== '')
+        parts.push(error.detail.slice(0, 300));
+    parts.push('建议：' + advice[error.code]);
+    return parts.join(' | ');
+}

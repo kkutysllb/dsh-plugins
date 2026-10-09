@@ -47,6 +47,7 @@ git config core.hooksPath hooks
 | [dsh-super-ppts](./dsh-super-ppts) | 演示文稿超级插件 1.5.0：三交付线——可编辑 PPTX（pptx-designer 引擎 + 结构机检/渲染验收闭环）、HTML 在线演示（8 形态）、参考图重建；内置 16 方向模板（真 deck 缩略图 + 完整样例预览）+ 用户模板库 + 侧边栏任务面板（大纲确认闸门） |
 | [dsh-animations](./dsh-animations) | 动效技能包：8 个 HTML 动画技能（PPT 翻页 / 流程图 / 协议可视化 / 架构图 / 学霸笔记 / 卡片剧场 / 视频分镜 / 手机 UI）注册为 runtime skill + 左侧栏「动效技能库」工作台（技能选择 + 工作区菜单 + 一键投递会话），案例画廊随 docs/ 分发。v1.2.4：dsh 兼容门上界 `<0.2.0` → `<1.0.0`——上游 0.2.1-alpha.1 下 app-boot 闸门静默禁用插件的修复 |
 | [dsh-video-generator](./dsh-video-generator)（npm: dsh-video-generator） | 短视频/AI 短剧/漫剧生成管线：三段交接（story→script→storyboard）+ 评审重拍闭环（抽帧评分，≤2 自动重拍）+ gate 三态真实现（vgen_provide 产物注入）+ 设置页双 tab（工坊产物预览 / 通道三要素自配官方中转皆可）+ 竖屏 9:16 成片 mp4+SRT（云 TTS 配音 / crop 消黑边）+ 「漫剧导演」预设（疗愈绘本题材包） |
+| [dsh-kylin-images](./dsh-kylin-images)（npm: dsh-kylin-images） | 麒麟（QiLin）/ DSH 双通道图像创作插件 0.1.0：Prompt-as-Code 提示词编译器（ImagePrompt v1 确定性编译；上游 awesome-gpt-image-2 样式库 22 模板 / 19 风格 / 541 案例 vendored + upstream.lock 对账防漂移）+ 出图执行器（mock / openai-images / openai-responses / task-images 四适配器，三层报价 + 未知价先确认 + 结果缓存 + 逐次记账）+ 知识漫画管线（文字锁 / 风格锁 / 图像锁三锁，img_comic open→plan→sheet→render→assemble，真机 3 页漫画中文对白逐字正确、跨页角色一致）+ 设置页「视觉模型」配置菜单与「图像工坊」产物面板（API Key 只存本机 0600、界面脱敏；通道原地编辑、Key 留空沿用）+ 六个 img_* 工具。真机中转踩坑驱动的可靠性：零成本端点可达性探测（哨兵模型必然失败、不出图不计费）、网关 HTML 403 归 ENDPOINT_BLOCKED 不再误报 Key 无效、openai-images↔openai-responses 端点自动回退（探测可达才回退、无双重计费、可关） |
 
 ### kylin 智能基座
 
