@@ -28,6 +28,8 @@ export interface DialogLine {
     line: string;
 }
 export interface Script extends Story {
+    /** 歌词（可选）：会话模型产出，段落标签体系；供 music.song（P2）与成片字幕。 */
+    lyrics?: string;
     scenes: ScriptScene[];
     dialog: DialogLine[];
 }
@@ -46,6 +48,8 @@ export interface Storyboard {
     characters: StoryCharacter[];
     scenes: ScriptScene[];
 }
+/** 歌词段落标签白名单（规格 §6.2，14 标签体系；校验大小写不敏感，允许 ≤16 字符序号/重复后缀如 [Verse 1]）。 */
+export declare const LYRICS_SECTION_TAGS: readonly ["Intro", "Verse", "Pre-Chorus", "Chorus", "Post-Chorus", "Bridge", "Hook", "Refrain", "Interlude", "Break", "Instrumental", "Solo", "Drop", "Outro"];
 export declare function validateStory(v: unknown, pathPrefix?: string): Story;
 export declare function validateScript(v: unknown): Script;
 export declare function validateStoryboard(v: unknown): Storyboard;

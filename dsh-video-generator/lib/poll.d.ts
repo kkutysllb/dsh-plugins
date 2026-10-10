@@ -4,6 +4,12 @@ export interface PollOptions<T> {
     delayMs?: number;
     maxPollMs?: number;
     maxDelayMs?: number;
+    /** 取消信号：触发后 sleep/下一轮立即抛 PollAbortedError（调用方在 catch 里转中断语义）。 */
+    signal?: AbortSignal;
+}
+/** 轮询被信号中止：不是上游失败，调用方应按取消/中断处置而非任务失败。 */
+export declare class PollAbortedError extends Error {
+    constructor();
 }
 export declare function isTransient(err: unknown): boolean;
 export declare function pollUntil<T>(attempt: () => Promise<T>, opts: PollOptions<T>): Promise<T>;

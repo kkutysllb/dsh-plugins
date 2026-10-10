@@ -13,6 +13,7 @@ export interface ReviewEntry {
     retries: number;
     passed: boolean;
 }
+export type RunMode = 'drama' | 'mv';
 export interface RunRecord {
     id: string;
     title: string;
@@ -25,6 +26,8 @@ export interface RunRecord {
     reviews?: Record<string, ReviewEntry>;
     /** 每段 gate 模式覆盖（可选；生效优先级 = vault.gateDefaults < run.gates < 本次调用参数）。 */
     gates?: Record<string, GateMode>;
+    /** 编排模式（规格 §6.1）：drama=先镜后曲垫 BGM；mv=先曲后镜对点。缺省 drama。 */
+    mode?: RunMode;
 }
 export declare function resolveRunsDir(env?: NodeJS.ProcessEnv): string;
 /** 约束：单进程使用（同步 API 串行化），跨进程并发写同一 runs 目录不在保障范围。 */
@@ -54,6 +57,8 @@ export declare class RunStore {
     setStatus(id: string, status: RunStatus): void;
     setReview(id: string, key: string, entry: ReviewEntry): void;
     /** 增量合并 gate 覆盖（undefined 值不清空既有键）。 */
+    /** 编排模式（规格 §6.1）：vgen_story 显式声明；缺省 drama。 */
+    setMode(id: string, mode: RunMode): void;
     setGates(id: string, gates: Record<string, GateMode>): void;
     prune(keep?: number): number;
     private persist;

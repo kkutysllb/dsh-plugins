@@ -267,6 +267,8 @@ export declare class ProjectStore {
     create(input: ProjectCreateInput): ProjectManifest;
     get(projectId: string): ProjectDetail | null;
     requireProject(projectId: string): ProjectDetail;
+    /** 删除项目（整目录移除：章节/任务/提案/改编/候选一并清除，不可恢复）。运行中的生成不会自动终止。 */
+    deleteProject(projectId: string): void;
     touch(projectId: string): void;
     readAsset(projectId: string, assetRef: string): {
         kind: AssetKind;
@@ -302,6 +304,8 @@ export declare class ProjectStore {
             detail?: Record<string, unknown>;
         };
     }): TaskRecord;
+    /** 删除任务（页面清障入口：卡在 pending/running 的任务可移除后重新发起）。不可恢复；关联 run 不受影响。 */
+    deleteTask(projectId: string, taskId: string): void;
     createAdaptation(projectId: string, input: {
         chapterId: string;
         params: AdaptationParams;

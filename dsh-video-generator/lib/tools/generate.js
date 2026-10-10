@@ -1,24 +1,25 @@
 /** vgen_generate / vgen_status：推进非 LLM 段 + run 概览。
- *  确认语义（规格 §4.4）：估价未知/超阈值且未带 confirm → confirm-required 信封（会话模型向用户转述成本后带 confirm 重调）。
+ *  确认语义（规格 §4.4 + 2026-09-28 §9）：估价未知 → 一律确认；估价 ≤ 阈值 → 放行；
+ *  超阈值 → confirm-required。模型一律来自用途槽绑定（单槽单模型）。
  */
 import { fetchPricing, estimateCny } from "../pricing.js";
-import { SpendLedger } from "../spend.js";
-import { providerForModel } from "../registry.js";
+import { SpendLedger, confirmSpend } from "../spend.js";
+import { providerForSlot } from "../providers/protocols.js";
 import { advanceRun, ManualGateError, AskGateRejectedError, RunInterruptedError } from "../pipeline/machine.js";
+import { bindingUnavailable, ModelUnavailableError, requireSlotBinding } from "../model-selection.js";
 import { isStage } from "../stages.js";
 import { locateFfmpeg } from "../finalcut/render-ffmpeg.js";
 import { HandoffError } from "../schema/handoff.js";
-import { ModelUnavailableError } from "../model-selection.js";
-export function configuredCloudTts(channel, env = process.env) {
-    const model = channel.models?.find((entry) => entry.kind === 'tts' && entry.model.trim());
-    if (!model)
-        return undefined;
+/** tts 槽绑定 → 云端 TTS 配置（音色/语气：能力位声明优先，env 兜底）。 */
+export function configuredCloudTts(binding, channel, env = process.env) {
+    const voiceCap = binding.capabilities['voice'];
+    const instructionsCap = binding.capabilities['instructions'];
     return {
         baseUrl: channel.baseUrl,
         apiKey: channel.apiKey,
-        model: model.model.trim(),
-        voice: env['VGEN_TTS_VOICE'] || undefined,
-        instructions: env['VGEN_TTS_INSTRUCTIONS'] || undefined,
+        model: binding.model,
+        voice: (typeof voiceCap === 'string' && voiceCap) || env['VGEN_TTS_VOICE'] || undefined,
+        instructions: (typeof instructionsCap === 'string' && instructionsCap) || env['VGEN_TTS_INSTRUCTIONS'] || undefined,
     };
 }
 function mapTarget(target) {
@@ -26,6 +27,8 @@ function mapTarget(target) {
         return 'shot-assets';
     if (target === 'video')
         return 'video';
+    if (target === 'music')
+        return 'music';
     return 'final-cut';
 }
 export function buildGenerateTools(ctx) {
@@ -33,7 +36,7 @@ export function buildGenerateTools(ctx) {
     const ledger = SpendLedger.open(env);
     return {
         generate: {
-            execute: async (args) => {
+            execute: async (args, callSignal) => {
                 let denied = 0;
                 try {
                     const runId = String(args['runId'] ?? '');
@@ -54,53 +57,76 @@ export function buildGenerateTools(ctx) {
                         }
                         ctx.runs.setGates(runId, argGates);
                     }
-                    const MEDIA_STAGES = ['master-asset', 'shot-assets', 'video', 'final-cut'];
+                    const MEDIA_STAGES = ['master-asset', 'shot-assets', 'video', 'music', 'final-cut'];
                     if (args['rerunStage'] !== undefined) {
                         const rs = String(args['rerunStage']);
                         if (!MEDIA_STAGES.includes(rs))
                             return { ok: false, error: { code: 'bad-request', message: `rerunStage 须为媒体段（${MEDIA_STAGES.join('|')}）: ${rs}` } };
                         ctx.runs.setStage(runId, rs, 'pending');
+                        // 显式重做留痕：使该段旧的 asset-item 条目作废（条目级续跑据此区分「续查」与「点名重做」）
+                        ctx.runs.appendEvent(runId, 'stage-redo', { stage: rs });
                     }
                     const recGates = ctx.runs.get(runId)?.gates ?? {};
                     const effectiveGates = { ...ctx.vault.getGateDefaults(), ...recGates };
                     const approvals = Array.isArray(args['gateApprovals']) ? args['gateApprovals'].filter((s) => typeof s === 'string') : [];
-                    const channel = ctx.channel();
-                    let pricingMaybe = ctx.pricing;
-                    if (pricingMaybe === undefined)
-                        pricingMaybe = await fetchPricing(channel, undefined, 15000).catch(() => null);
-                    const pricing = pricingMaybe;
+                    const slots = ctx.slots();
+                    const channelOf = (binding) => {
+                        const c = ctx.channelOf(binding.channelId);
+                        if (!c)
+                            throw bindingUnavailable(binding, `通道不存在或已删除: ${binding.channelId}`);
+                        return c;
+                    };
+                    // 价目按通道拉取（不同槽可绑不同站点）；拉取失败容错为 null → 估价未知走确认
+                    const pricingByChannel = new Map();
+                    const channelIds = [...new Set(Object.values(slots).map((b) => b.channelId))];
+                    await Promise.all(channelIds.map(async (cid) => {
+                        const ch = ctx.channelOf(cid);
+                        pricingByChannel.set(cid, ch ? await fetchPricing(ch, undefined, 15000).catch(() => null) : null);
+                    }));
+                    const estimateFor = (binding) => {
+                        const table = pricingByChannel.get(binding.channelId);
+                        return table ? estimateCny(binding.model, table) : null;
+                    };
+                    const threshold = ctx.vault.getBudget().confirmThresholdCny;
                     const r = await advanceRun({
                         runs: ctx.runs,
                         runId,
                         target: mapTarget(String(args['target'] ?? 'final')),
-                        channel,
+                        slots,
+                        channelFor: channelOf,
+                        // gate 三态接线（vault 缺省 < run.json < args 已在 effectiveGates 合并）：
+                        // manual → ManualGateError；ask → approvals 放行清单判定（gateApprovals）
                         gates: effectiveGates,
                         ask: async (stage) => approvals.includes(stage),
                         providers: {
-                            forModel: (model, opts) => ctx.providersOverride
-                                ? ctx.providersOverride.forModel(model, opts)
-                                : providerForModel(channel, model, {
+                            forSlot: (binding, channel, opts) => ctx.providersOverride
+                                ? ctx.providersOverride.forSlot(binding, channel, opts)
+                                : providerForSlot(channel, binding, {
                                     fetchImpl: opts?.fetchImpl,
-                                    estimate: pricing ? (m) => estimateCny(m, pricing) : undefined,
                                 }),
                         },
-                        pricing: pricing,
+                        estimate: estimateFor,
                         confirmer: async (est) => {
                             if (ctx.confirmer)
                                 return ctx.confirmer(est);
+                            // 用户显式 confirm → 全部放行；否则按阈值判定（unknown 一律确认）
                             if (args['confirm'] === true)
                                 return true;
-                            denied++;
-                            return false;
+                            return confirmSpend(est, threshold, () => {
+                                denied++;
+                                return false;
+                            });
                         },
                         ffmpeg: locateFfmpeg(env),
-                        // 生产模型只来自当前默认通道 models[]；videoModel 仅保留 MachineDeps 的内部测试注入字段。
-                        tts: ctx.tts ?? configuredCloudTts(channel, env),
+                        tts: resolveCloudTts(ctx, slots, channelOf, env),
                         concurrency: typeof args['concurrency'] === 'number' ? args['concurrency'] : undefined,
                         fetchImpl: ctx.fetchImpl,
-                        signal: ctx.signal,
+                        // 取消信号组合：宿主停用（lifecycle）+ 工具调用截止（exec.signal，B1）——任一触发即停
+                        signal: ctx.signal && callSignal
+                            ? AbortSignal.any([ctx.signal, callSignal])
+                            : (ctx.signal ?? callSignal),
+                        recordSpend: (entry) => ledger.recordSafe(entry),
                     });
-                    ledger.totals(); // 触碰记账文件，保证 open 语义生效（空读容错）
                     return {
                         ok: true,
                         value: {
@@ -121,7 +147,7 @@ export function buildGenerateTools(ctx) {
                             ok: false,
                             error: {
                                 code: 'confirm-required',
-                                message: `有 ${denied} 笔消费需要确认（估价见 run 记账事件）。向用户转述成本后，携带 confirm:true 重新调用 vgen_generate 继续。`,
+                                message: `有 ${denied} 笔消费超过确认阈值（估价见 run 记账事件）。向用户转述成本后，携带 confirm:true 重新调用 vgen_generate 继续。`,
                             },
                         };
                     }
@@ -132,7 +158,7 @@ export function buildGenerateTools(ctx) {
                         return { ok: false, error: { code: 'gate-approval', message: `${err.message}。请与用户确认该段执行，然后携带 gateApprovals（如 ["master-asset"]）重新调用；或改 gates 为 auto/manual。` } };
                     }
                     if (err instanceof RunInterruptedError) {
-                        return { ok: false, error: { code: 'interrupted', message: `${err.message}。run 已置 failed(host-interrupted)；插件重新启用后可对未完成段用 rerunStage 续跑。` } };
+                        return { ok: false, error: { code: 'interrupted', message: `${err.message}。run 已置 failed(host-interrupted)；插件重新启用后直接重推（不带 rerunStage）即可条目级续跑，已付费条目自动跳过。` } };
                     }
                     if (err instanceof HandoffError)
                         return { ok: false, error: { code: err.code, message: err.message } };
@@ -157,6 +183,21 @@ export function buildGenerateTools(ctx) {
         },
     };
 }
+/** tts 槽绑定 → 云端 TTS；未绑定/通道缺失 → undefined（回退本地 say/SAPI）。 */
+function resolveCloudTts(ctx, slots, channelOf, env) {
+    if (ctx.tts)
+        return ctx.tts;
+    try {
+        const binding = requireSlotBinding(slots, 'tts');
+        if (binding.protocol !== 'openai-tts')
+            return undefined;
+        const channel = channelOf(binding);
+        return configuredCloudTts(binding, channel, env);
+    }
+    catch {
+        return undefined;
+    }
+}
 /** vgen_generate / vgen_status 的 DshToolDefinition（对齐 handoffToolDefs 形态）。 */
 export function generateToolDefs(tools) {
     const jsonRender = (_args, value) => [
@@ -165,24 +206,25 @@ export function generateToolDefs(tools) {
     return [
         {
             name: 'vgen_generate',
-            description: '推进 run 的非 LLM 段：target=assets 生成角色三视图/场景主图/逐镜参考图；target=video 逐镜图生视频；target=final 配音并渲染成片 mp4+SRT。' +
-                '首次调用不带 confirm；若返回 confirm-required，先向用户转述成本，再携带 confirm:true 重新调用。',
+            description: '推进 run 的非 LLM 段：target=assets 生成角色三视图/场景主图/逐镜参考图；target=video 逐镜视频；target=music 生成 BGM（用途槽 music.bgm 未绑定时跳过留痕）；target=final 配音+混音渲染成片 mp4+SRT。' +
+                '模型来自设置页「用途槽」绑定。首次调用不带 confirm；若返回 confirm-required，先向用户转述成本，再携带 confirm:true 重新调用。',
             parameters: {
                 type: 'object',
                 properties: {
                     runId: { type: 'string', description: 'run id（vgen_story 返回）' },
-                    target: { type: 'string', enum: ['assets', 'video', 'final'], description: '推进目标段（含其前序段）' },
+                    target: { type: 'string', enum: ['assets', 'video', 'music', 'final'], description: '推进目标段（含其前序段）' },
                     confirm: { type: 'boolean', description: '成本确认；仅在向用户转述成本后置 true' },
                     concurrency: { type: 'number', description: '并发数，默认 2' },
                     gates: { type: 'object', description: '可选：每段 gate 模式 {段名: "auto"|"ask"|"manual"}，持久化进 run.json' },
                     gateApprovals: { type: 'array', description: '可选：ask 段本次放行清单（用户已批准后携带）' },
-                    rerunStage: { type: 'string', enum: ['master-asset', 'shot-assets', 'video', 'final-cut'], description: '可选：重置该媒体段为 pending 后重跑' },
+                    rerunStage: { type: 'string', enum: ['master-asset', 'shot-assets', 'video', 'music', 'final-cut'], description: '显式全量重做该段（旧条目作废、全部重新计费）；中断/失败后的续跑直接重推（不带本参数）即可，已完成条目自动跳过' },
                 },
                 required: ['runId', 'target'],
             },
             output: { schema: { type: 'object' }, render: jsonRender },
             timeoutMs: 600000,
-            execute: (args) => tools.generate.execute(args),
+            // exec.signal 透传（0.1.7 契约）：截止触发 → 生成在段边界/并发泵检查点停下
+            execute: (args, exec) => tools.generate.execute(args, exec?.signal),
         },
         {
             name: 'vgen_status',

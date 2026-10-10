@@ -17,8 +17,8 @@
  * 设置页「视频工坊」双 tab：
  * - 工坊：run 列表 → 详情（阶段徽章/gate/评审档案/产物预览/花费），3s 轮询仅在
  *   本 tab 可见（document.visibilityState === 'visible'）时运转；
- * - 通道管理：通道 CRUD（apiKey 脱敏回显）/默认/启用/测试探测/枚举模型一键导入/
- *   预算阈值/gate 缺省。
+ * - 通道管理：通道 CRUD（apiKey 脱敏回显）/启用/测试探测/用途槽（每槽恰好一个模型 +
+ *   真实小额测试 + 音乐映射模板）/预算阈值/gate 缺省。
  * 数据面走 /dsh-video-generator/api/<method>（POST JSON，{ok,value}/{ok,error} 信封），
  * 与 host 侧 routes.ts 一一对应（runs.list / runs.get / channels 系列 / settings 系列）；
  * 双语文案走 ctx.locale（命名空间 videoGen）。
@@ -37,8 +37,8 @@ window.__ModuleLoader__.load({
 		var NS = "videoGen";
 		var API = "/dsh-video-generator/api";
 		var MEDIA = "/dsh-video-generator/media";
-		var STAGES = ["story", "script", "storyboard", "master-asset", "shot-assets", "video", "final-cut"];
-		var MEDIA_STAGES = ["master-asset", "shot-assets", "video", "final-cut"];
+		var STAGES = ["story", "script", "storyboard", "master-asset", "shot-assets", "video", "music", "final-cut"];
+		var MEDIA_STAGES = ["master-asset", "shot-assets", "video", "music", "final-cut"];
 
 		/* ── 双语文案（zh / en，键集完整一致）────────────────── */
 
@@ -46,22 +46,14 @@ window.__ModuleLoader__.load({
 			nav: "漫剧工坊",
 			title: "漫剧工坊",
 			tabChannels: "通道管理",
-			workTitle: "视频工坊",
-			workIntro: "描述题材，一键复制创作提示词并回到对话,粘贴回车即发；Agent 走故事→剧本→分镜→出片工作流。通道与预算在 设置 → 视频工坊 管理。",
-			topicLabel: "题材",
-			topicPlaceholder: "例如：把 TCP 三次握手做成一场「快递签收」的漫剧短剧",
-			sendToChat: "复制创作提示词，回到对话",
-			sentCopied: "提示词已复制并回到会话——粘贴(⌘V / Ctrl+V)后回车发送",
-			sentClipboard: "已复制创作提示词，请粘贴到对话发送",
-			sendNone: "无法自动填入，请手动把提示词粘贴到对话",
-			topicRequired: "先写一句题材描述",
-			worksTitle: "作品库",
 			autoRefreshHint: "每 3 秒自动刷新",
-			promptVgen: "帮我做一个竖屏短视频（9:16）：{topic}",
 			intro: "生成通道与预算配置：视频/图像/TTS 模型三要素自配（官方/中转皆可）。创作请在侧边栏「漫剧工坊」进行。",
 			runs: "生成任务",
 			runsEmpty: "还没有 run。在对话里让 Agent 走 vgen_story → vgen_script → vgen_storyboard → vgen_generate 三段交接即可开工。",
 			refresh: "刷新",
+			retrySend: "重试发送",
+			regenBtn: "重新生成",
+			regenRequest: "基于最新版本重新生成该资产内容（此前提案已过期）",
 			detail: "详情",
 			back: "返回列表",
 			stageTable: "阶段状态",
@@ -94,34 +86,35 @@ window.__ModuleLoader__.load({
 			chBaseUrl: "Base URL（站点根）",
 			chApiKey: "API Key",
 			chCreate: "添加",
-			defaultBadge: "默认",
-			setDefault: "设为默认",
 			enable: "启用",
 			test: "测试通道",
 			testing: "探测中…",
 			testOk: "探测成功：枚举到 {n} 个模型",
 			testFail: "探测失败：{err}",
-			adopt: "导入枚举模型",
-			adopted: "已导入 {n} 个模型（kind 按内置目录推断）",
-			pickerSearch: "搜索模型名",
-			pickerFilterKind: "按类型筛选",
-			pickerFilterAll: "全部",
-			pickerSelectAll: "全选",
-			pickerDeselectAll: "取消全选",
-			pickerSave: "保存选中",
-			pickerEmpty: "没有模型可显示——先测试通道以枚举模型。",
-			pickerLabelConfigured: "已配置",
-			pickerLabelNew: "新",
-			pickerKindImage: "图像",
-			pickerKindVideo: "视频",
-			pickerKindTts: "语音",
-			pickerTitle: "模型清单",
-			pickerCountUnit: " 个",
-			pickerCheckedHintPrefix: "· 已勾选",
-			pickerStatCheckedPrefix: "已选",
-			pickerStatRemovedPrefix: "待移除",
-			pickerRemove: "移除",
-			pickerSaved: "已保存 {n} 个模型",
+			slotsTitle: "用途槽",
+			slotsIntro: "每个用途只绑定一个模型：选通道、填模型名，保存后点「测试」做一次真实小额验证；未绑定的用途不可用。音乐槽可套用映射模板（按协议形态预填，不绑定任何服务商）。",
+			slotChannel: "通道",
+			slotModel: "模型名",
+			slotCaps: "能力",
+			slotProtocol: "协议族",
+			slotTest: "测试",
+			slotTesting: "测试中…",
+			slotSave: "保存绑定",
+			slotUnbound: "未绑定",
+			slotVoice: "音色（可选）",
+			slotInstructions: "语气指令（可选）",
+			slotMaxDur: "单段最长秒数",
+			slotMapping: "通用映射（JSON）",
+			slotTpl: "套用模板",
+			slotTplSaveAs: "另存为模板",
+			slotTplSavePrompt: "模板名称：",
+			slotTplDelete: "删除模板…",
+			slotTplDeleteConfirm: "确定删除模板「{name}」？此操作不可撤销。",
+			slotInvalidJson: "映射不是合法 JSON",
+			slotTestOk: "测试通过：{detail}",
+			slotTestFail: "测试失败：{err}",
+			slotSavedOk: "绑定已保存",
+			slotNeedChannel: "请先在上方添加并启用通道",
 			deleteCh: "删除",
 			deleteConfirm: "确定删除通道「{name}」？此操作不可撤销。",
 			budget: "预算与 gate",
@@ -149,22 +142,14 @@ window.__ModuleLoader__.load({
 			nav: "Drama Workbench",
 			title: "Drama Workbench",
 			tabChannels: "Channels",
-			workTitle: "Video Studio",
-			workIntro: "Describe a topic and push the creation prompt straight into the current chat; the agent runs story → script → storyboard → render. Channels & budget live in Settings → Video Studio.",
-			topicLabel: "Topic",
-			topicPlaceholder: "e.g. a short animated drama that explains TCP 3-way handshake as a parcel delivery",
-			sendToChat: "Copy prompt & back to chat",
-			sentCopied: "Prompt copied and back in the chat — paste (⌘V / Ctrl+V) and press Enter to send",
-			sentClipboard: "Prompt copied — paste it into the chat to send",
-			sendNone: "Could not fill automatically; paste the prompt into the chat manually",
-			topicRequired: "Write a one-line topic first",
-			worksTitle: "Works",
 			autoRefreshHint: "auto-refreshes every 3s",
-			promptVgen: "Make a vertical short video (9:16): {topic}",
 			intro: "Channels & budget: bring your own OpenAI-compatible endpoints (official or relay). For creation, use the Drama Workbench in the sidebar.",
 			runs: "Runs",
 			runsEmpty: "No runs yet. Ask the Agent in chat to walk the vgen_story → vgen_script → vgen_storyboard → vgen_generate handoffs to get started.",
 			refresh: "Refresh",
+			retrySend: "Retry send",
+			regenBtn: "Regenerate",
+			regenRequest: "Regenerate this asset from the latest revision (previous proposal went stale)",
 			detail: "Details",
 			back: "Back to list",
 			stageTable: "Stage status",
@@ -197,34 +182,35 @@ window.__ModuleLoader__.load({
 			chBaseUrl: "Base URL (site root)",
 			chApiKey: "API Key",
 			chCreate: "Add",
-			defaultBadge: "default",
-			setDefault: "Set default",
 			enable: "Enabled",
 			test: "Test channel",
 			testing: "Probing…",
 			testOk: "Probe OK: {n} models enumerated",
 			testFail: "Probe failed: {err}",
-			adopt: "Import enumerated models",
-			adopted: "Imported {n} models (kind inferred from built-in catalog)",
-			pickerSearch: "Search models",
-			pickerFilterKind: "Filter by kind",
-			pickerFilterAll: "All",
-			pickerSelectAll: "Select all",
-			pickerDeselectAll: "Deselect all",
-			pickerSave: "Save selected",
-			pickerEmpty: "No models to show — probe the channel first.",
-			pickerLabelConfigured: "configured",
-			pickerLabelNew: "new",
-			pickerKindImage: "image",
-			pickerKindVideo: "video",
-			pickerKindTts: "tts",
-			pickerTitle: "Models",
-			pickerCountUnit: "",
-			pickerCheckedHintPrefix: "· checked",
-			pickerStatCheckedPrefix: "Selected",
-			pickerStatRemovedPrefix: "Pending removal",
-			pickerRemove: "Remove",
-			pickerSaved: "Saved {n} models",
+			slotsTitle: "Use slots",
+			slotsIntro: "Each purpose binds exactly one model: pick a channel, type the model name, save, then Test (one real minimal paid call). Unbound purposes are unavailable. Music slots accept mapping templates (shape-based prefills, provider-agnostic).",
+			slotChannel: "Channel",
+			slotModel: "Model",
+			slotCaps: "Capabilities",
+			slotProtocol: "Protocol",
+			slotTest: "Test",
+			slotTesting: "Testing…",
+			slotSave: "Save binding",
+			slotUnbound: "Unbound",
+			slotVoice: "Voice (optional)",
+			slotInstructions: "Instructions (optional)",
+			slotMaxDur: "Max seconds per clip",
+			slotMapping: "Generic mapping (JSON)",
+			slotTpl: "Apply template",
+			slotTplSaveAs: "Save as template",
+			slotTplSavePrompt: "Template name:",
+			slotTplDelete: "Delete template…",
+			slotTplDeleteConfirm: "Delete template \"{name}\"? This cannot be undone.",
+			slotInvalidJson: "Mapping is not valid JSON",
+			slotTestOk: "Test passed: {detail}",
+			slotTestFail: "Test failed: {err}",
+			slotSavedOk: "Binding saved",
+			slotNeedChannel: "Add and enable a channel first",
 			deleteCh: "Delete",
 			deleteConfirm: "Delete channel \"{name}\"? This cannot be undone.",
 			budget: "Budget & gates",
@@ -347,7 +333,6 @@ window.__ModuleLoader__.load({
 			editSuggestion: "编辑建议",
 			doApply: "应用",
 			doReject: "拒绝",
-			doRegenerate: "重新生成",
 			diffOld: "当前内容",
 			diffNew: "提案内容（可在下方编辑后应用）",
 			staleProposal: "提案已过期：项目内容已变化，请基于最新版本重新审阅或让 Agent 重新生成。",
@@ -411,6 +396,19 @@ window.__ModuleLoader__.load({
 			worldCited: "供正文引用",
 			worldAdd: "添加条目",
 			charAdd: "添加角色",
+			latestFinal: "最近成片",
+			costRisk: "成本/风险",
+			sessionInterrupted: "会话可能已中断（宿主重启）——可重发任务指令继续",
+			resendInstruction: "重发指令",
+			resendNone: "任务指令缺失，无法重发",
+			taskDelete: "删除任务",
+			taskDeleteConfirm: "确认删除该任务？删除后不可恢复（已发起的生成不会自动终止，费用不退）",
+			taskDeleted: "任务已删除",
+			projectDelete: "删除",
+			projectDeleteConfirm: "确认删除项目「{title}」？章节、任务、提案、改编与成片记录将一并删除，不可恢复；已发起的生成不会自动终止",
+			projectDeleted: "项目已删除",
+			visualAsset: "视觉",
+			visualAssetHint: "已在视频任务生成 master-asset 角色图",
 			delete: "删除",
 			rowDelete: "移除",
 			mustSave: "改动尚未保存",
@@ -502,7 +500,6 @@ window.__ModuleLoader__.load({
 			editSuggestion: "Edit suggestion",
 			doApply: "Apply",
 			doReject: "Reject",
-			doRegenerate: "Regenerate",
 			diffOld: "Current content",
 			diffNew: "Proposed content (editable below before applying)",
 			staleProposal: "The proposal is stale: project content changed. Re-review on the latest version or ask the agent to regenerate.",
@@ -562,6 +559,19 @@ window.__ModuleLoader__.load({
 			worldCited: "cited in body",
 			worldAdd: "Add entry",
 			charAdd: "Add character",
+			latestFinal: "Latest cut",
+			costRisk: "Cost/Risk",
+			sessionInterrupted: "Session may be gone (host restarted) — resend the instruction to continue",
+			resendInstruction: "Resend instruction",
+			resendNone: "Task instruction missing; cannot resend",
+			taskDelete: "Delete task",
+			taskDeleteConfirm: "Delete this task? This cannot be undone (already-started generation is not cancelled, spend is not refunded)",
+			taskDeleted: "Task deleted",
+			projectDelete: "Delete",
+			projectDeleteConfirm: "Delete project \"{title}\"? Chapters, tasks, proposals, adaptations and cut records are removed together — this cannot be undone; already-started generation is not cancelled",
+			projectDeleted: "Project deleted",
+			visualAsset: "visual",
+			visualAssetHint: "master-asset character image generated in video runs",
 			delete: "Delete",
 			rowDelete: "Remove",
 			mustSave: "Unsaved changes",
@@ -596,109 +606,97 @@ window.__ModuleLoader__.load({
 		var NAV_ICON_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z'/%3E%3Cpath d='m6.2 5.3 3.1 3.9'/%3E%3Cpath d='m12.4 3.4 3.1 4'/%3E%3Cpath d='M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z'/%3E%3C/svg%3E";
 
 		var CSS = [
-			".vg-root{display:flex;flex-direction:column;gap:20px;max-width:760px;color:inherit;font-size:13px;line-height:1.5;}",
-			".vg-intro{opacity:.72;margin:0;}",
-			".vg-card{border:1px solid var(--sl-color-neutral-300,#333);border-radius:10px;padding:14px 16px;}",
-			".vg-card h3{margin:0 0 4px;font-size:14px;}",
-			".vg-hint{opacity:.6;margin:0 0 10px;font-size:12px;}",
+			// 主题令牌别名层（对齐自动化任务/动效技能插件的宿主配色配方）：三个根容器
+			// 定义 --vg-* 本地别名，全部规则只引用本地别名；底层一律 --dsw-alias-*
+			// 原生令牌 + 硬编码 fallback，明暗主题随宿主切换，插件自身不再自带色板。
+			".vg-root,.vg-set,.vg-wb-page{"
+				+ "--vg-fg:var(--dsw-alias-label-primary,#1f2329);"
+				+ "--vg-fg-2:var(--dsw-alias-label-secondary,#5a6472);"
+				+ "--vg-muted:var(--dsw-alias-label-tertiary,#8a94a3);"
+				+ "--vg-caption:var(--dsw-alias-label-caption,#9aa3b0);"
+				+ "--vg-fill:var(--dsw-alias-bg-skeleton,rgba(127,127,127,.14));"
+				+ "--vg-fill-hover:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.2));"
+				+ "--vg-border:var(--dsw-alias-border-l3,rgba(127,127,127,.3));"
+				+ "--vg-border-strong:var(--dsw-alias-border-l4,rgba(127,127,127,.48));"
+				+ "--vg-layer:var(--dsw-alias-bg-layer-2,#ffffff);"
+				+ "--vg-primary:var(--dsw-alias-button-primary-fill,#4176e6);"
+				+ "--vg-primary-hover:var(--dsw-alias-button-primary-hover,#3668d4);"
+				+ "--vg-primary-fg:var(--dsw-alias-label-primary-foreground,#ffffff);"
+				+ "--vg-info:var(--dsw-alias-state-business-primary,#2e90fa);"
+				+ "--vg-success:var(--dsw-alias-state-success-primary,#0f9d58);"
+				+ "--vg-warn:var(--dsw-alias-state-warn-primary,#f5a209);"
+				+ "--vg-error:var(--dsw-alias-state-error-primary,#d0403d);"
+				+ "}",
+			".vg-root{display:flex;flex-direction:column;gap:20px;max-width:760px;color:var(--vg-fg);font-size:13px;line-height:1.5;}",
+			".vg-intro{margin:0;color:var(--vg-muted);}",
+			".vg-card{border:1px solid var(--vg-border);border-radius:12px;padding:14px 16px;}",
+			".vg-card h3{margin:0 0 4px;font-size:14px;font-weight:600;}",
+			".vg-hint{margin:0 0 10px;font-size:12px;color:var(--vg-muted);}",
 			".vg-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}",
-			// 列表行（run 行 / 通道行共用）：分隔线 + 名称/元信息排版（样例 sp-tpl* 同构移植）
-			".vg-tpl{padding:10px 0;border-top:1px solid var(--sl-color-neutral-300,#2a2a2a);}",
+			// 列表行（run 行 / 通道行共用）：分隔线 + 名称/元信息排版
+			".vg-tpl{padding:10px 0;border-top:1px solid var(--vg-border);}",
 			".vg-tpl:first-of-type{border-top:none;}",
-			".vg-tpl-name{font-weight:600;}",
-			".vg-tpl-desc{opacity:.7;font-size:12px;margin-top:2px;}",
-			".vg-tpl-meta{opacity:.5;font-size:11px;display:flex;gap:12px;flex-wrap:wrap;}",
-			".vg-badge{background:#2f6f4f;color:#fff;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;}",
-			".vg-badge-running{background:#3b5fd9;}",
-			".vg-badge-failed{background:#e5484d;}",
+			".vg-tpl-name{font-weight:600;color:var(--vg-fg);}",
+			".vg-tpl-desc{font-size:12px;margin-top:2px;color:var(--vg-fg-2);}",
+			".vg-tpl-meta{font-size:11px;display:flex;gap:12px;flex-wrap:wrap;color:var(--vg-muted);font-variant-numeric:tabular-nums;}",
+			// 徽章/chip：999px 胶囊 + 同色 16% color-mix 铺底（自动化任务同款状态色映射：
+			// running/writing=info、pending/review/adapting=warn、done=success、failed=error）
+			".vg-badge{border-radius:999px;padding:2px 8px;font-size:11px;font-weight:500;color:var(--vg-success);background:color-mix(in srgb,var(--vg-success) 16%,transparent);}",
+			".vg-badge-running{color:var(--vg-info);background:color-mix(in srgb,var(--vg-info) 16%,transparent);}",
+			".vg-badge-failed{color:var(--vg-error);background:color-mix(in srgb,var(--vg-error) 16%,transparent);}",
+			".vg-badge-done{color:var(--vg-success);background:color-mix(in srgb,var(--vg-success) 16%,transparent);}",
+			".vg-badge-review{color:var(--vg-warn);background:color-mix(in srgb,var(--vg-warn) 16%,transparent);}",
 			".vg-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}",
-			".vg-btn{border:1px solid var(--sl-color-neutral-400,#555);background:transparent;color:inherit;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;}",
-			".vg-btn:hover{border-color:var(--sl-color-primary-500,#7aa2f7);color:var(--sl-color-primary-500,#7aa2f7);}",
+			".vg-btn{border:1px solid var(--vg-border-strong);background:transparent;color:var(--vg-fg);border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;transition:background .15s,border-color .15s;}",
+			".vg-btn:hover{background:var(--vg-fill-hover);}",
 			".vg-btn[disabled]{opacity:.45;cursor:not-allowed;}",
-			".vg-btn-danger:hover{border-color:#e5484d;color:#e5484d;}",
-			// 主按钮渐变蓝 + 发光；次级 mini 按钮紧凑灰边（picker 面板专用）
-			".vg-btn-primary{background:linear-gradient(180deg,#7aa2f7 0%,#5b82d7 100%);border:1px solid #7aa2f7;color:#0c0d10;font-weight:600;box-shadow:0 2px 8px rgba(122,162,247,.25);}",
-			".vg-btn-primary:hover{color:#0c0d10;box-shadow:0 4px 14px rgba(122,162,247,.4);transform:translateY(-1px);}",
-			".vg-btn-primary[disabled]{background:rgba(255,255,255,.025);border-color:var(--sl-color-neutral-300,#2a2a2a);color:rgba(255,255,255,.4);box-shadow:none;cursor:not-allowed;transform:none;}",
-			".vg-btn-mini{border:1px solid rgba(255,255,255,.16);background:transparent;color:rgba(255,255,255,.55);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;transition:all .15s;}",
-			".vg-btn-mini:hover{border-color:#7aa2f7;color:#7aa2f7;}",
+			".vg-btn[disabled]:hover{background:transparent;}",
+			".vg-btn-danger:hover{border-color:var(--vg-error);color:var(--vg-error);}",
+			// 主按钮：宿主品牌实底（去渐变/发光/位移）；mini 按钮同族缩小
+			".vg-btn-primary{background:var(--vg-primary);border-color:transparent;color:var(--vg-primary-fg);font-weight:500;}",
+			".vg-btn-primary:hover{background:var(--vg-primary-hover);border-color:transparent;}",
+			".vg-btn-primary[disabled]{background:var(--vg-fill);border-color:transparent;color:var(--vg-muted);cursor:not-allowed;}",
+			".vg-btn-mini{border:1px solid var(--vg-border);background:transparent;color:var(--vg-fg-2);border-radius:8px;padding:3px 9px;font-size:11px;cursor:pointer;transition:background .15s,color .15s,border-color .15s;}",
+			".vg-btn-mini:hover{background:var(--vg-fill-hover);color:var(--vg-fg);}",
 			".vg-btn-mini[disabled]{opacity:.4;cursor:not-allowed;}",
 			".vg-field{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;}",
-			".vg-field label{font-size:12px;opacity:.75;}",
-			".vg-input,.vg-select,.vg-textarea{border:1px solid var(--sl-color-neutral-400,#555);border-radius:6px;background:transparent;color:inherit;padding:5px 8px;font-size:13px;}",
-			".vg-textarea{resize:vertical;min-height:56px;font-family:inherit;}",
-			// 工作台 hero:任务导向的新建区(区别于设置页的配置表单)
-			".vg-work-hero{border:1px solid var(--dsw-alias-border-l,var(--sl-color-neutral-300,#333));border-left:3px solid var(--dsw-alias-interactive-bg-hover,var(--sl-color-primary-500,#4c6ef5));border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}",
-			".vg-work-hero h2{margin:0;font-size:15px;}",
-			".vg-work-intro{opacity:.72;margin:0;font-size:12px;}",
+			".vg-field label{font-size:12px;color:var(--vg-fg-2);}",
+			".vg-input,.vg-select,.vg-textarea{border:1px solid var(--vg-border);border-radius:8px;background:transparent;color:var(--vg-fg);padding:5px 10px;font-size:13px;transition:border-color .15s;}",
+			".vg-input:hover,.vg-select:hover,.vg-textarea:hover{border-color:var(--vg-border-strong);}",
+			".vg-input:focus,.vg-select:focus,.vg-textarea:focus{outline:none;border-color:var(--vg-info);}",
+			".vg-input::placeholder,.vg-textarea::placeholder{color:var(--vg-caption);}",
+			".vg-textarea{resize:vertical;min-height:56px;font-family:inherit;line-height:1.45;}",
+			// 设置页工坊 tab 的任务导向 hero（左侧主色细条）
+			".vg-work-hero{border:1px solid var(--vg-border);border-left:3px solid var(--vg-primary);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}",
+			".vg-work-hero h2{margin:0;font-size:15px;font-weight:600;}",
+			".vg-work-intro{margin:0;font-size:12px;color:var(--vg-muted);}",
 			".vg-work-cta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}",
-			".vg-work-sent{font-size:12px;color:var(--dsw-alias-interactive-bg-hover,var(--sl-color-primary-500,#4c6ef5));}",
-			".vg-work-sec{margin-top:16px;}",
-			".vg-work-sec>h3{margin:0 0 2px;font-size:13px;}",
+			".vg-work-sent{font-size:12px;color:var(--vg-info);}",
+			".vg-work-sec{margin-top:0;}",
+			".vg-work-sec>h3{margin:0 0 2px;font-size:13px;font-weight:600;}",
 			".vg-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;}",
-			".vg-msg{border-radius:6px;padding:6px 10px;font-size:12px;}",
-			".vg-msg-ok{background:rgba(63,167,106,.15);color:#3fa76a;}",
-			".vg-msg-err{background:rgba(229,72,77,.15);color:#e5484d;}",
+			".vg-msg{border-radius:8px;padding:6px 10px;font-size:12px;}",
+			".vg-msg-ok{background:color-mix(in srgb,var(--vg-success) 12%,transparent);color:var(--vg-success);}",
+			".vg-msg-err{background:color-mix(in srgb,var(--vg-error) 12%,transparent);color:var(--vg-error);}",
 			// 双 tab 条 + 阶段 chips（四态色复用徽章色板）
 			".vg-tabs{display:flex;gap:8px;margin:8px 0 4px;}",
-			".vg-tab{border:1px solid var(--sl-color-neutral-400,#555);background:transparent;color:inherit;border-radius:6px;padding:3px 10px;font-size:12px;cursor:pointer;}",
-			".vg-tab-active{border-color:var(--sl-color-primary-500,#7aa2f7);color:var(--sl-color-primary-500,#7aa2f7);font-weight:600;}",
+			".vg-tab{border:1px solid var(--vg-border-strong);background:transparent;color:var(--vg-fg);border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;}",
+			".vg-tab:hover{background:var(--vg-fill-hover);}",
+			".vg-tab-done{border-color:var(--vg-success);color:var(--vg-success);}",
+			".vg-tab-active{border-color:var(--vg-primary);color:var(--vg-primary);font-weight:600;}",
 			".vg-stage-chips{display:flex;gap:4px;flex-wrap:wrap;}",
-			".vg-chip{border-radius:999px;padding:1px 8px;font-size:11px;}",
-			".vg-chip-pending{background:var(--sl-color-neutral-300,#555);color:inherit;opacity:.75;}",
-			".vg-chip-running{background:#3b5fd9;color:#fff;}",
-			".vg-chip-done{background:#2f6f4f;color:#fff;}",
-			".vg-chip-failed{background:#e5484d;color:#fff;}",
+			".vg-chip{border-radius:999px;padding:2px 8px;font-size:11px;color:var(--vg-muted);background:var(--vg-fill);}",
+			".vg-chip-pending{color:var(--vg-muted);background:var(--vg-fill);}",
+			".vg-chip-running{color:var(--vg-info);background:color-mix(in srgb,var(--vg-info) 16%,transparent);}",
+			".vg-chip-done{color:var(--vg-success);background:color-mix(in srgb,var(--vg-success) 16%,transparent);}",
+			".vg-chip-failed{color:var(--vg-error);background:color-mix(in srgb,var(--vg-error) 16%,transparent);}",
 			// 产物预览网格：图片缩略 / 视频内联播放
 			".vg-preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}",
-			".vg-preview-grid img{width:100%;border-radius:6px;}",
-			".vg-preview-grid video{width:100%;border-radius:6px;background:#000;}",
+			".vg-preview-grid img{width:100%;border-radius:8px;}",
+			".vg-preview-grid video{width:100%;border-radius:8px;background:#000;}",
 			".vg-probe{font-size:12px;margin-top:6px;}",
-			".vg-probe-ok{color:#3fa76a;}",
-			".vg-probe-err{color:#e5484d;}",
-			// 模型勾选面板（PickerPanel）：卡片化 + 顶渐变边 + 自定义 checkbox + 三色 chip + 选中行光带
-			".vg-pick{margin-top:12px;background:linear-gradient(180deg,rgba(122,162,247,.04) 0%,transparent 60%);border:1px solid var(--sl-color-neutral-300,#2a2a2a);border-radius:12px;padding:14px 16px;box-shadow:0 2px 12px rgba(0,0,0,.32);position:relative;overflow:hidden;}",
-			".vg-pick::before{content:'';position:absolute;top:0;left:16px;right:16px;height:1px;background:linear-gradient(90deg,transparent 0%,#7aa2f7 50%,transparent 100%);opacity:.5;}",
-			".vg-pick-title{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:rgba(255,255,255,.55);text-transform:uppercase;margin-bottom:12px;}",
-			".vg-pick-title-count{margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;opacity:.4;}",
-			".vg-pick-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}",
-			".vg-pick-search{flex:1;min-width:160px;background:rgba(255,255,255,.025);border:1px solid var(--sl-color-neutral-300,#2a2a2a);color:inherit;border-radius:8px;padding:6px 10px 6px 30px;font-size:12px;transition:border-color .15s,background .15s;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:10px center;}",
-			".vg-pick-search:focus{outline:none;border-color:#7aa2f7;background-color:rgba(255,255,255,.045);}",
-			".vg-pick-search::placeholder{color:rgba(255,255,255,.4);}",
-			".vg-pick-filter{display:flex;gap:2px;padding:2px;background:rgba(255,255,255,.025);border-radius:8px;border:1px solid var(--sl-color-neutral-300,#2a2a2a);}",
-			".vg-pick-filter button{background:transparent;border:none;color:rgba(255,255,255,.55);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;}",
-			".vg-pick-filter button:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.045);}",
-			".vg-pick-filter button.active{color:#7aa2f7;background:rgba(122,162,247,.16);}",
-			".vg-pick-filter button .count{font-size:10px;opacity:.6;}",
-			".vg-pick-list{display:flex;flex-direction:column;gap:1px;max-height:280px;overflow-y:auto;border:1px solid var(--sl-color-neutral-300,#2a2a2a);border-radius:8px;padding:3px;background:rgba(0,0,0,.18);}",
-			".vg-pick-list::-webkit-scrollbar{width:6px;}",
-			".vg-pick-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:3px;}",
-			".vg-pick-row{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 10px;font-size:12px;border-radius:6px;cursor:pointer;transition:background .12s;position:relative;}",
-			".vg-pick-row:hover{background:rgba(255,255,255,.045);}",
-			".vg-pick-row.checked{background:rgba(122,162,247,.10);}",
-			".vg-pick-row.checked::before{content:'';position:absolute;left:-3px;top:50%;width:2px;height:60%;transform:translateY(-50%);background:#7aa2f7;border-radius:1px;}",
-			".vg-pick-row.is-new:not(.checked){background:rgba(63,167,106,.05);}",
-			".vg-pick-check{appearance:none;width:16px;height:16px;border:1.5px solid rgba(255,255,255,.16);border-radius:4px;background:transparent;cursor:pointer;position:relative;flex-shrink:0;transition:all .15s;margin:0;}",
-			".vg-pick-check:hover{border-color:#7aa2f7;}",
-			".vg-pick-check:checked{background:#7aa2f7;border-color:#7aa2f7;}",
-			".vg-pick-check:checked::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid #0c0d10;border-width:0 2px 2px 0;transform:rotate(45deg);}",
-			".vg-pick-name{flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}",
-			".vg-pick-row.checked .vg-pick-name{color:#fff;font-weight:500;}",
-			".vg-pick-kind{display:flex;gap:1px;padding:1px;background:rgba(0,0,0,.32);border-radius:5px;border:1px solid var(--sl-color-neutral-300,#2a2a2a);flex-shrink:0;}",
-			".vg-pick-kind button{background:transparent;border:none;color:rgba(255,255,255,.4);font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.02em;}",
-			".vg-pick-kind button:hover{color:rgba(255,255,255,.65);}",
-			".vg-pick-kind button[data-kind='image'].active{background:rgba(63,167,106,.14);color:#3fa76a;box-shadow:0 0 0 1px rgba(63,167,106,.35);}",
-			".vg-pick-kind button[data-kind='video'].active{background:rgba(181,140,242,.14);color:#b58cf2;box-shadow:0 0 0 1px rgba(181,140,242,.35);}",
-			".vg-pick-kind button[data-kind='tts'].active{background:rgba(240,179,94,.14);color:#f0b35e;box-shadow:0 0 0 1px rgba(240,179,94,.35);}",
-			".vg-pick-tag{font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;flex-shrink:0;min-width:44px;text-align:center;}",
-			".vg-pick-tag.configured{background:rgba(122,162,247,.16);color:#7aa2f7;}",
-			".vg-pick-tag.new{background:rgba(63,167,106,.14);color:#3fa76a;}",
-			".vg-pick-actions{display:flex;gap:8px;margin-top:10px;align-items:center;justify-content:space-between;}",
-			".vg-pick-stat{font-size:11.5px;color:rgba(255,255,255,.55);display:flex;gap:12px;align-items:center;}",
-			".vg-pick-stat strong{color:rgba(255,255,255,.9);font-weight:600;}",
-			".vg-pick-stat .sep{width:1px;height:12px;background:rgba(255,255,255,.16);}",
-			".vg-pick-actions-right{display:flex;gap:6px;}",
-			".vg-pick-empty{color:rgba(255,255,255,.4);font-size:12px;padding:24px;text-align:center;}",
+			".vg-probe-ok{color:var(--vg-success);}",
+			".vg-probe-err{color:var(--vg-error);}",
 			"@media (max-width:640px){.vg-grid{grid-template-columns:1fr;}}",
 			// ── 设置页菜单式版式（vg-set-* 前缀，对齐 dsh-coding-sidebar SideCardSection 配方）──
 			// DSH 原生令牌（--dsw-alias-*）驱动明暗主题；分组卡片 + 菜单式设置行（标题/描述在左、
@@ -755,106 +753,70 @@ window.__ModuleLoader__.load({
 			".vg-set-kv .v{color:var(--dsw-alias-label-secondary,#666);overflow-wrap:anywhere;}",
 			".vg-set-probe-ok{color:var(--dsw-alias-state-success-primary,#00b450);}",
 			".vg-set-probe-err{color:var(--dsw-alias-state-error-primary,#e60013);}",
-			// 模型勾选面板：适配 DSH 明暗主题（替换原 dark-only 硬编码色）
-			".vg-pick{margin-top:12px;background:var(--dsw-alias-bg-layer-2,#f0f0f0);border:1px solid var(--dsw-alias-border-l2,#ddd);border-radius:12px;padding:14px 16px;position:relative;overflow:hidden;}",
-			".vg-pick-title{display:flex;align-items:center;gap:8px;font-size:11.5px;font-weight:600;letter-spacing:.04em;color:var(--dsw-alias-label-tertiary,#888);text-transform:uppercase;margin-bottom:12px;}",
-			".vg-pick-title-count{margin-left:auto;font-weight:400;text-transform:none;letter-spacing:0;color:var(--dsw-alias-label-tertiary,#888);}",
-			".vg-pick-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}",
-			".vg-pick-search{flex:1;min-width:160px;background:var(--dsw-alias-bg-layer-3,#fff);border:1px solid var(--dsw-alias-border-l2,#ddd);color:var(--dsw-alias-label-primary,#1a1a1a);border-radius:8px;padding:6px 10px;font-size:12px;transition:border-color .15s,background .15s;}",
-			".vg-pick-search:focus{outline:none;border-color:var(--dsw-alias-state-business-primary,#4176e6);background-color:var(--dsw-alias-bg-layer-3,#fff);}",
-			".vg-pick-search::placeholder{color:var(--dsw-alias-label-tertiary,#888);}",
-			".vg-pick-filter{display:flex;gap:2px;padding:2px;background:var(--dsw-alias-bg-layer-3,#fff);border-radius:8px;border:1px solid var(--dsw-alias-border-l2,#ddd);}",
-			".vg-pick-filter button{background:transparent;border:none;color:var(--dsw-alias-label-secondary,#666);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;}",
-			".vg-pick-filter button:hover{color:var(--dsw-alias-label-primary,#1a1a1a);background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));}",
-			".vg-pick-filter button.active{color:var(--dsw-alias-state-business-primary,#4176e6);background:var(--dsw-alias-interactive-bg-hover-accent,rgba(38,49,72,.14));}",
-			".vg-pick-filter button .count{font-size:10px;opacity:.6;}",
-			".vg-pick-list{display:flex;flex-direction:column;gap:1px;max-height:280px;overflow-y:auto;border:1px solid var(--dsw-alias-border-l2,#ddd);border-radius:8px;padding:3px;background:var(--dsw-alias-bg-layer-3,#fff);}",
-			".vg-pick-list::-webkit-scrollbar{width:6px;}",
-			".vg-pick-list::-webkit-scrollbar-thumb{background:var(--dsw-alias-border-l2,#ddd);border-radius:3px;}",
-			".vg-pick-row{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 10px;font-size:12px;border-radius:6px;cursor:pointer;transition:background .12s;position:relative;}",
-			".vg-pick-row:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));}",
-			".vg-pick-row.checked{background:var(--dsw-alias-interactive-bg-hover-accent,rgba(38,49,72,.14));}",
-			".vg-pick-row.checked::before{content:'';position:absolute;left:-3px;top:50%;width:2px;height:60%;transform:translateY(-50%);background:var(--dsw-alias-state-business-primary,#4176e6);border-radius:1px;}",
-			".vg-pick-row.is-new:not(.checked){background:var(--dsw-alias-state-success-tertiary,rgba(0,180,80,.08));}",
-			".vg-pick-check{appearance:none;width:16px;height:16px;border:1.5px solid var(--dsw-alias-border-l2,#ddd);border-radius:4px;background:transparent;cursor:pointer;position:relative;flex-shrink:0;transition:all .15s;margin:0;}",
-			".vg-pick-check:hover{border-color:var(--dsw-alias-state-business-primary,#4176e6);}",
-			".vg-pick-check:checked{background:var(--dsw-alias-state-business-primary,#4176e6);border-color:var(--dsw-alias-state-business-primary,#4176e6);}",
-			".vg-pick-check:checked::after{content:'';position:absolute;left:4px;top:1px;width:4px;height:8px;border:solid var(--dsw-alias-label-primary-foreground,#fff);border-width:0 2px 2px 0;transform:rotate(45deg);}",
-			".vg-pick-name{flex:1;min-width:0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--dsw-alias-label-primary,#1a1a1a);}",
-			".vg-pick-row.checked .vg-pick-name{font-weight:500;}",
-			".vg-pick-kind{display:flex;gap:1px;padding:1px;background:var(--dsw-alias-bg-layer-2,#f0f0f0);border-radius:5px;border:1px solid var(--dsw-alias-border-l2,#ddd);flex-shrink:0;}",
-			".vg-pick-kind button{background:transparent;border:none;color:var(--dsw-alias-label-tertiary,#888);font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.02em;}",
-			".vg-pick-kind button:hover{color:var(--dsw-alias-label-secondary,#666);}",
-			".vg-pick-kind button[data-kind='image'].active{background:var(--dsw-alias-state-success-tertiary,rgba(0,180,80,.12));color:var(--dsw-alias-state-success-primary,#00b450);}",
-			".vg-pick-kind button[data-kind='video'].active{background:var(--dsw-alias-interactive-bg-hover-accent,rgba(38,49,72,.14));color:var(--dsw-alias-state-business-primary,#4176e6);}",
-			".vg-pick-kind button[data-kind='tts'].active{background:var(--dsw-alias-state-warn-tertiary,rgba(255,165,0,.12));color:var(--dsw-alias-state-warn-primary,#ff9500);}",
-			".vg-pick-tag{font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;flex-shrink:0;min-width:44px;text-align:center;}",
-			".vg-pick-tag.configured{background:var(--dsw-alias-interactive-bg-hover-accent,rgba(38,49,72,.14));color:var(--dsw-alias-state-business-primary,#4176e6);}",
-			".vg-pick-tag.new{background:var(--dsw-alias-state-success-tertiary,rgba(0,180,80,.12));color:var(--dsw-alias-state-success-primary,#00b450);}",
-			".vg-pick-actions{display:flex;gap:8px;margin-top:10px;align-items:center;justify-content:space-between;}",
-			".vg-pick-stat{font-size:11.5px;color:var(--dsw-alias-label-secondary,#666);display:flex;gap:12px;align-items:center;}",
-			".vg-pick-stat strong{color:var(--dsw-alias-label-primary,#1a1a1a);font-weight:600;}",
-			".vg-pick-stat .sep{width:1px;height:12px;background:var(--dsw-alias-border-l2,#ddd);}",
-			".vg-pick-actions-right{display:flex;gap:6px;}",
-			".vg-pick-empty{color:var(--dsw-alias-label-tertiary,#888);font-size:12px;padding:24px;text-align:center;}",
 			// ── 漫剧工坊（wb-* 前缀）：项目卡片 / 三栏壳 / 阶段导航 / 提案卡 / diff ──
+			// 宽度策略对齐自动化任务面板：铺满宿主面板、不限宽居中；面板自带滚动
+			// （height:100%+min-height:0+overflow:auto，同 kyl-panel 配方——宿主 main
+			// 槽容器定高不滚动，滚动责任在插件根元素）。
 			".vg-wb-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}",
-			".vg-wb-page{max-width:1080px;margin:0 auto;padding:2px 10px 28px;}",
-			".vg-wb-hero{display:flex;align-items:center;gap:14px;padding:16px 2px 14px;}",
-			".vg-wb-hero-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#7aa2f7,#5b82d7);display:flex;align-items:center;justify-content:center;color:#fff;flex:none;box-shadow:0 4px 14px rgba(122,162,247,.35);}",
-			".vg-wb-hero h2{margin:0;font-size:20px;font-weight:700;letter-spacing:.01em;}",
-			".vg-wb-hero .sub{opacity:.65;font-size:12.5px;margin-top:2px;}",
-			".vg-wb-card{position:relative;border:1px solid var(--sl-color-neutral-300,#ddd);border-radius:14px;padding:14px 16px 12px;cursor:pointer;background:var(--sl-color-neutral-50,transparent);transition:box-shadow .15s,transform .15s,border-color .15s;overflow:hidden;}",
-			".vg-wb-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#7aa2f7 50%,transparent);opacity:0;transition:opacity .15s;}",
-			".vg-wb-card:hover{border-color:#7aa2f7;transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.10);}",
-			".vg-wb-card:hover::before{opacity:.8;}",
-			".vg-wb-card .title{font-size:15px;font-weight:700;line-height:1.35;}",
-			".vg-wb-progress{height:5px;border-radius:3px;background:var(--sl-color-neutral-300,rgba(127,127,127,.22));overflow:hidden;margin:10px 0 6px;}",
-			".vg-wb-progress .bar{height:100%;border-radius:3px;background:linear-gradient(90deg,#7aa2f7,#5b82d7);transition:width .3s;}",
-			".vg-wb-empty{border:1px dashed var(--sl-color-neutral-400,#bbb);border-radius:16px;padding:52px 24px 44px;text-align:center;opacity:.9;}",
-			".vg-wb-empty .hint{opacity:.6;font-size:12.5px;margin:12px 0 0;}",
-			".vg-wb-title{font-weight:700;font-size:16px;}",
-			".vg-wb-meta{opacity:.62;font-size:11px;display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;justify-content:space-between;}",
-			".vg-badge-review{background:#b58cf2;color:#fff;}",
-			".vg-badge-done{background:#2f6f4f;color:#fff;}",
-			".vg-chip-writing{background:#3b5fd9;color:#fff;}",
-			".vg-chip-review{background:#b58cf2;color:#fff;}",
-			".vg-chip-adapting{background:#f0b35e;color:#26200a;}",
-			".vg-wb-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--sl-color-neutral-100,rgba(127,127,127,.07));border:1px solid var(--sl-color-neutral-300,#ddd);border-radius:12px;padding:10px 12px;margin:0 0 16px;}",
-			".vg-wb-toolbar .lbl{opacity:.6;font-size:12px;}",
-			".vg-wb-wbhead{border:1px solid var(--sl-color-neutral-300,#ddd);border-left:3px solid #7aa2f7;border-radius:12px;padding:10px 14px;margin-bottom:12px;background:var(--sl-color-neutral-50,transparent);}",
-			".vg-wb-shell{display:flex;gap:12px;align-items:flex-start;min-height:360px;}",
-			".vg-wb-nav{flex:0 0 132px;display:flex;flex-direction:column;gap:2px;border:1px solid var(--sl-color-neutral-300,#2a2a2a);border-radius:10px;padding:6px;}",
-			".vg-wb-nav button{background:transparent;border:none;color:inherit;text-align:left;font-size:12.5px;padding:6px 8px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;gap:6px;align-items:center;}",
-			".vg-wb-nav button:hover{background:rgba(122,162,247,.08);}",
-			".vg-wb-nav button.active{background:rgba(122,162,247,.14);color:var(--sl-color-primary-500,#7aa2f7);font-weight:600;box-shadow:inset 2px 0 0 #7aa2f7;}",
-			".vg-wb-nav .cnt{font-size:10px;opacity:.65;}",
+			".vg-wb-page{display:flex;flex-direction:column;gap:16px;height:100%;min-height:0;overflow:auto;box-sizing:border-box;padding:16px 24px 32px;font-size:13px;line-height:1.5;color:var(--vg-fg);}",
+			".vg-wb-hero{display:flex;align-items:center;gap:12px;padding:4px 0 0;}",
+			".vg-wb-hero-icon{width:40px;height:40px;border-radius:10px;background:var(--vg-primary);display:flex;align-items:center;justify-content:center;color:var(--vg-primary-fg);flex:none;}",
+			".vg-wb-hero h2{margin:0;font-size:18px;font-weight:600;}",
+			".vg-wb-hero .sub{font-size:12px;color:var(--vg-muted);margin-top:2px;}",
+			// 项目卡片：发丝边 + 透明底，hover 铺底加深边（去渐变扫光/位移/阴影）
+			".vg-wb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}",
+			".vg-wb-card{position:relative;border:1px solid var(--vg-border);border-radius:12px;padding:14px 16px 12px;cursor:pointer;background:transparent;transition:border-color .15s,background .15s;overflow:hidden;}",
+			".vg-wb-card:hover{border-color:var(--vg-border-strong);background:var(--vg-fill-hover);}",
+			".vg-wb-card .title{font-size:14px;font-weight:600;line-height:1.4;color:var(--vg-fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}",
+			".vg-wb-progress{height:4px;border-radius:999px;background:var(--vg-fill);overflow:hidden;margin:10px 0 6px;}",
+			".vg-wb-progress .bar{height:100%;border-radius:999px;background:var(--vg-primary);transition:width .3s;}",
+			".vg-wb-empty{border:1px dashed var(--vg-border-strong);border-radius:12px;padding:48px 24px 40px;text-align:center;color:var(--vg-fg);}",
+			".vg-wb-empty .hint{font-size:12px;color:var(--vg-muted);margin:12px 0 0;}",
+			".vg-wb-title{font-weight:600;font-size:16px;color:var(--vg-fg);}",
+			".vg-wb-meta{font-size:11px;color:var(--vg-muted);display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;justify-content:space-between;}",
+			".vg-chip-writing{color:var(--vg-info);background:color-mix(in srgb,var(--vg-info) 16%,transparent);}",
+			".vg-chip-review{color:var(--vg-warn);background:color-mix(in srgb,var(--vg-warn) 16%,transparent);}",
+			".vg-chip-adapting{color:var(--vg-warn);background:color-mix(in srgb,var(--vg-warn) 16%,transparent);}",
+			// 工具条/详情头：去盒子，纯 flex 行（对齐自动化任务 toolbar/header 配方）
+			".vg-wb-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}",
+			".vg-wb-toolbar .lbl{font-size:12px;color:var(--vg-muted);}",
+			".vg-wb-wbhead{padding:0;}",
+			".vg-wb-shell{display:flex;gap:16px;align-items:flex-start;}",
+			".vg-wb-nav{flex:0 0 168px;display:flex;flex-direction:column;gap:2px;border:1px solid var(--vg-border);border-radius:10px;padding:6px;}",
+			".vg-wb-nav button{background:transparent;border:none;color:var(--vg-fg);text-align:left;font-size:12.5px;padding:6px 10px;border-radius:6px;cursor:pointer;display:flex;justify-content:space-between;gap:6px;align-items:center;}",
+			".vg-wb-nav button:hover{background:var(--vg-fill-hover);}",
+			".vg-wb-nav button.active{background:var(--vg-fill-hover);color:var(--vg-primary);font-weight:600;}",
+			".vg-wb-nav .cnt{font-size:10px;color:var(--vg-muted);font-variant-numeric:tabular-nums;}",
 			".vg-wb-main{flex:1;min-width:0;}",
-			".vg-wb-side{flex:0 0 240px;display:flex;flex-direction:column;gap:10px;}",
-			".vg-wb-side h4{margin:0 0 6px;font-size:12px;opacity:.75;}",
+			".vg-wb-side{flex:0 0 300px;display:flex;flex-direction:column;gap:12px;}",
+			".vg-wb-side h4{margin:0 0 6px;font-size:12px;font-weight:600;color:var(--vg-fg-2);}",
 			".vg-wb-side .vg-card{padding:10px 12px;}",
+			// 角色列表字母头像（规格 §2.6 列表「头像占位」）
+			".vg-char-avatar{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--vg-fill);font-size:11px;line-height:1;margin-right:6px;flex:none;}",
 			"@media (max-width:900px){.vg-wb-side{flex:1 1 100%;}.vg-wb-nav{flex-basis:110px;}}",
-			".vg-timeline{display:flex;flex-direction:column;gap:6px;font-size:11.5px;}",
+			".vg-timeline{display:flex;flex-direction:column;gap:6px;font-size:12px;}",
 			".vg-timeline .tl-row{display:flex;gap:8px;}",
-			".vg-timeline .tl-at{opacity:.5;flex:none;font-family:ui-monospace,monospace;}",
-			".vg-proposal{border:1px solid rgba(181,140,242,.5);border-left:3px solid #b58cf2;border-radius:10px;padding:10px 12px;margin-bottom:8px;background:rgba(181,140,242,.05);}",
+			".vg-timeline .tl-at{flex:none;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--vg-muted);font-variant-numeric:tabular-nums;}",
+			// 提案卡：warn 左条 + 同色淡底（待审核语义）
+			".vg-proposal{border:1px solid var(--vg-border);border-left:3px solid var(--vg-warn);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:color-mix(in srgb,var(--vg-warn) 8%,transparent);}",
 			".vg-proposal .vg-proposal-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12px;}",
 			".vg-diff{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}",
-			".vg-diff .pane{border:1px solid var(--sl-color-neutral-300,#2a2a2a);border-radius:8px;padding:8px;font-size:11.5px;max-height:280px;overflow:auto;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;}",
-			".vg-diff .pane.del{background:rgba(229,72,77,.08);}",
-			".vg-diff .pane.add{background:rgba(63,167,106,.08);}",
-			".vg-diff h5{margin:0 0 4px;font-size:11px;opacity:.7;}",
-			".vg-diff-row{display:flex;gap:8px;font-size:11.5px;padding:2px 0;border-bottom:1px dashed rgba(128,128,128,.18);}",
-			".vg-diff-row .k{flex:0 0 110px;opacity:.65;overflow:hidden;text-overflow:ellipsis;}",
+			".vg-diff .pane{border:1px solid var(--vg-border);border-radius:8px;padding:8px;font-size:11.5px;max-height:280px;overflow:auto;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--vg-fg);}",
+			".vg-diff .pane.del{background:color-mix(in srgb,var(--vg-error) 8%,transparent);}",
+			".vg-diff .pane.add{background:color-mix(in srgb,var(--vg-success) 8%,transparent);}",
+			".vg-diff h5{margin:0 0 4px;font-size:11px;color:var(--vg-muted);font-weight:600;}",
+			".vg-diff-row{display:flex;gap:8px;font-size:11.5px;padding:2px 0;border-bottom:1px dashed var(--vg-border);}",
+			".vg-diff-row .k{flex:0 0 110px;color:var(--vg-muted);overflow:hidden;text-overflow:ellipsis;}",
 			".vg-diff-row .v{flex:1;min-width:0;white-space:pre-wrap;}",
-			".vg-diff-row.changed .v.new{color:#3fa76a;}",
-			".vg-diff-row.changed .v.old{color:#e5484d;text-decoration:line-through;opacity:.75;}",
+			".vg-diff-row.changed .v.new{color:var(--vg-success);}",
+			".vg-diff-row.changed .v.old{color:var(--vg-error);text-decoration:line-through;opacity:.75;}",
 			".vg-subtabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}",
-			".vg-banner{border:1px solid rgba(181,140,242,.55);background:rgba(181,140,242,.09);border-radius:8px;padding:6px 10px;font-size:12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}",
-			".vg-banner.warn{border-color:rgba(240,179,94,.55);background:rgba(240,179,94,.09);}",
+			// 横幅：中性/警告两档 notice（去紫边盒子）；嵌套在卡片内使用，自带下边距
+			".vg-banner{border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--vg-fill);color:var(--vg-fg);}",
+			".vg-banner.warn{background:color-mix(in srgb,var(--vg-warn) 12%,transparent);}",
 			".vg-kv{display:grid;grid-template-columns:88px 1fr;gap:4px 10px;font-size:12px;}",
-			".vg-kv .k{opacity:.6;}",
-			".vg-checkline{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px dashed rgba(128,128,128,.2);font-size:12px;}",
+			".vg-kv .k{color:var(--vg-muted);}",
+			".vg-checkline{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px dashed var(--vg-border);font-size:12px;}",
 			// 设置页导航图标替换：DSH 0.1.x 的 settings.section 契约只投影
 			// id/order/label，壳层对外部分区一律渲染通用齿轮。这里只对本插件
 			// 被标记的行生效：隐藏齿轮 SVG，用 ::before mask 画场记板字形。
@@ -922,40 +884,7 @@ window.__ModuleLoader__.load({
 			return String(id || "").replace(/^run-/, "").slice(0, 8);
 		}
 
-		// 注：lib/client.js 是手写 bundle（不在 tsc 构建链）；assemblePickerRows 的逻辑就地复用，
-		//     保证行为与 src/picker/assemble.ts 一致——后者跑 node:test，前者由 client-bundle.test.ts 守护。
-		function assemblePickerRowsPublic(existingModels, enumerated) {
-			var seen = Object.create(null);
-			var rows = [];
-			for (var i = 0; i < (existingModels || []).length; i++) {
-				var m = existingModels[i];
-				if (seen[m.model]) continue;
-				seen[m.model] = true;
-				rows.push({ model: m.model, kind: m.kind, isConfigured: true, isNew: false });
-			}
-			for (var j = 0; j < (enumerated || []).length; j++) {
-				var name = enumerated[j];
-				if (seen[name]) continue;
-				seen[name] = true;
-				rows.push({ model: name, kind: inferKindByName(name), isConfigured: false, isNew: true });
-			}
-			return rows;
-		}
-
-		// 内置目录精简版（与 src/model-catalog.ts BUILTIN_CATALOG 同构；M5 维护时改两处）
-		function inferKindByName(name) {
-			var n = String(name || "").toLowerCase();
-			if (n.indexOf("tts") !== -1 || n.indexOf("speech") !== -1 || n.indexOf("voice") !== -1) return "tts";
-			if (n.indexOf("seedance") !== -1 || n.indexOf("kling") !== -1 || n.indexOf("wan-x") !== -1 ||
-				n.indexOf("hailuo") !== -1 || n.indexOf("sora") !== -1 || n.indexOf("vidu") !== -1 ||
-				n.indexOf("pixverse") !== -1 || n.indexOf("happyhorse") !== -1 ||
-				n.indexOf("video") !== -1 || n.indexOf("i2v") !== -1 || n.indexOf("t2v") !== -1) return "video";
-			if (n.indexOf("seedream") !== -1 || n.indexOf("flux") !== -1 || n.indexOf("mj") !== -1 ||
-				n.indexOf("midjourney") !== -1 || n.indexOf("dall") !== -1 || n.indexOf("sd3") !== -1 ||
-				n.indexOf("image") !== -1 || n.indexOf("banana") !== -1 || n.indexOf("t2i") !== -1 ||
-				n.indexOf("wanx") !== -1) return "image";
-			return "video"; // unknown 兜底与 resolveModel 一致
-		}
+		// v2 通道层：模型池/picker 已整体退役（用途槽：每槽恰好一个模型；见 slots.set RPC）。
 
 		var STATE_KEY = { pending: "statePending", running: "stateRunning", done: "stateDone", failed: "stateFailed" };
 		var STATUS_KEY = { running: "statusRunning", done: "statusDone", failed: "statusFailed" };
@@ -1059,6 +988,20 @@ window.__ModuleLoader__.load({
 						),
 					));
 				}
+				var musicFiles = artifacts.music || [];
+				if (musicFiles.length > 0) {
+					previewGroups.push(React.createElement("div", { key: "music" },
+						React.createElement("h4", { style: { margin: "8px 0 4px", fontSize: 12 } }, "BGM"),
+						React.createElement("div", { className: "vg-preview-grid" },
+							musicFiles.map(function (file) {
+								return React.createElement("audio", {
+									key: file.rel, src: mediaUrl(file.rel),
+									controls: true, preload: "none", title: file.name,
+								});
+							})
+						),
+					));
+				}
 				if (artifacts.final && artifacts.final.srt) {
 					previewGroups.push(React.createElement("div", { key: "final" },
 						React.createElement("h4", { style: { margin: "8px 0 4px", fontSize: 12 } }, t("finalGroup")),
@@ -1128,172 +1071,21 @@ window.__ModuleLoader__.load({
 		/* ── 通道管理视图：通道行 / 添加通道 / 预算与 gate ──── */
 
 		/**
-		 * 模型勾选面板（PickerPanel）：紧贴 ChannelRow 探测成功行下方。
 		 * 数据形态：picker = { rows: [{model, kind, isConfigured, isNew}], checked: Set<model>, search, kindFilter, busy }
 		 * 交互：搜索 / 按 kind 筛选 / 行内 checkbox / 行内 kind 选择器 / 全选反选 / 保存选中。
 		 * 所有变更走 onChange（合并回 probe[id].picker）；保存走 onSave（ChannelRow → ChannelsView → Stateful）。
 		 */
-		function PickerPanel(props) {
-			var t = props.t;
-			var picker = props.picker;
-			if (!picker) return null;
-			var rows = picker.rows;
-			var search = picker.search;
-			var kindFilter = picker.kindFilter;
-			var checked = picker.checked;
-			var q = search.toLowerCase();
-			var filtered = rows.filter(function (r) {
-				if (kindFilter !== "all" && r.kind !== kindFilter) return false;
-				if (q && r.model.toLowerCase().indexOf(q) === -1) return false;
-				return true;
-			});
-			var toggleCheck = function (model) {
-				var next = new Set(checked);
-				if (next.has(model)) next.delete(model); else next.add(model);
-				props.onChange(Object.assign({}, picker, { checked: next }));
-			};
-			var setKind = function (model, kind) {
-				var nextRows = rows.map(function (r) { return r.model === model ? Object.assign({}, r, { kind: kind }) : r; });
-				props.onChange(Object.assign({}, picker, { rows: nextRows }));
-			};
-			var setSearch = function (v) { props.onChange(Object.assign({}, picker, { search: v })); };
-			var setKindFilter = function (v) { props.onChange(Object.assign({}, picker, { kindFilter: v })); };
-			var removeRow = function (model) {
-				var nextRows = rows.filter(function (r) { return r.model !== model; });
-				var nextChecked = new Set(checked);
-				nextChecked.delete(model);
-				props.onChange(Object.assign({}, picker, { rows: nextRows, checked: nextChecked }));
-			};
-			var allChecked = filtered.every(function (r) { return checked.has(r.model); }) && filtered.length > 0;
-			var selectAll = function () {
-				var next = new Set(checked);
-				filtered.forEach(function (r) { next.add(r.model); });
-				props.onChange(Object.assign({}, picker, { checked: next }));
-			};
-			var deselectAll = function () {
-				var next = new Set(checked);
-				filtered.forEach(function (r) { next.delete(r.model); });
-				props.onChange(Object.assign({}, picker, { checked: next }));
-			};
-			return React.createElement("div", { className: "vg-pick" },
-				React.createElement("div", { className: "vg-pick-title" },
-					React.createElement("span", null, t("pickerTitle")),
-					React.createElement("span", { className: "vg-pick-title-count" },
-						String(rows.length) + t("pickerCountUnit") + " · " + t("pickerCheckedHintPrefix") + " ",
-						React.createElement("strong", { style: { color: "rgba(255,255,255,.9)", fontWeight: 600 } }, String(checked.size))),
-				),
-				React.createElement("div", { className: "vg-pick-toolbar" },
-					React.createElement("input", {
-						className: "vg-pick-search", placeholder: t("pickerSearch"), value: search,
-						onChange: function (e) { setSearch(e.target.value); },
-					}),
-					React.createElement("div", { className: "vg-pick-filter" },
-						React.createElement("button", {
-							className: kindFilter === "all" ? "active" : "",
-							onClick: function () { setKindFilter("all"); },
-						}, t("pickerFilterAll"), React.createElement("span", { className: "count" }, rows.length)),
-						React.createElement("button", {
-							className: kindFilter === "image" ? "active" : "",
-							onClick: function () { setKindFilter("image"); },
-						}, t("pickerKindImage"), React.createElement("span", { className: "count" }, rows.filter(function (r) { return r.kind === "image"; }).length)),
-						React.createElement("button", {
-							className: kindFilter === "video" ? "active" : "",
-							onClick: function () { setKindFilter("video"); },
-						}, t("pickerKindVideo"), React.createElement("span", { className: "count" }, rows.filter(function (r) { return r.kind === "video"; }).length)),
-						React.createElement("button", {
-							className: kindFilter === "tts" ? "active" : "",
-							onClick: function () { setKindFilter("tts"); },
-						}, t("pickerKindTts"), React.createElement("span", { className: "count" }, rows.filter(function (r) { return r.kind === "tts"; }).length)),
-					),
-				),
-				rows.length === 0
-					? React.createElement("div", { className: "vg-pick-empty" }, t("pickerEmpty"))
-					: filtered.length === 0
-						? React.createElement("div", { className: "vg-pick-empty" }, t("pickerEmpty"))
-						: React.createElement("div", { className: "vg-pick-list" },
-							filtered.map(function (r) {
-								var isChecked = checked.has(r.model);
-								var rowClasses = "vg-pick-row" + (isChecked ? " checked" : "") + (r.isNew && !isChecked ? " is-new" : "");
-								return React.createElement("div", {
-									key: r.model,
-									className: rowClasses,
-									onClick: function () { toggleCheck(r.model); },
-								},
-									React.createElement("input", {
-										type: "checkbox", className: "vg-pick-check",
-										checked: isChecked,
-										onChange: function () { toggleCheck(r.model); },
-										onClick: function (e) { e.stopPropagation(); },
-									}),
-									React.createElement("span", { className: "vg-pick-name", title: r.model }, r.model),
-									React.createElement("div", { className: "vg-pick-kind", onClick: function (e) { e.stopPropagation(); } },
-										React.createElement("button", {
-											"data-kind": "image",
-											className: r.kind === "image" ? "active" : "",
-											onClick: function (e) { e.stopPropagation(); setKind(r.model, "image"); },
-										}, t("pickerKindImage")),
-										React.createElement("button", {
-											"data-kind": "video",
-											className: r.kind === "video" ? "active" : "",
-											onClick: function (e) { e.stopPropagation(); setKind(r.model, "video"); },
-										}, t("pickerKindVideo")),
-										React.createElement("button", {
-											"data-kind": "tts",
-											className: r.kind === "tts" ? "active" : "",
-											onClick: function (e) { e.stopPropagation(); setKind(r.model, "tts"); },
-										}, t("pickerKindTts")),
-									),
-									React.createElement("button", { className: "vg-btn vg-btn-mini vg-btn-danger vg-pick-remove", title: t("pickerRemove"), "aria-label": t("pickerRemove"), onClick: function (e) { e.stopPropagation(); removeRow(r.model); } }, t("pickerRemove")),
-								r.isConfigured
-										? React.createElement("span", { className: "vg-pick-tag configured" }, t("pickerLabelConfigured"))
-										: React.createElement("span", { className: "vg-pick-tag new" }, t("pickerLabelNew")),
-								);
-							}),
-						),
-				React.createElement("div", { className: "vg-pick-actions" },
-					React.createElement("div", { className: "vg-pick-stat" },
-						// 注：fill() 强制 String() 化参数，故直接拼字符串 + 嵌入 React 元素
-						React.createElement("span", null,
-							t("pickerStatCheckedPrefix"), " ",
-							React.createElement("strong", null, String(checked.size)), " / ",
-							String(rows.length)),
-						React.createElement("span", { className: "sep" }),
-						React.createElement("span", null,
-							t("pickerStatRemovedPrefix"), " ",
-							React.createElement("strong", null, String(rows.length - checked.size))),
-					),
-					React.createElement("div", { className: "vg-pick-actions-right" },
-						React.createElement("button", {
-							className: "vg-btn vg-btn-mini", disabled: picker.busy,
-							onClick: function () {
-								if (allChecked) deselectAll(); else selectAll();
-							},
-						}, allChecked ? t("pickerDeselectAll") : t("pickerSelectAll")),
-						React.createElement("button", {
-							className: "vg-btn vg-btn-primary",
-							disabled: picker.busy,
-							onClick: function () { props.onSave(); },
-						}, t("pickerSave")),
-					),
-				),
-			);
-		}
-
 		function ChannelRow(props) {
 			var t = props.t;
 			var ch = props.ch;
-			var isDefault = ch.id === props.defaultChannelId;
 			var probe = props.probe || {};
 			var children = [
 				// 菜单式行：标题/描述在左、开关在右、细分隔线（对齐 SideCardSection row 配方）
 				React.createElement("div", { key: "row", className: "vg-set-row" },
 					React.createElement("div", { className: "vg-set-row-text" },
-						React.createElement("div", { className: "vg-set-row-title" },
-							ch.label || ch.id,
-							isDefault ? React.createElement("span", { className: "vg-set-group-count", style: { marginLeft: 8 } }, t("defaultBadge")) : null,
-						),
+						React.createElement("div", { className: "vg-set-row-title" }, ch.label || ch.id),
 						React.createElement("div", { className: "vg-set-row-desc" },
-							ch.id + " · " + ch.baseUrl + " · " + ch.apiKeyMasked + " · " + String((ch.models || []).length) + " models",
+							ch.id + " · " + ch.baseUrl + " · " + ch.apiKeyMasked,
 						),
 					),
 					React.createElement("div", { className: "vg-set-row-control" },
@@ -1310,11 +1102,10 @@ window.__ModuleLoader__.load({
 						),
 					),
 				),
-				// 操作按钮行（测试/设为默认/删除）
+				// 操作按钮行（测试 = 连通/鉴权/协议族实测，不导入任何模型）
 				React.createElement("div", { key: "acts", className: "vg-set-row", style: { borderBottom: "none", paddingTop: 0, paddingBottom: 8 } },
 					React.createElement("div", { className: "vg-set-row-text" }),
 					React.createElement("div", { className: "vg-set-row-control" },
-						!isDefault ? React.createElement("button", { className: "vg-set-btn", disabled: props.busy, onClick: function () { props.onSetDefault(ch.id); } }, t("setDefault")) : null,
 						React.createElement("button", { className: "vg-set-btn", disabled: props.busy || !!probe.busy, onClick: function () { props.onTestChannel(ch.id); } },
 							probe.busy ? t("testing") : t("test")),
 						React.createElement("button", { className: "vg-set-btn vg-set-btn-danger", disabled: props.busy, onClick: function () { props.onDeleteChannel(ch); } }, t("deleteCh")),
@@ -1326,24 +1117,234 @@ window.__ModuleLoader__.load({
 					probe.message,
 				));
 			}
-			if (probe.picker) {
-				children.push(React.createElement(PickerPanel, {
-					key: "picker",
-					t: t,
-					picker: probe.picker,
-					onChange: function (next) {
-						// 把 next 合并回 probe[id].picker；ChannelsView 暴露 onPickerChange 回调
-						props.onPickerChange(ch.id, next);
-					},
-					onSave: function () { props.onPickerSave(ch.id); },
-				}));
-			}
 			return React.createElement("div", { className: "vg-set-group", style: { padding: "12px 20px" } }, children);
+		}
+
+		/* ── 用途槽（v2 通道层核心：每槽恰好一个模型 + 真实小额测试）───────── */
+
+		var SLOT_ORDER = ["image.master", "image.shot", "video", "tts", "music.bgm", "music.song"];
+		var SLOT_PROTOCOL_FIXED = { "image.master": "openai-images", "image.shot": "openai-images", tts: "openai-tts", "music.bgm": "generic-music", "music.song": "generic-music" };
+
+		function defaultSlotProtocol(slot, binding) {
+			if (SLOT_PROTOCOL_FIXED[slot]) return SLOT_PROTOCOL_FIXED[slot];
+			return (binding && binding.protocol) || "dashscope-video";
+		}
+
+		function defaultCapsFor(slot) {
+			if (slot === "video") return { imageToVideo: true, textToVideo: false, maxDurationSec: 10 };
+			if (slot === "image.master") return { sizeParam: true };
+			if (slot === "image.shot") return { referenceImage: true };
+			return {};
+		}
+
+		/** 从已保存绑定初始化槽位草稿（仅首次；刷新不覆盖用户未保存编辑）。 */
+		function initSlotDrafts(savedList) {
+			var byId = Object.create(null);
+			(savedList || []).forEach(function (b) { byId[b.slot] = b; });
+			var drafts = {};
+			SLOT_ORDER.forEach(function (slot) {
+				var b = byId[slot];
+				drafts[slot] = {
+					channelId: (b && b.channelId) || "",
+					model: (b && b.model) || "",
+					protocol: defaultSlotProtocol(slot, b),
+					caps: Object.assign(defaultCapsFor(slot), (b && b.capabilities) || {}),
+					mappingText: b && b.music ? JSON.stringify(b.music, null, 2) : "",
+				};
+			});
+			return drafts;
+		}
+
+		function SlotRow(props) {
+			var t = props.t;
+			var slot = props.slot;
+			var meta = (props.slotMeta && props.slotMeta[slot]) || {};
+			// 全字段防御：草稿未初始化（首帧 slotDrafts 为空）时也必须可渲染——
+			// 任何一处直接读 caps.* 都会在真实 React 里抛错并卸载整棵设置树（白屏）。
+			var draft = props.draft || {};
+			var caps = draft.caps || {};
+			var binding = props.binding;
+			var msg = props.slotMsg || {};
+			var setDraft = function (patch) { props.setDraft(slot, Object.assign({}, draft, patch)); };
+			var isMusic = slot === "music.bgm" || slot === "music.song";
+			var isVideo = slot === "video";
+			var row = function (title, desc, control, key) {
+				return React.createElement("div", { key: key || title, className: "vg-set-row" },
+					React.createElement("div", { className: "vg-set-row-text" },
+						React.createElement("div", { className: "vg-set-row-title" }, title),
+						desc ? React.createElement("div", { className: "vg-set-row-desc" }, desc) : null,
+					),
+					React.createElement("div", { className: "vg-set-row-control" }, control),
+				);
+			};
+			var kids = [
+				React.createElement("div", { key: "head", className: "vg-set-row" },
+					React.createElement("div", { className: "vg-set-row-text" },
+						React.createElement("div", { className: "vg-set-row-title" },
+							(meta.label || slot),
+							React.createElement("span", { className: "vg-set-group-count", style: { marginLeft: 8 } }, slot),
+						),
+						React.createElement("div", { className: "vg-set-row-desc" },
+							(meta.purpose || "") + (binding ? " · " + t("slotModel") + ": " + binding.model + (binding.verifiedAt ? " · ✓" : "") : " · " + t("slotUnbound")),
+						),
+					),
+				),
+			];
+			var channels = (props.chans && props.chans.channels) || [];
+			kids.push(row(t("slotChannel"), null,
+				React.createElement("select", {
+					className: "vg-set-select", value: draft.channelId,
+					onChange: function (e) { setDraft({ channelId: e.target.value }); },
+				},
+					React.createElement("option", { value: "" }, channels.length ? t("slotChannel") + "…" : t("slotNeedChannel")),
+					channels.map(function (c) { return React.createElement("option", { key: c.id, value: c.id }, (c.label || c.id) + (c.enabled ? "" : " (off)")); }),
+				), "ch"));
+			kids.push(row(t("slotModel"), null,
+				React.createElement("input", {
+					className: "vg-set-input", value: draft.model, placeholder: "model-name",
+					onChange: function (e) { setDraft({ model: e.target.value }); },
+				}), "model"));
+			if (isVideo) {
+				kids.push(row(t("slotProtocol"), null,
+					React.createElement("select", {
+						className: "vg-set-select", value: draft.protocol,
+						onChange: function (e) { setDraft({ protocol: e.target.value }); },
+					},
+						React.createElement("option", { value: "dashscope-video" }, "dashscope-video"),
+						React.createElement("option", { value: "kling-video" }, "kling-video"),
+						React.createElement("option", { value: "openai-video" }, "openai-video"),
+					), "proto"));
+			} else {
+				kids.push(row(t("slotProtocol"), null,
+					React.createElement("span", { className: "vg-set-row-desc" }, SLOT_PROTOCOL_FIXED[slot]), "proto"));
+			}
+			if (slot === "image.master" || slot === "image.shot") {
+				var capKey = slot === "image.master" ? "sizeParam" : "referenceImage";
+				kids.push(row(t("slotCaps"), capKey,
+					React.createElement("input", {
+						type: "checkbox", checked: !!caps[capKey],
+						onChange: function (e) { var c = Object.assign({}, caps); c[capKey] = e.target.checked; setDraft({ caps: c }); },
+					}), "caps"));
+			}
+			if (isVideo) {
+				kids.push(row(t("slotCaps"), "imageToVideo / textToVideo",
+					React.createElement("span", null,
+						React.createElement("input", {
+							type: "checkbox", checked: !!caps.imageToVideo,
+							onChange: function (e) { var c = Object.assign({}, draft.caps); c.imageToVideo = e.target.checked; setDraft({ caps: c }); },
+						}), " i2v ",
+						React.createElement("input", {
+							type: "checkbox", checked: !!caps.textToVideo,
+							onChange: function (e) { var c = Object.assign({}, draft.caps); c.textToVideo = e.target.checked; setDraft({ caps: c }); },
+						}), " t2v",
+					),
+					"caps"));
+				kids.push(row(t("slotMaxDur"), null,
+					React.createElement("input", {
+						className: "vg-set-input vg-set-input-num", type: "number", min: 2, max: 20,
+						value: caps.maxDurationSec,
+						onChange: function (e) { var c = Object.assign({}, draft.caps); c.maxDurationSec = Number(e.target.value); setDraft({ caps: c }); },
+					}), "maxdur"));
+			}
+			if (slot === "tts") {
+				kids.push(row(t("slotVoice"), null,
+					React.createElement("input", {
+						className: "vg-set-input", value: caps.voice || "",
+						onChange: function (e) { var c = Object.assign({}, draft.caps); c.voice = e.target.value; setDraft({ caps: c }); },
+					}), "voice"));
+				kids.push(row(t("slotInstructions"), null,
+					React.createElement("input", {
+						className: "vg-set-input", value: caps.instructions || "",
+						onChange: function (e) { var c = Object.assign({}, draft.caps); c.instructions = e.target.value; setDraft({ caps: c }); },
+					}), "ins"));
+			}
+			if (isMusic) {
+				var userTpls = (props.templates || []).filter(function (x) { return x.source === "user"; });
+				kids.push(row(t("slotTpl"), null,
+					React.createElement("span", null,
+						React.createElement("select", {
+							className: "vg-set-select", value: "",
+							onChange: function (e) { if (e.target.value) props.onApplyTemplate(slot, e.target.value); },
+						},
+							React.createElement("option", { value: "" }, t("slotTpl") + "…"),
+							(props.templates || []).map(function (tpl) { return React.createElement("option", { key: tpl.id, value: tpl.id }, tpl.label); }),
+						),
+						React.createElement("button", { className: "vg-set-btn", style: { marginLeft: 8 }, disabled: props.busy, onClick: function () { props.onSaveTemplate(slot); } }, t("slotTplSaveAs")),
+						userTpls.length > 0 ? React.createElement("select", {
+							className: "vg-set-select", value: "", style: { marginLeft: 8, maxWidth: 180 },
+							title: t("slotTplDelete"),
+							onChange: function (e) {
+								var id = e.target.value;
+								if (!id || typeof window === "undefined" || typeof window.confirm !== "function") return;
+								var tpl = userTpls.find(function (x) { return x.id === id; });
+								if (!tpl || !window.confirm(fill(t("slotTplDeleteConfirm"), { name: tpl.label }))) return;
+								props.onDeleteTemplate(id);
+							},
+						},
+							React.createElement("option", { value: "" }, t("slotTplDelete")),
+							userTpls.map(function (tpl) { return React.createElement("option", { key: tpl.id, value: tpl.id }, tpl.label); }),
+						) : null,
+					), "tpl"));
+				kids.push(React.createElement("div", { key: "map", className: "vg-set-row" },
+					React.createElement("div", { className: "vg-set-row-text" },
+						React.createElement("div", { className: "vg-set-row-title" }, t("slotMapping")),
+						React.createElement("div", { className: "vg-set-row-desc" }, "endpoint.path / request.promptField / response.audioPath / mode"),
+					),
+					React.createElement("div", { className: "vg-set-row-control" },
+						React.createElement("textarea", {
+							className: "vg-set-input", rows: 8, style: { minWidth: 320, fontFamily: "ui-monospace,monospace", fontSize: 11 },
+							value: draft.mappingText,
+							onChange: function (e) { setDraft({ mappingText: e.target.value }); },
+						}),
+					),
+				));
+			}
+			kids.push(React.createElement("div", { key: "acts", className: "vg-set-row", style: { borderBottom: "none", paddingBottom: 8 } },
+				React.createElement("div", { className: "vg-set-row-text" },
+					msg.text ? React.createElement("span", { className: msg.ok ? "vg-set-probe-ok" : "vg-set-probe-err" }, msg.text) : null,
+				),
+				React.createElement("div", { className: "vg-set-row-control" },
+					React.createElement("button", { className: "vg-set-btn vg-set-btn-primary", disabled: props.busy || msg.busy, onClick: function () { props.onSaveSlot(slot); } }, t("slotSave")),
+					React.createElement("button", { className: "vg-set-btn", disabled: props.busy || msg.busy || !binding, title: binding ? "" : t("slotUnbound"), onClick: function () { props.onTestSlot(slot); } },
+						msg.busy ? t("slotTesting") : t("slotTest")),
+				),
+			));
+			return React.createElement("div", { className: "vg-set-group", style: { padding: "12px 20px", marginBottom: 12 } }, kids);
+		}
+
+		function SlotsCard(props) {
+			var t = props.t;
+			var saved = (props.slotsData && props.slotsData.slots) || [];
+			var byId = Object.create(null);
+			(Array.isArray(saved) ? saved : []).forEach(function (b) { byId[b.slot] = b; });
+			var slotMeta = (props.slotsData && props.slotsData.slotMeta) || {};
+			return React.createElement("div", { className: "vg-set-group", style: { padding: "12px 20px" } },
+				React.createElement("div", { className: "vg-set-group-head" }, t("slotsTitle")),
+				React.createElement("p", { className: "vg-set-group-hint" }, t("slotsIntro")),
+				SLOT_ORDER.map(function (slot) {
+					return React.createElement(SlotRow, {
+						key: slot, t: t, slot: slot,
+						slotMeta: slotMeta,
+						binding: byId[slot] || null,
+						chans: props.chans,
+						templates: props.templates || [],
+						draft: (props.slotDrafts || {})[slot] || {},
+						slotMsg: (props.slotMsg || {})[slot] || {},
+						busy: props.busy,
+						setDraft: props.onSetSlotDraft,
+						onSaveSlot: props.onSaveSlot,
+						onTestSlot: props.onTestSlot,
+						onApplyTemplate: props.onApplyTemplate,
+						onSaveTemplate: props.onSaveTemplate,
+						onDeleteTemplate: props.onDeleteTemplate,
+					});
+				}),
+			);
 		}
 
 		function ChannelsView(props) {
 			var t = props.t;
-			var data = props.chans || { channels: [], defaultChannelId: null };
+			var data = props.chans || { channels: [] };
 			var channels = data.channels || [];
 			var budgetDraft = props.budgetDraft;
 			var form = props.form;
@@ -1366,17 +1367,28 @@ window.__ModuleLoader__.load({
 						: channels.map(function (ch) {
 							return React.createElement(ChannelRow, {
 								key: ch.id, t: t, ch: ch, busy: props.busy,
-								defaultChannelId: data.defaultChannelId,
 								probe: props.probe[ch.id],
 								onToggleEnabled: props.onToggleEnabled,
-								onSetDefault: props.onSetDefault,
 								onTestChannel: props.onTestChannel,
-								onPickerChange: props.onPickerChange,
-								onPickerSave: props.onPickerSave,
 								onDeleteChannel: props.onDeleteChannel,
 							});
 						}),
 				),
+				// 分组卡片2.5：用途槽（v2 核心——每槽恰好一个模型 + 真实小额测试）
+				React.createElement(SlotsCard, {
+					t: t, busy: props.busy,
+					slotsData: props.slotsData,
+					chans: props.chans,
+					templates: props.templates,
+					slotDrafts: props.slotDrafts,
+					slotMsg: props.slotMsg,
+					onSetSlotDraft: props.onSetSlotDraft,
+					onSaveSlot: props.onSaveSlot,
+					onTestSlot: props.onTestSlot,
+					onApplyTemplate: props.onApplyTemplate,
+					onSaveTemplate: props.onSaveTemplate,
+					onDeleteTemplate: props.onDeleteTemplate,
+				}),
 				// 分组卡片3：添加通道（菜单式行：字段名在左、输入框在右）
 				React.createElement("form", {
 					className: "vg-set-group",
@@ -1555,13 +1567,20 @@ window.__ModuleLoader__.load({
 						chans: props.chans, probe: props.probe,
 						form: props.form, setForm: props.setForm,
 						budgetDraft: props.budgetDraft, setBudgetDraft: props.setBudgetDraft,
+						slotsData: props.slotsData,
+						templates: props.templates,
+						slotDrafts: props.slotDrafts,
+						slotMsg: props.slotMsg,
+						onSetSlotDraft: props.onSetSlotDraft,
+						onSaveSlot: props.onSaveSlot,
+						onTestSlot: props.onTestSlot,
+						onApplyTemplate: props.onApplyTemplate,
+						onSaveTemplate: props.onSaveTemplate,
+						onDeleteTemplate: props.onDeleteTemplate,
 						onCreateChannel: props.onCreateChannel,
 						onToggleEnabled: props.onToggleEnabled,
-						onSetDefault: props.onSetDefault,
 						onTestChannel: props.onTestChannel,
-						onPickerChange: props.onPickerChange,
-						onPickerSave: props.onPickerSave,
-							onDeleteChannel: props.onDeleteChannel,
+						onDeleteChannel: props.onDeleteChannel,
 						onSaveBudget: props.onSaveBudget,
 				}),
 			);
@@ -1573,8 +1592,7 @@ window.__ModuleLoader__.load({
 		 */
 		function makeStatefulComponent(t) {
 			function Stateful() {
-				// 设置页只承担通道与预算管理;工坊 run 列表/详情在工作台主面板
-				var tab = "channels";
+				// 设置页只承担通道/用途槽/预算；工坊 run 列表/详情在工作台主面板
 				// 通道：列表 + 设置 + 探测结果 + 表单草稿
 				var chansState = React.useState(null);
 				var chans = chansState[0], setChansData = chansState[1];
@@ -1584,6 +1602,15 @@ window.__ModuleLoader__.load({
 				var form = formState[0], setForm = formState[1];
 				var budgetDraftState = React.useState({ threshold: 1, gates: {} });
 				var budgetDraft = budgetDraftState[0], setBudgetDraft = budgetDraftState[1];
+				// 用途槽：绑定表 + 模板 + 每槽草稿 + 每槽测试状态
+				var slotsState = React.useState(null);
+				var slotsData = slotsState[0], setSlotsData = slotsState[1];
+				var templatesState = React.useState([]);
+				var templates = templatesState[0], setTemplates = templatesState[1];
+				var slotDraftsState = React.useState({});
+				var slotDrafts = slotDraftsState[0], setSlotDrafts = slotDraftsState[1];
+				var slotMsgState = React.useState({});
+				var slotMsg = slotMsgState[0], setSlotMsg = slotMsgState[1];
 				// 公共
 				var msgState = React.useState({ ok: "", err: "" });
 				var msg = msgState[0], setMsg = msgState[1];
@@ -1605,6 +1632,15 @@ window.__ModuleLoader__.load({
 								gates: s.gateDefaults || {},
 							});
 						}),
+						api("slots.list").then(function (v) {
+							setSlotsData(v);
+							// 草稿只初始化一次：刷新不覆盖用户未保存的编辑
+							setSlotDrafts(function (prev) {
+								if (Object.keys(prev).length > 0) return prev;
+								return initSlotDrafts((v && v.slots) || []);
+							});
+						}),
+						api("musicTemplates.list").then(function (v) { setTemplates((v && v.templates) || []); }).catch(function () {}),
 					]);
 				}, []);
 
@@ -1650,10 +1686,6 @@ window.__ModuleLoader__.load({
 					run(api("channels.update", { id: id, patch: { enabled: enabled } }));
 				};
 
-				var onSetDefault = function (id) {
-					run(api("channels.setDefault", { id: id }));
-				};
-
 				var onDeleteChannel = function (ch) {
 					var text = fill(t("deleteConfirm"), { name: ch.label || ch.id });
 					if (typeof window !== "undefined" && typeof window.confirm === "function" && !window.confirm(text)) return;
@@ -1661,60 +1693,124 @@ window.__ModuleLoader__.load({
 				};
 
 				var onTestChannel = function (id) {
-					setProbeEntry(id, { busy: true, ok: false, message: "", picker: undefined });
+					// 通道级测试 = 连通/鉴权/枚举自检；不导入任何模型（模型导入面已随 picker 退役）
+					setProbeEntry(id, { busy: true, ok: false, message: "" });
 					api("channels.test", { id: id }).then(function (value) {
 						var p = (value && value.probe) || {};
 						if (p.ok) {
-							// 从 chans 拿该通道详情，取其 models[]（已脱敏，不含 apiKey 明文）
-							var ch = (chansState[0] && chansState[0].channels || []).find(function (c) { return c.id === id; });
-							var existing = (ch && ch.models) || [];
-							var enumerated = p.models || [];
-							// 前端 union + 去重（已配置优先）
-							var rows = assemblePickerRowsPublic(existing, enumerated);
-							var checked = new Set(rows.map(function (r) { return r.model; })); // 全部默认勾选
-							setProbeEntry(id, {
-								busy: false, ok: true,
-								message: fill(t("testOk"), { n: enumerated.length }),
-								models: enumerated,
-								picker: { rows: rows, checked: checked, search: "", kindFilter: "all", busy: false },
-							});
+							setProbeEntry(id, { busy: false, ok: true, message: fill(t("testOk"), { n: (p.models || []).length }) });
 						} else {
-							setProbeEntry(id, { busy: false, ok: false, message: fill(t("testFail"), { err: p.error || "unknown" }), models: null, picker: undefined });
+							setProbeEntry(id, { busy: false, ok: false, message: fill(t("testFail"), { err: p.error || "unknown" }) });
 						}
 					}).catch(function (e) {
-						setProbeEntry(id, { busy: false, ok: false, message: fill(t("testFail"), { err: String(e.message || e) }), models: null, picker: undefined });
+						setProbeEntry(id, { busy: false, ok: false, message: fill(t("testFail"), { err: String(e.message || e) }) });
 					});
 				};
 
-				// 新增 picker 状态管理回调
-				var onPickerChange = function (id, nextPicker) {
-					setProbeEntry(id, Object.assign({}, probeState[0][id], { picker: nextPicker }));
+				/* ── 用途槽操作 ── */
+				var setSlotDraft = function (slot, patch) {
+					setSlotDrafts(function (prev) {
+						var next = Object.assign({}, prev);
+						next[slot] = Object.assign({}, prev[slot] || {}, patch);
+						return next;
+					});
 				};
 
-				var onPickerSave = function (id) {
-					var entry = probeState[0][id] || {};
-					var picker = entry.picker;
-					if (!picker || entry.busy) return;
-					// 保存即提交当前 picker 草稿中仍勾选的模型；空数组表示暂不选择模型。
-					var submitted = picker.rows.filter(function (r) { return picker.checked.has(r.model); }).map(function (r) {
-						return { model: r.model, kind: r.kind };
+				var capsPayload = function (slot, draft) {
+					draft = draft || {};
+					var caps = draft.caps || {};
+					if (slot === "video") {
+						return { imageToVideo: !!caps.imageToVideo, textToVideo: !!caps.textToVideo, maxDurationSec: Number(caps.maxDurationSec) || 10 };
+					}
+					if (slot === "image.master") return { sizeParam: !!caps.sizeParam };
+					if (slot === "image.shot") return { referenceImage: !!caps.referenceImage };
+					if (slot === "tts") {
+						var out = {};
+						if (caps.voice) out.voice = String(caps.voice);
+						if (caps.instructions) out.instructions = String(caps.instructions);
+						return out;
+					}
+					return {};
+				};
+
+				var setSlotMsg = function (slot, entry) {
+					setSlotMsg(function (prev) {
+						var next = Object.assign({}, prev);
+						next[slot] = Object.assign({}, prev[slot] || {}, entry);
+						return next;
 					});
-					var submittedNames = submitted.map(function (m) { return m.model; });
-					// 标记 picker 进入 busy；run() 不管理子级 busy，须自行重置
-					setProbeEntry(id, Object.assign({}, entry, { picker: Object.assign({}, picker, { busy: true }) }));
-					var resetPickerBusy = function () {
-						var cur = probeState[0][id];
-						if (!cur || !cur.picker) return;
-						setProbeEntry(id, Object.assign({}, cur, { picker: Object.assign({}, cur.picker, { busy: false }) }));
+				};
+
+				var onSaveSlot = function (slot) {
+					var draft = slotDrafts[slot] || {};
+					if (!draft.channelId) { flash("", t("slotNeedChannel")); return; }
+					var payload = {
+						slot: slot,
+						channelId: draft.channelId,
+						model: String(draft.model || "").trim(),
+						protocol: draft.protocol || defaultSlotProtocol(slot, null),
+						capabilities: capsPayload(slot, draft),
 					};
+					if (slot === "music.bgm" || slot === "music.song") {
+						try {
+							payload.music = JSON.parse(draft.mappingText || "{}");
+						} catch (e) {
+							flash("", t("slotInvalidJson"));
+							return;
+						}
+					}
 					setBusy(true);
-					api("channels.update", { id: id, patch: { models: submitted } })
-						.then(function () { flash(fill(t("pickerSaved"), { n: submittedNames.length })); })
+					api("slots.set", payload)
+						.then(function () { flash(t("slotSavedOk")); })
 						.catch(function (e) { flash("", String(e.message || e)); })
 						.then(function () { return refreshChannels(); })
-						.then(function () { setBusy(false); resetPickerBusy(); })
-						.catch(function () { setBusy(false); resetPickerBusy(); });
+						.then(function () { setBusy(false); })
+						.catch(function () { setBusy(false); });
 				};
+
+				var onTestSlot = function (slot) {
+					// 测试针对「已保存」的绑定做一次真实最小调用（会产生小额消费）
+					setSlotMsg(slot, { busy: true, ok: false, text: "" });
+					api("slots.test", { slot: slot }).then(function (res) {
+						var ok = !!(res && res.ok);
+						var detail = ok ? ((res && res.detail) || "") : ((res && res.error) || "unknown");
+						setSlotMsg(slot, { busy: false, ok: ok, text: fill(ok ? t("slotTestOk") : t("slotTestFail"), ok ? { detail: detail } : { err: detail }) });
+					}).catch(function (e) {
+						setSlotMsg(slot, { busy: false, ok: false, text: fill(t("slotTestFail"), { err: String(e.message || e) }) });
+					});
+				};
+
+				var onApplyTemplate = function (slot, templateId) {
+					var tpl = (templates || []).find(function (x) { return x.id === templateId; });
+					if (!tpl) return;
+					setSlotDraft(slot, { mappingText: JSON.stringify(tpl.fields, null, 2) });
+				};
+
+				var onSaveTemplate = function (slot) {
+					var draft = slotDrafts[slot] || {};
+					var parsed;
+					try { parsed = JSON.parse(draft.mappingText || "{}"); } catch (e) { flash("", t("slotInvalidJson")); return; }
+					var label = (typeof window !== "undefined" && window.prompt) ? window.prompt(t("slotTplSavePrompt")) : "";
+					if (!label) return;
+					setBusy(true);
+					api("musicTemplates.save", { label: label, fields: parsed })
+						.then(function () { flash(t("saved")); })
+						.catch(function (e) { flash("", String(e.message || e)); })
+						.then(function () { return refreshChannels(); })
+						.then(function () { setBusy(false); })
+						.catch(function () { setBusy(false); });
+				};
+
+				var onDeleteTemplate = function (templateId) {
+					setBusy(true);
+					api("musicTemplates.delete", { id: templateId })
+						.then(function () { flash(t("saved")); })
+						.catch(function (e) { flash("", String(e.message || e)); })
+						.then(function () { return refreshChannels(); })
+						.then(function () { setBusy(false); })
+						.catch(function () { setBusy(false); });
+				};
+
 
 				var onSaveBudget = function () {
 					// 阈值留空 = 不更新该项（host 对 undefined 跳过），避免 Number("")→0 静默改写
@@ -1731,15 +1827,22 @@ window.__ModuleLoader__.load({
 					chans: chans, probe: probe,
 					form: form, setForm: setForm,
 					budgetDraft: budgetDraft, setBudgetDraft: setBudgetDraft,
+					slotsData: slotsData,
+					templates: templates,
+					slotDrafts: slotDrafts,
+					slotMsg: slotMsg,
+					onSetSlotDraft: setSlotDraft,
+					onSaveSlot: onSaveSlot,
+					onTestSlot: onTestSlot,
+					onApplyTemplate: onApplyTemplate,
+					onSaveTemplate: onSaveTemplate,
+					onDeleteTemplate: onDeleteTemplate,
 					busy: busy,
 					message: msg.ok, error: msg.err,
-					onRefresh: function () { run(tab === "studio" ? refreshStudio() : refreshChannels()); },
+					onRefresh: function () { run(refreshChannels()); },
 					onCreateChannel: onCreateChannel,
 					onToggleEnabled: onToggleEnabled,
-					onSetDefault: onSetDefault,
 					onTestChannel: onTestChannel,
-					onPickerChange: onPickerChange,
-					onPickerSave: onPickerSave,
 					onDeleteChannel: onDeleteChannel,
 					onSaveBudget: onSaveBudget,
 				});
@@ -1851,6 +1954,45 @@ window.__ModuleLoader__.load({
 			return String(rev || "").slice(0, 8);
 		}
 
+		/** diff 行展开（规格 §2.7「字段级对比」+ §13 大纲/角色整库提案「逐条目高亮」）：
+		 *  数组按索引逐条展开（characters[3].name），嵌套对象逐字段；标量直接对比。
+		 *  模块级纯函数：ProposalDiff 与 __testHooks 共用。 */
+		function flattenRows(oldData, newData) {
+			var rows = [];
+			var val = function (v) { return v === undefined ? "" : JSON.stringify(v); };
+			var isObj = function (v) { return v !== null && typeof v === "object" && !Array.isArray(v); };
+			var walk = function (prefix, o, n) {
+				if (Array.isArray(o) || Array.isArray(n)) {
+					var oa = Array.isArray(o) ? o : [];
+					var na = Array.isArray(n) ? n : [];
+					var len = Math.max(oa.length, na.length);
+					for (var i = 0; i < len; i++) walk(prefix + "[" + i + "]", oa[i], na[i]);
+					return;
+				}
+				if (isObj(o) || isObj(n)) {
+					var oo = isObj(o) ? o : {};
+					var nn = isObj(n) ? n : {};
+					var keys = [];
+					var seen = {};
+					var k;
+					for (k in oo) { if (!seen[k]) { keys.push(k); seen[k] = 1; } }
+					for (k in nn) { if (!seen[k]) { keys.push(k); seen[k] = 1; } }
+					for (var j = 0; j < keys.length; j++) {
+						var key = keys[j];
+						var ov = oo[key];
+						var nv = nn[key];
+						var childPrefix = prefix ? prefix + "." + key : key;
+						if (isObj(ov) || isObj(nv) || Array.isArray(ov) || Array.isArray(nv)) walk(childPrefix, ov, nv);
+						else rows.push({ key: childPrefix, old: val(ov), new: val(nv), changed: val(ov) !== val(nv) });
+					}
+					return;
+				}
+				rows.push({ key: prefix, old: val(o), new: val(n), changed: val(o) !== val(n) });
+			};
+			walk("", oldData, newData);
+			return rows;
+		}
+
 		function Field(label, control) {
 			return h("div", { className: "vg-field" }, h("label", null, label), control);
 		}
@@ -1881,13 +2023,22 @@ window.__ModuleLoader__.load({
 					h("div", { className: "vg-wb-progress" }, h("div", { className: "bar", style: { width: pct + "%" } })),
 					h("div", { className: "vg-row", style: { justifyContent: "space-between", margin: 0 } },
 						h("span", { className: "vg-tpl-meta" }, fill(t("chaptersProgress"), { done: done, planned: planned }) + " · " + pct + "%"),
-						h("button", {
-							className: "vg-btn vg-btn-mini",
-							onClick: function (e) { e.stopPropagation(); props.onOpen(p); },
-						}, t("open")),
+						h("div", { className: "vg-row", style: { gap: 6, margin: 0 } },
+							props.onDelete
+								? h("button", {
+									className: "vg-btn vg-btn-mini vg-btn-danger",
+									onClick: function (e) { e.stopPropagation(); props.onDelete(p); },
+								}, t("projectDelete"))
+								: null,
+							h("button", {
+								className: "vg-btn vg-btn-mini",
+								onClick: function (e) { e.stopPropagation(); props.onOpen(p); },
+							}, t("open")),
+						),
 					),
 					h("div", { className: "vg-wb-meta" },
 						h("span", null, t("latestTask") + ": " + (p.latestTask ? taskKindLabel(t, p.latestTask.kind) + " · " + p.latestTask.status : t("taskNone"))),
+						h("span", null, t("latestFinal") + ": " + (p.latestRun ? "#" + shortId(p.latestRun.runId) + " · " + t(STATUS_KEY[p.latestRun.status] || "statusRunning") : t("taskNone"))),
 						h("span", null, formatDate(p.updatedAt)),
 					),
 				);
@@ -1965,24 +2116,6 @@ window.__ModuleLoader__.load({
 			}
 
 			/* ── Proposal 审核：diff 视图 + 编辑建议 + 应用/拒绝 ── */
-
-			function flattenRows(oldData, newData) {
-				var rows = [];
-				var o = oldData && typeof oldData === "object" && !Array.isArray(oldData) ? oldData : {};
-				var n = newData && typeof newData === "object" && !Array.isArray(newData) ? newData : {};
-				var keys = [];
-				var seen = {};
-				var k;
-				for (k in o) { if (!seen[k]) { keys.push(k); seen[k] = 1; } }
-				for (k in n) { if (!seen[k]) { keys.push(k); seen[k] = 1; } }
-				for (var i = 0; i < keys.length; i++) {
-					var key = keys[i];
-					var ov = o[key] === undefined ? "" : JSON.stringify(o[key]);
-					var nv = n[key] === undefined ? "" : JSON.stringify(n[key]);
-					rows.push({ key: key, old: ov, new: nv, changed: ov !== nv });
-				}
-				return rows;
-			}
 
 			function ProposalDiff(props) {
 				var p = props.proposal;
@@ -2063,6 +2196,7 @@ window.__ModuleLoader__.load({
 						h("div", { className: "vg-actions", style: { marginTop: 8 } },
 							h("button", { className: "vg-btn vg-btn-primary", disabled: isBusy || !p.fresh, onClick: applyIt }, t("doApply")),
 							h("button", { className: "vg-btn vg-btn-danger", disabled: isBusy, onClick: rejectIt }, t("doReject")),
+							props.onRegenerate ? h("button", { className: "vg-btn", disabled: isBusy, title: t("regenRequest"), onClick: function () { props.onRegenerate(p); } }, t("regenBtn")) : null,
 							edited !== null ? h("button", { className: "vg-btn", disabled: isBusy, onClick: function () { setEdited(null); } }, t("back")) : null,
 						),
 					),
@@ -2083,6 +2217,16 @@ window.__ModuleLoader__.load({
 						events.push({ at: evs[j].at, type: evs[j].type + (tasks[i].kind ? " · " + taskKindLabel(t, tasks[i].kind) : "") });
 					}
 				}
+				// 成本/风险提示（规格 §2.5）：最近改编 run 的花费汇总 + 任务/run 失败风险
+				var latestRun = null;
+				var adaptations = detail.adaptations || [];
+				for (var ai = 0; ai < adaptations.length; ai++) {
+					if (adaptations[ai].runId) latestRun = adaptations[ai];
+				}
+				var costText = latestRun && latestRun.runSpend ? fill(t("spend"), { n: latestRun.runSpend.estCny, c: latestRun.runSpend.entries }) : "—";
+				var riskText = latest && latest.status === "failed"
+					? taskKindLabel(t, latest.kind) + " 失败"
+					: latestRun && latestRun.runStatus === "failed" ? "成片 run 失败" : null;
 				return h("div", { className: "vg-card" },
 					h("h4", null, t("agentPanel")),
 					h("div", { className: "vg-kv" },
@@ -2090,8 +2234,26 @@ window.__ModuleLoader__.load({
 						h("span", null, latest ? taskKindLabel(t, latest.kind) : "—",
 							latest ? h("span", { className: "vg-chip vg-chip-" + (latest.status === "done" ? "done" : latest.status === "failed" ? "failed" : "running"), style: { marginLeft: 6 } }, latest.status) : null),
 					),
+					h("div", { className: "vg-kv", style: { marginTop: 4 } },
+						h("span", { className: "k" }, t("costRisk")),
+						h("span", null, costText,
+							riskText ? h("span", { className: "vg-chip vg-chip-failed", style: { marginLeft: 6 } }, riskText) : null),
+					),
+					// 规格 §2.8：宿主重启后运行中任务提示「会话已中断，可继续」——重发任务指令续跑；
+					// 卡住的任务（pending/running/failed）可删除后重新发起（清障入口，确认后不可恢复）
+					latest && latest.status === "running" ? h("p", { className: "vg-hint", style: { margin: "4px 0 0" } }, t("sessionInterrupted")) : null,
+					latest && ((latest.status === "running" && props.onResendTask) || props.onDeleteTask)
+						? h("div", { className: "vg-actions", style: { marginTop: 4 } },
+							latest.status === "running" && props.onResendTask
+								? h("button", { className: "vg-btn vg-btn-mini", disabled: !!props.busy, onClick: function () { props.onResendTask(latest.taskId); } }, t("resendInstruction"))
+								: null,
+							props.onDeleteTask
+								? h("button", { className: "vg-btn vg-btn-mini vg-btn-danger", disabled: !!props.busy, onClick: function () { props.onDeleteTask(latest.taskId); } }, t("taskDelete"))
+								: null,
+						)
+						: null,
 					latest && latest.sessionId
-						? h("div", { className: "vg-actions" }, h("button", { className: "vg-btn vg-btn-mini", onClick: function () { props.onOpenSession(latest.sessionId); } }, t("openSession")))
+						? h("div", { className: "vg-actions", style: { marginTop: 4 } }, h("button", { className: "vg-btn vg-btn-mini", onClick: function () { props.onOpenSession(latest.sessionId); } }, t("openSession")))
 						: h("p", { className: "vg-hint", style: { margin: "4px 0" } }, t("sessionNone")),
 					h("h4", { style: { marginTop: 8 } }, t("pendingProposals") + " · " + pending.length),
 					pending.slice(0, 3).map(function (p) {
@@ -2279,7 +2441,11 @@ window.__ModuleLoader__.load({
 					ProposalBanner({ proposals: props.detail.proposals || [], assetRef: "characters", onReview: props.onReview }),
 					h("div", { className: "vg-row" },
 						chars.list.map(function (c, i) {
-							return h("button", { key: i, className: "vg-tab" + (i === selected ? " vg-tab-active" : ""), onClick: function () { setSelected(i); } }, c.name || c.id || String(i + 1));
+							return h("button", { key: i, className: "vg-tab" + (i === selected ? " vg-tab-active" : ""), onClick: function () { setSelected(i); } },
+								h("span", { className: "vg-char-avatar" }, (c.name || c.id || "?").slice(0, 1).toUpperCase()),
+								c.name || c.id || String(i + 1),
+								c.hasVisualAsset ? h("span", { className: "vg-chip vg-chip-done", style: { marginLeft: 4, fontSize: 10, padding: "0 6px" } }, t("visualAsset")) : null,
+							);
 						}),
 						h("button", { className: "vg-btn vg-btn-mini", onClick: function () { var l = chars.list.slice(); l.push({ id: "c" + Date.now(), name: "", identity: "", status: "", appearanceChapters: [], hasVisualAsset: false, appearance: "", personality: "", desire: "", fear: "", background: "", relationships: [], keyEvents: [], visualPrompt: "" }); mutate(l); setSelected(l.length - 1); } }, t("charAdd")),
 					),
@@ -2297,6 +2463,10 @@ window.__ModuleLoader__.load({
 							Field("欲望", h("textarea", { className: "vg-textarea", rows: 2, value: cur.desire, onChange: function (e) { setField("desire", e.target.value); } })),
 							Field("恐惧", h("textarea", { className: "vg-textarea", rows: 2, value: cur.fear, onChange: function (e) { setField("fear", e.target.value); } })),
 						),
+						Field(t("visualAsset"), h("label", { className: "vg-row", style: { gap: 6, margin: 0 } },
+							h("input", { type: "checkbox", checked: !!cur.hasVisualAsset, onChange: function (e) { setField("hasVisualAsset", e.target.checked); } }),
+							h("span", { className: "vg-tpl-desc" }, t("visualAssetHint")),
+						)),
 						Field("背景", h("textarea", { className: "vg-textarea", rows: 2, value: cur.background, onChange: function (e) { setField("background", e.target.value); } })),
 						Field("关系（每行一条）", h("textarea", { className: "vg-textarea", rows: 2, value: arrToLines(cur.relationships), onChange: function (e) { setField("relationships", linesToArr(e.target.value)); } })),
 						Field("重要事件（每行一条）", h("textarea", { className: "vg-textarea", rows: 2, value: arrToLines(cur.keyEvents), onChange: function (e) { setField("keyEvents", linesToArr(e.target.value)); } })),
@@ -2338,7 +2508,7 @@ window.__ModuleLoader__.load({
 					rows.list.slice().sort(function (a, b) { return (a.chapter || 0) - (b.chapter || 0); }).map(function (r, i) {
 						return h("div", { key: i, className: "vg-checkline", style: { flexDirection: "column", alignItems: "stretch" } },
 							h("div", { className: "vg-row" },
-								h("span", { className: "vg-badge", style: { background: (r.characters || []).length > 0 ? "#3b5fd9" : "#555" } }, "第 " + r.chapter + " 章"),
+								h("span", { className: "vg-chip " + ((r.characters || []).length > 0 ? "vg-chip-running" : "vg-chip-pending") }, "第 " + r.chapter + " 章"),
 								h("input", { className: "vg-input", style: { width: 160 }, value: r.title, placeholder: "章节标题", onChange: function (e) { setField(i, "title", e.target.value); } }),
 								h("select", { className: "vg-select", value: r.status, onChange: function (e) { setField(i, "status", e.target.value); } },
 									OUTLINE_STATUS.map(function (s) { return h("option", { key: s[0], value: s[0] }, s[1]); })),
@@ -2390,14 +2560,26 @@ window.__ModuleLoader__.load({
 				React.useEffect(function () {
 					var alive = true;
 					setBodies(null);
+					var prevCid = cur.no > 1 ? ("000" + (cur.no - 1)).slice(-4) : null;
 					Promise.all([
 						dramaApi("drama.asset.get", { workspaceId: props.workspaceId, projectId: props.projectId, assetRef: "chapters/" + cid + "/blueprint" }).catch(function () { return null; }),
 						dramaApi("drama.asset.get", { workspaceId: props.workspaceId, projectId: props.projectId, assetRef: "chapters/" + cid + "/draft" }).catch(function () { return null; }),
 						dramaApi("drama.asset.get", { workspaceId: props.workspaceId, projectId: props.projectId, assetRef: "chapters/" + cid + "/review" }).catch(function () { return null; }),
 						dramaApi("drama.asset.get", { workspaceId: props.workspaceId, projectId: props.projectId, assetRef: "chapters/" + cid + "/final" }).catch(function () { return null; }),
 						dramaApi("drama.candidate.list", { workspaceId: props.workspaceId, projectId: props.projectId, chapter: cur.no }).catch(function () { return null; }),
+						prevCid ? dramaApi("drama.asset.get", { workspaceId: props.workspaceId, projectId: props.projectId, assetRef: "chapters/" + prevCid + "/blueprint" }).catch(function () { return null; }) : Promise.resolve(null),
 					]).then(function (rs) {
-						if (alive) setBodies({ blueprint: rs[0], draft: rs[1], review: rs[2], final: rs[3], candidates: rs[4] && rs[4].candidates || [] });
+						if (!alive) return;
+						var blueprint = rs[0];
+						// 规格 §2.6 蓝图「需承接的上一章事实自动带出」：上一章 blueprint.newFacts →
+						// 本章 factsFromPrev 本地预填（仅当本章蓝图已存在且字段为空；保存才落盘）
+						var prevBp = rs[5];
+						if (blueprint && blueprint.data && prevBp && prevBp.data
+							&& Array.isArray(prevBp.data.newFacts) && prevBp.data.newFacts.length > 0
+							&& (!Array.isArray(blueprint.data.factsFromPrev) || blueprint.data.factsFromPrev.length === 0)) {
+							blueprint = Object.assign({}, blueprint, { data: Object.assign({}, blueprint.data, { factsFromPrev: prevBp.data.newFacts.slice(0, 10) }) });
+						}
+						setBodies({ blueprint: blueprint, draft: rs[1], review: rs[2], final: rs[3], candidates: rs[4] && rs[4].candidates || [] });
 					}).catch(function () {
 						// 兜底：意外失败也不停在加载中——按全空资产渲染（absent 基线可重写恢复）
 						if (alive) setBodies({ blueprint: null, draft: null, review: null, final: null, candidates: [] });
@@ -2441,8 +2623,7 @@ window.__ModuleLoader__.load({
 							for (var x = 0; x < chapters.length; x++) { if (chapters[x].number === n) meta = chapters[x]; }
 							var done = meta && meta.finalRevision !== "absent";
 							return h("button", {
-								key: n, className: "vg-tab" + (n === cur.no ? " vg-tab-active" : ""),
-								style: done ? { borderColor: "#2f6f4f", color: "#3fa76a" } : undefined,
+								key: n, className: "vg-tab" + (done ? " vg-tab-done" : "") + (n === cur.no ? " vg-tab-active" : ""),
 								onClick: function () { setCur({ no: n, sub: cur.sub }); },
 							}, fill(t("chapterN"), { n: n }) + (done ? " ✓" : ""));
 						}),
@@ -2653,6 +2834,11 @@ window.__ModuleLoader__.load({
 				var selectedRun = selectedRunState[0], setSelectedRun = selectedRunState[1];
 				var channelsOkState = React.useState(true);
 				var channelsOk = channelsOkState[0], setChannelsOk = channelsOkState[1];
+				// 指令发送可重试态（规格 §2.8「[重试发送]；已发指令不重复发」）：
+				// mode=create → task.create 本身失败（无任务产生，整任务重发）；mode=instruction →
+				// 任务已建、指令未送达（仅重发指令 + 补记事件，不重复建任务）。
+				var sendRetryState = React.useState(null);
+				var sendRetry = sendRetryState[0], setSendRetry = sendRetryState[1];
 
 				var refresh = React.useCallback(function () {
 					return dramaApi("drama.project.get", { workspaceId: wsId, projectId: projectId }).then(function (v) { setDetail(v); });
@@ -2684,17 +2870,96 @@ window.__ModuleLoader__.load({
 						.then(function () { setBusy(false); });
 				};
 				var sendTask = function (kind, params, userRequest) {
-					setBusy(true); setErr(""); setMsg("");
+					setBusy(true); setErr(""); setMsg(""); setSendRetry(null);
 					return dramaApi("drama.task.create", { workspaceId: wsId, projectId: projectId, kind: kind, params: params || {}, userRequest: userRequest || "" })
 						.then(function (v) {
+							// create 成功即记可重试态：指令未送达时只重发指令，不重复建任务（已发指令不重复发）
+							setSendRetry({ mode: "instruction", instruction: v.instruction, taskId: v.taskId });
 							return Promise.resolve(deps.sendInstruction(v.instruction)).then(function (sent) {
-								setMsg(sent.result === "prefilled" ? t("instructPrefilled") : t("instructCopied"));
 								var patch = { status: "running", event: { type: sent.result === "none" ? "instruction-copy-failed" : "instruction-sent" } };
 								if (sent.sessionId) patch.sessionId = sent.sessionId;
-								return dramaApi("drama.task.update", { workspaceId: wsId, projectId: projectId, taskId: v.taskId, patch: patch });
+								var update = dramaApi("drama.task.update", { workspaceId: wsId, projectId: projectId, taskId: v.taskId, patch: patch });
+								if (sent.result === "none") { setErr(t("instructNone")); return update; }
+								setMsg(sent.result === "prefilled" ? t("instructPrefilled") : t("instructCopied"));
+								setSendRetry(null);
+								return update;
 							});
 						})
 						.then(function () { return refresh(); })
+						.catch(function (e) {
+							// create 本身失败（尚无任务产生）→ 记整任务重试态；instruction 态已记则保留不覆盖
+							setSendRetry(function (cur) { return cur || { mode: "create", kind: kind, params: params || {}, userRequest: userRequest || "" }; });
+							setErr(String(e.message || e));
+						})
+						.then(function () { setBusy(false); });
+				};
+				var retrySend = function () {
+					var r = sendRetry;
+					if (!r || busy) return;
+					if (r.mode === "create") { sendTask(r.kind, r.params, r.userRequest); return; }
+					setBusy(true); setErr(""); setMsg("");
+					Promise.resolve(deps.sendInstruction(r.instruction)).then(function (sent) {
+						var patch = { status: "running", event: { type: sent.result === "none" ? "instruction-copy-failed" : "instruction-sent" } };
+						if (sent.sessionId) patch.sessionId = sent.sessionId;
+						var update = dramaApi("drama.task.update", { workspaceId: wsId, projectId: projectId, taskId: r.taskId, patch: patch });
+						if (sent.result === "none") { setErr(t("instructNone")); return update; }
+						setMsg(sent.result === "prefilled" ? t("instructPrefilled") : t("instructCopied"));
+						setSendRetry(null);
+						return update;
+					}).then(function () { return refresh(); })
+						.catch(function (e) { setErr(String(e.message || e)); })
+						.then(function () { setBusy(false); });
+				};
+				// 提案「重新生成」（规格 §2.7/验收 9 后半）：按 assetRef 推导同 kind 任务重新发起，
+				// 产出基于最新 revision 的新提案；final 资产无 AI 任务入口 → 返回 null 不渲染按钮。
+				var regenPlanFor = function (assetRef) {
+					var m = /^chapters\/(\d{1,4})\/(blueprint|draft|review|final)$/.exec(String(assetRef || ""));
+					if (m) {
+						var chapter = Number(m[1]);
+						if (m[2] === "blueprint") return { kind: "generate-chapter-blueprint", params: { chapter: chapter } };
+						if (m[2] === "draft") return { kind: "generate-chapter-draft", params: { chapter: chapter } };
+						if (m[2] === "review") return { kind: "review-chapter", params: { chapter: chapter } };
+						return null;
+					}
+					if (assetRef === "architecture") return { kind: "generate-architecture", params: {} };
+					if (assetRef === "worldbuilding") return { kind: "generate-worldbuilding", params: {} };
+					if (assetRef === "characters") return { kind: "complete-characters", params: {} };
+					if (assetRef === "outline") return { kind: "generate-outline", params: {} };
+					return null;
+				};
+				var regenerateProposal = function (proposal) {
+					if (!proposal || busy) return;
+					var plan = regenPlanFor(proposal.assetRef);
+					if (!plan) return;
+					setReviewing(null);
+					sendTask(plan.kind, plan.params, t("regenRequest"));
+				};
+				// 运行中任务「重发指令」（规格 §2.8 会话已中断可继续）：指令随任务持久化，仅重发不重建任务
+				var resendTask = function (taskId) {
+					if (busy) return;
+					var task = null;
+					var list = detail.tasks || [];
+					for (var i = 0; i < list.length; i++) { if (list[i].taskId === taskId) task = list[i]; }
+					if (!task || !task.instruction) { setErr(t("resendNone")); return; }
+					setBusy(true); setErr(""); setMsg("");
+					Promise.resolve(deps.sendInstruction(task.instruction)).then(function (sent) {
+						var patch = { status: "running", event: { type: sent.result === "none" ? "instruction-copy-failed" : "instruction-sent" } };
+						if (sent.sessionId) patch.sessionId = sent.sessionId;
+						var update = dramaApi("drama.task.update", { workspaceId: wsId, projectId: projectId, taskId: taskId, patch: patch });
+						if (sent.result === "none") { setErr(t("instructNone")); return update; }
+						setMsg(sent.result === "prefilled" ? t("instructPrefilled") : t("instructCopied"));
+						return update;
+					}).then(function () { return refresh(); })
+						.catch(function (e) { setErr(String(e.message || e)); })
+						.then(function () { setBusy(false); });
+				};
+				// 任务删除（清障入口）：确认后移除任务记录，重新发起同任务不再被旧任务占位
+				var deleteTask = function (taskId) {
+					if (busy) return;
+					if (typeof window !== "undefined" && typeof window.confirm === "function" && !window.confirm(t("taskDeleteConfirm"))) return;
+					setBusy(true); setErr(""); setMsg("");
+					dramaApi("drama.task.delete", { workspaceId: wsId, projectId: projectId, taskId: taskId })
+						.then(function () { setMsg(t("taskDeleted")); return refresh(); })
 						.catch(function (e) { setErr(String(e.message || e)); })
 						.then(function () { setBusy(false); });
 				};
@@ -2751,6 +3016,7 @@ window.__ModuleLoader__.load({
 						onApplied: function (m) { setMsg(m); setReviewing(null); refresh().catch(function () {}); },
 						onRejected: function (m) { setMsg(m); setReviewing(null); refresh().catch(function () {}); },
 						onBack: function () { setReviewing(null); },
+						onRegenerate: regenerateProposal,
 					});
 				} else if (stage === "overview") mainView = h(OverviewStage, stageProps);
 				else if (stage === "premise") mainView = h(PremiseStage, stageProps);
@@ -2776,7 +3042,10 @@ window.__ModuleLoader__.load({
 						),
 					),
 					msg ? h("div", { className: "vg-msg vg-msg-ok" }, msg) : null,
-					err ? h("div", { className: "vg-msg vg-msg-err" }, err) : null,
+					err ? h("div", { className: "vg-row", style: { flexWrap: "nowrap" } },
+						h("div", { className: "vg-msg vg-msg-err", style: { flex: 1 } }, err),
+						sendRetry ? h("button", { className: "vg-btn vg-btn-mini", style: { flex: "none" }, disabled: busy, onClick: retrySend, title: t("retrySend") }, t("retrySend")) : null,
+					) : null,
 					!channelsOk ? h("div", { className: "vg-banner warn" }, t("channelWarn")) : null,
 					h("div", { className: "vg-wb-shell" },
 						h("div", { className: "vg-wb-nav" },
@@ -2791,7 +3060,10 @@ window.__ModuleLoader__.load({
 						sideOpen ? h("div", { className: "vg-wb-side" },
 							h(AgentPanel, {
 								detail: detail,
+								busy: busy,
 								onOpenSession: deps.openSession,
+								onResendTask: resendTask,
+								onDeleteTask: deleteTask,
 								onReviewProposal: function (id) { setReviewing(id); },
 							}),
 							h("div", { className: "vg-card" },
@@ -2807,6 +3079,7 @@ window.__ModuleLoader__.load({
 											h("button", { className: "vg-btn vg-btn-mini", onClick: function () { setReviewing(p.proposalId); } }, t("viewDiff")),
 											h("button", { className: "vg-btn vg-btn-mini", disabled: busy || !p.fresh, onClick: function () { quickProposalAction(p.proposalId, "apply"); } }, t("doApply")),
 											h("button", { className: "vg-btn vg-btn-mini vg-btn-danger", disabled: busy, onClick: function () { quickProposalAction(p.proposalId, "reject"); } }, t("doReject")),
+											!p.fresh && regenPlanFor(p.assetRef) ? h("button", { className: "vg-btn vg-btn-mini", disabled: busy, onClick: function () { regenerateProposal(p); } }, t("regenBtn")) : null,
 										),
 									);
 								}),
@@ -2855,6 +3128,14 @@ window.__ModuleLoader__.load({
 				var loadProjects = React.useCallback(function () {
 					return dramaApi("drama.project.list", wsId ? { workspaceId: wsId } : {}).then(function (v) { setProjects(v.projects || []); });
 				}, [wsId]);
+				// 项目删除（清障入口）：整项目移除后可在同一工作区重新开始；确认弹窗明示不可恢复
+				var deleteProject = function (p) {
+					if (typeof window !== "undefined" && typeof window.confirm === "function" && !window.confirm(fill(t("projectDeleteConfirm"), { title: p.title || p.id }))) return;
+					setErr("");
+					dramaApi("drama.project.delete", { workspaceId: p.workspaceId, projectId: p.id })
+						.then(function () { setMsg(t("projectDeleted")); if (openId === p.id) setOpenId(null); return loadProjects(); })
+						.catch(function (e) { setErr(String(e.message || e)); });
+				};
 
 				React.useEffect(function () { loadWs().catch(function (e) { setErr(String(e.message || e)); }); }, []);
 				React.useEffect(function () { loadProjects().catch(function () {}); }, [loadProjects]);
@@ -2896,7 +3177,7 @@ window.__ModuleLoader__.load({
 				((ws && ws.workspaces) || []).forEach(function (w) { wsTitleMap[w.id] = w.title || w.id; });
 				return h("div", { className: "vg-wb-page" },
 					h("div", { className: "vg-wb-hero" },
-						h("div", { className: "vg-wb-hero-icon" }, h(ClapperIcon, { size: 22, color: "#fff" })),
+						h("div", { className: "vg-wb-hero-icon" }, h(ClapperIcon, { size: 22 })),
 						h("div", { style: { flex: 1, minWidth: 0 } },
 							h("h2", null, t("wbTitle")),
 							h("div", { className: "sub" }, t("wbIntro")),
@@ -2950,6 +3231,7 @@ window.__ModuleLoader__.load({
 									if (!wsId && p.workspaceId) pickWs(p.workspaceId);
 									setOpenId(p.id);
 								},
+								onDelete: deleteProject,
 							});
 						}),
 					) : null,
@@ -3238,6 +3520,7 @@ window.__ModuleLoader__.load({
 			prefillToSession: prefillToSession,
 			openSessionView: openSessionView,
 			sendInstructionFor: sendInstructionFor,
+			flattenRows: flattenRows,
 		};
 		exports.apply = apply;
 		exports.inject = inject;

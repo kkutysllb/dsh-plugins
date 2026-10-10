@@ -7,6 +7,30 @@
  */
 import { DramaError, chapterDirId, } from "../store/project.js";
 import { assembleInstruction, isTaskKind, relevantWorldEntries, characterSummaries, prevChapterContext, } from "../drama/instruction.js";
+/** 概览级 run 摘要（规格 §2.3「最近成片」）：状态 + 更新时间；run 不存在（清理/损坏）→ null。 */
+function summarizeRun(runs, runId) {
+    const rec = runs.get(runId);
+    if (!rec)
+        return null;
+    return { runId: rec.id, status: rec.status, updatedAt: rec.updatedAt };
+}
+/** 改编 run 的面板摘要（规格 §2.5 成本/风险提示）：状态 + spend 事件汇总（次数/估价合计，null 估价按 0 计）。 */
+function runPanelSummary(runs, runId) {
+    const rec = runs.get(runId);
+    if (!rec)
+        return null;
+    const spendEvents = rec.events.filter((e) => e.type === 'spend');
+    let estCny = 0;
+    for (const e of spendEvents) {
+        const v = e.detail?.['estCny'];
+        if (typeof v === 'number' && Number.isFinite(v))
+            estCny += v;
+    }
+    return {
+        runStatus: rec.status,
+        runSpend: { entries: spendEvents.length, estCny: Math.round(estCny * 100) / 100 },
+    };
+}
 function requireString(v, field) {
     if (typeof v !== 'string' || v.length === 0)
         throw new DramaError('bad-request', `字段 ${field} 须为非空字符串`);
@@ -60,13 +84,16 @@ function dispatch(host, name, args) {
             const wid = optionalString(args['workspaceId']);
             // 显式传入未知 workspaceId → 拒绝（§4.1 稳定错误码）；缺省 = 跨全部已注册工作区聚合
             const targets = wid ? [host.resolve(wid)] : host.workspaceList().map((w) => safeResolve(host, w.id));
+            const runsStore = host.runsStore();
             const projects = [];
             for (const ws of targets) {
                 if (!ws)
                     continue;
                 for (const s of ws.projects.list()) {
                     const pending = ws.proposals.pendingCount(s.id);
-                    projects.push({ workspaceId: ws.id, ...s, status: composeStatus(s.status, pending), pendingProposals: pending });
+                    // 最近成片（规格 §2.3）：以最近改编任务的 run 为代理（改编按时间顺序创建）
+                    const latestRun = runsStore && s.latestAdaptation?.runId ? summarizeRun(runsStore, s.latestAdaptation.runId) : null;
+                    projects.push({ workspaceId: ws.id, ...s, status: composeStatus(s.status, pending), pendingProposals: pending, latestRun });
                 }
             }
             return { projects };
@@ -90,6 +117,11 @@ function dispatch(host, name, args) {
             });
             return { projectId: manifest.id, title: manifest.title };
         }
+        case 'drama.project.delete': {
+            const ws = host.requireProject(args['workspaceId'], args['projectId']);
+            ws.projects.deleteProject(requireString(args['projectId'], 'projectId'));
+            return { deleted: true };
+        }
         case 'drama.project.get': {
             const ws = host.requireProject(args['workspaceId'], args['projectId']);
             const projectId = requireString(args['projectId'], 'projectId');
@@ -101,9 +133,18 @@ function dispatch(host, name, args) {
                 replacement: r.replacement,
             }));
             const pending = proposals.filter((p) => p.status === 'pending').length;
+            // 面板摘要（规格 §2.5）：每个改编 run 附状态与花费汇总（RunStore 缺席 → 原样）
+            const runsStore = host.runsStore();
+            const adaptations = (detail.adaptations ?? []).map((a) => {
+                if (!runsStore || !a.runId)
+                    return a;
+                const panel = runPanelSummary(runsStore, a.runId);
+                return panel ? { ...a, ...panel } : a;
+            });
             return {
                 workspaceId: ws.id,
                 ...detail,
+                adaptations,
                 status: composeStatus(statusOf(detail), pending),
                 pendingProposals: pending,
                 proposals,
@@ -183,6 +224,11 @@ function dispatch(host, name, args) {
                 event: event ? { type: requireString(event['type'], 'patch.event.type'), detail: optionalRecord(event['detail'], 'patch.event.detail') } : undefined,
             });
             return { task };
+        }
+        case 'drama.task.delete': {
+            const ws = host.requireProject(args['workspaceId'], args['projectId']);
+            ws.projects.deleteTask(requireString(args['projectId'], 'projectId'), requireString(args['taskId'], 'taskId'));
+            return { deleted: true };
         }
         case 'drama.adaptation.create': {
             const ws = host.requireProject(args['workspaceId'], args['projectId']);
@@ -302,8 +348,9 @@ export function assembleTaskInstruction(ws, projectId, kind, params, userRequest
         else {
             ctx.characters = characterSummaries(chars, null, false);
         }
-        // 上一章相邻定稿（验收 10：连续性上下文只携带相邻一章的末段与新增事实）
-        if (kind === 'generate-chapter-draft' && chapterNumber > 1) {
+        // 上一章相邻定稿（验收 10：连续性上下文只携带相邻一章的末段与新增事实）；
+        // 蓝图任务同样携带（规格 §2.6 蓝图「需承接的上一章事实自动带出」的 grounding）
+        if ((kind === 'generate-chapter-draft' || kind === 'generate-chapter-blueprint') && chapterNumber > 1) {
             const prevCid = chapterDirId(chapterNumber - 1);
             if (prevCid) {
                 const prevFinal = readAssetOrNull(ws.projects, projectId, `chapters/${prevCid}/final`);

@@ -27,6 +27,12 @@ const MAX = {
     characterId: 48,
 };
 const ID_RE = /^[a-z0-9_-]+$/;
+/** 歌词段落标签白名单（规格 §6.2，14 标签体系；校验大小写不敏感，允许 ≤16 字符序号/重复后缀如 [Verse 1]）。 */
+export const LYRICS_SECTION_TAGS = [
+    'Intro', 'Verse', 'Pre-Chorus', 'Chorus', 'Post-Chorus', 'Bridge', 'Hook',
+    'Refrain', 'Interlude', 'Break', 'Instrumental', 'Solo', 'Drop', 'Outro',
+];
+const LYRICS_TAG_RE = new RegExp(`^\\[(${LYRICS_SECTION_TAGS.join('|')})[^\\]\\n]{0,16}]$`, 'i');
 function fail(message) {
     throw new HandoffError('bad-request', message);
 }
@@ -149,7 +155,28 @@ export function validateScript(v) {
             fail(`script.dialog[${i}].characterId 引用不存在的角色: ${characterId}`);
         return { sceneId, characterId, line: boundedStr(dr['line'], `script.dialog[${i}].line`, MAX.line) };
     });
-    return { ...story, scenes, dialog };
+    // 歌词（可选，P1 §6.2）：会话模型产出，14 段落标签体系；非空字符串上限 20000；
+    // 段落标签须来自白名单（大小写不敏感，可带序号/重复后缀），且至少一个标签
+    const lyricsRaw = r['lyrics'];
+    let lyrics;
+    if (lyricsRaw !== undefined && lyricsRaw !== null && lyricsRaw !== '') {
+        if (typeof lyricsRaw !== 'string')
+            fail('script.lyrics 须为字符串');
+        const trimmed = lyricsRaw.trim();
+        if (trimmed.length > 20000)
+            fail(`script.lyrics 超限：${trimmed.length} > 20000`);
+        const tagLines = trimmed.split(/\r?\n/).filter((line) => /^\s*\[[^\]\n]{1,32}]\s*$/.test(line));
+        if (tagLines.length === 0) {
+            fail('script.lyrics 至少需要一个段落标签（[Intro]/[Verse]/[Chorus]/[Bridge]/[Outro]…，14 标签体系）');
+        }
+        for (const line of tagLines) {
+            if (!LYRICS_TAG_RE.test(line.trim())) {
+                fail(`script.lyrics 段落标签须为 14 标签体系（${LYRICS_SECTION_TAGS.join('/')}，可带序号/重复后缀）: ${line.trim().slice(0, 40)}`);
+            }
+        }
+        lyrics = trimmed;
+    }
+    return { ...story, scenes, dialog, ...(lyrics !== undefined ? { lyrics } : {}) };
 }
 export function validateStoryboard(v) {
     const r = asRecord(v, 'storyboard');
@@ -162,6 +189,7 @@ export function validateStoryboard(v) {
     const scenes = parseScenes(r['scenes'], 'storyboard.scenes', { requireNonEmpty: false });
     const charIds = new Set(characters.map((c) => c.id));
     const sceneIds = new Set(scenes.map((s) => s.id));
+    const validCharacterIds = characters.map((c) => c.id);
     const shots = shotsRaw.map((s, i) => {
         const sr = asRecord(s, `storyboard.shots[${i}]`);
         const index = Number(sr['index']);
@@ -170,13 +198,36 @@ export function validateStoryboard(v) {
         const durationSec = Number(sr['durationSec']);
         if (!Number.isFinite(durationSec) || durationSec < 2 || durationSec > 10)
             fail(`storyboard.shots[${i}].durationSec 须在 2..10`);
-        const characterIds = strArray(sr['characterIds'] ?? [], `storyboard.shots[${i}].characterIds`);
-        for (const cid of characterIds) {
+        // characterIds：数组或逗号/顿号分隔字符串（宽容形态——Agent 常见把 id 列表写成字符串）；
+        // 未命中的引用依次尝试 大小写不敏感 id → 唯一角色名 映射；仍失败则报错并列出有效 id。
+        const rawCids = sr['characterIds'] ?? [];
+        let characterIds;
+        if (typeof rawCids === 'string') {
+            characterIds = rawCids.split(/[,，、\s]+/).map((s) => s.trim()).filter((s) => s.length > 0);
+        }
+        else if (Array.isArray(rawCids)) {
+            characterIds = rawCids.map((x, j) => {
+                if (typeof x !== 'string')
+                    fail(`storyboard.shots[${i}].characterIds[${j}] 须为字符串 id（有效 id：${validCharacterIds.join('、') || '（story 无角色）'}）`);
+                return x;
+            });
+        }
+        else {
+            fail(`storyboard.shots[${i}].characterIds 须为字符串 id 数组或逗号分隔字符串（有效 id：${validCharacterIds.join('、') || '（story 无角色）'}）`);
+        }
+        characterIds = characterIds.map((cid) => {
             if (cid.length > MAX.characterId)
                 fail(`storyboard.shots[${i}].characterIds 引用 id 超长（上限 ${MAX.characterId}）: ${cid}`);
-            if (!charIds.has(cid))
-                fail(`storyboard.shots[${i}].characterIds 引用不存在的角色: ${cid}`);
-        }
+            if (charIds.has(cid))
+                return cid;
+            const caseHit = validCharacterIds.find((x) => x.toLowerCase() === cid.toLowerCase());
+            if (caseHit !== undefined)
+                return caseHit;
+            const nameHits = characters.filter((c) => c.name === cid);
+            if (nameHits.length === 1)
+                return nameHits[0].id;
+            fail(`storyboard.shots[${i}].characterIds 引用不存在的角色: ${cid}（有效 id：${validCharacterIds.join('、') || '（story 无角色）'}）`);
+        });
         const sceneId = sr['sceneId'] === undefined ? undefined : boundedStr(sr['sceneId'], `storyboard.shots[${i}].sceneId`, MAX.sceneId);
         if (sceneId !== undefined && !sceneIds.has(sceneId))
             fail(`storyboard.shots[${i}].sceneId 引用不存在的场景: ${sceneId}`);

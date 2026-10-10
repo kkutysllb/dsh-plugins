@@ -39,6 +39,7 @@ function sanitizeRun(raw, id) {
         updatedAt: typeof r.updatedAt === 'string' ? r.updatedAt : new Date().toISOString(),
         ...(reviews ? { reviews } : {}),
         ...(gates ? { gates } : {}),
+        ...(r.mode === 'drama' || r.mode === 'mv' ? { mode: r.mode } : {}),
     };
 }
 /** reviews 形状守卫：任一条目非法则整体丢弃（undefined）。 */
@@ -110,6 +111,7 @@ export class RunStore {
         };
         mkdirSync(this.dirOf(id), { recursive: true, mode: 0o700 });
         this.persist(record);
+        this.prune(50); // 规格 §6：保留最近 50 个 run（超限清理最旧，媒体随目录删除）
         return record;
     }
     get(id) {
@@ -195,6 +197,12 @@ export class RunStore {
         });
     }
     /** 增量合并 gate 覆盖（undefined 值不清空既有键）。 */
+    /** 编排模式（规格 §6.1）：vgen_story 显式声明；缺省 drama。 */
+    setMode(id, mode) {
+        this.mutate(id, (r) => {
+            r.mode = mode;
+        });
+    }
     setGates(id, gates) {
         this.mutate(id, (r) => {
             r.gates = { ...(r.gates ?? {}), ...gates };

@@ -5,7 +5,7 @@
  * - 版本 = 文件规范化 UTF-8 字节的 SHA-256，写必须携带读到的 revision（乐观并发）；
  * - 写入一律 tmp + rename 原子替换；目录 0700、文件 0600；损坏文件备份 `<name>.broken-<ts>` 后按缺失处理。
  */
-import { chmodSync, mkdirSync, readFileSync, readdirSync, renameSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash, randomBytes } from 'node:crypto';
 import { join } from 'node:path';
 export class DramaError extends Error {
@@ -598,6 +598,12 @@ export class ProjectStore {
             throw new DramaError('not-found', `项目不存在: ${projectId}`);
         return detail;
     }
+    /** 删除项目（整目录移除：章节/任务/提案/改编/候选一并清除，不可恢复）。运行中的生成不会自动终止。 */
+    deleteProject(projectId) {
+        const dir = this.projectDir(projectId); // id 形状校验 + 防路径注入
+        this.requireProject(projectId);
+        rmSync(dir, { recursive: true, force: true });
+    }
     touch(projectId) {
         const manifest = this.readManifest(projectId);
         if (!manifest)
@@ -726,6 +732,14 @@ export class ProjectStore {
         this.writeFileAtomic(join(this.projectDir(projectId), 'tasks', `${task.taskId}.json`), JSON.stringify(task, null, 2) + '\n');
         this.touch(projectId);
         return task;
+    }
+    /** 删除任务（页面清障入口：卡在 pending/running 的任务可移除后重新发起）。不可恢复；关联 run 不受影响。 */
+    deleteTask(projectId, taskId) {
+        if (!TASK_ID_RE.test(taskId))
+            throw new DramaError('bad-request', `非法任务 id: ${taskId}`);
+        this.requireTask(projectId, taskId);
+        rmSync(join(this.projectDir(projectId), 'tasks', `${taskId}.json`), { force: true });
+        this.touch(projectId);
     }
     /* ── 漫剧改编 ── */
     createAdaptation(projectId, input) {

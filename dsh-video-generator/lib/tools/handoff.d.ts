@@ -22,9 +22,7 @@ export type ToolResult = {
 };
 export interface HandoffTools {
     story: {
-        execute: (args: {
-            story: unknown;
-        }) => Promise<ToolResult>;
+        execute: (args: Record<string, unknown>) => Promise<ToolResult>;
     };
     script: {
         execute: (args: {

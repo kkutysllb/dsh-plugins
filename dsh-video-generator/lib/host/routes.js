@@ -5,10 +5,12 @@
 import { resolve, sep } from 'node:path';
 import { VaultError } from "../store/vault.js";
 import { collectArtifacts } from "./artifacts.js";
-import { resolveModel } from "../model-catalog.js";
 import { isStage } from "../stages.js";
+import { isSlotId, SLOT_IDS, SLOT_META } from "../store/slots.js";
+import { testSlotBinding } from "../slot-probe.js";
+import { BUILTIN_MUSIC_TEMPLATES } from "../providers/music-templates.js";
 export const PLUGIN_ID = 'dsh-video-generator';
-export const PLUGIN_VERSION = '2.0.2';
+export const PLUGIN_VERSION = '2.1.4';
 // 仅精确 loopback 名（'127.0.0.1' 的 URL hostname 形态已剥括号，故 '::1'/'[::1]' 双收录无害）
 const TRUSTED_LOCAL = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 // DNS-rebind / 跨站防御（非认证）：Host 头存在即权威精确匹配；remote 仅在 Host 缺失时兜底——
@@ -87,6 +89,13 @@ function requireString(v, field) {
         throw new VaultError('bad-request', `字段 ${field} 须为非空字符串`);
     return v;
 }
+/** 槽位名守卫（slots.* 方法共用）。 */
+function requireSlot(v) {
+    if (!isSlotId(v)) {
+        throw new VaultError('bad-request', `非法槽位: ${String(v)}（合法：${SLOT_IDS.join(' | ')}）`);
+    }
+    return v;
+}
 function optionalString(v) {
     return typeof v === 'string' ? v : undefined;
 }
@@ -94,38 +103,40 @@ function dispatch(ctx, name, args) {
     const id = typeof args['id'] === 'string' ? args['id'] : undefined;
     switch (name) {
         case 'channels.list':
-            return { channels: ctx.vault.listChannels(), defaultChannelId: ctx.vault.load().defaultChannelId };
+            return { channels: ctx.vault.listChannels() };
         case 'channels.create':
             return ctx.vault.createChannel({
                 id: requireString(args['id'], 'id'),
                 baseUrl: requireString(args['baseUrl'], 'baseUrl'),
                 apiKey: requireString(args['apiKey'], 'apiKey'),
                 label: optionalString(args['label']),
-                models: Array.isArray(args['models']) ? args['models'] : undefined,
+                protocols: Array.isArray(args['protocols']) ? args['protocols'] : undefined,
             });
         case 'channels.update': {
             const p = (args['patch'] ?? {});
-            // 严格类型边界：'false' 字符串不再翻转为 true（非布尔=不更新）；models 非数组=不更新
+            // 严格类型边界：'false' 字符串不再翻转为 true（非布尔=不更新）；protocols 非数组=不更新
             return ctx.vault.updateChannel(requireString(args['id'], 'id'), {
                 label: optionalString(p['label']),
                 baseUrl: optionalString(p['baseUrl']),
                 enabled: typeof p['enabled'] === 'boolean' ? p['enabled'] : undefined,
-                models: Array.isArray(p['models']) ? p['models'] : undefined,
+                protocols: Array.isArray(p['protocols']) ? p['protocols'] : undefined,
                 apiKey: optionalString(p['apiKey']),
             });
         }
         case 'channels.delete':
             ctx.vault.deleteChannel(id ?? '');
             return { deleted: id };
-        case 'channels.setDefault':
-            ctx.vault.setDefaultChannel(id ?? null);
-            return { defaultChannelId: id ?? null };
         case 'channels.test': {
             // 契约：信封 ok:true 表示"探测已执行"；探测成败看 value.probe.ok / value.probe.error（auth-failed/http-*/no-models/timeout/network）
-            const ch = id ? ctx.vault.getChannel(id) : null;
+            const cid = requireString(args['id'], 'id');
+            const ch = ctx.vault.getChannel(cid);
             if (!ch)
-                throw new VaultError('not-found', `通道不存在: ${id}`);
-            return ctx.probe({ baseUrl: ch.baseUrl, apiKey: ch.apiKey }).then((r) => ({ probe: r }));
+                throw new VaultError('not-found', `通道不存在: ${cid}`);
+            // 通道级验证结论留痕（槽位级的真实小额验证在 slots.test）
+            return ctx.probe({ baseUrl: ch.baseUrl, apiKey: ch.apiKey }).then((probed) => {
+                ctx.vault.markChannelVerified(cid, `probe ${probed.ok ? 'ok' : String(probed.error ?? 'unknown')} · ${probed.models.length} models`);
+                return { probe: probed };
+            });
         }
         case 'runs.list':
             return { runs: ctx.runs.list() };
@@ -146,29 +157,53 @@ function dispatch(ctx, name, args) {
             }
             return { record, artifacts: collectArtifacts(ctx.runs, rid), spend: { entries, estCny: Number(estCny.toFixed(4)) } };
         }
-        case 'channels.adoptModels': {
-            const cid = requireString(args['id'], 'id');
-            const ch = ctx.vault.getChannel(cid);
-            if (!ch)
-                throw new VaultError('not-found', `通道不存在: ${cid}`);
-            const names = args['models'];
-            if (!Array.isArray(names) || names.length === 0 || names.length > 100)
-                throw new VaultError('bad-request', 'models 须为 1..100 字符串数组');
-            const merged = new Map(ch.models.map((m) => [m.model, m]));
-            for (const n of names) {
-                if (typeof n !== 'string' || !n)
-                    throw new VaultError('bad-request', `非法模型名: ${String(n)}`);
-                const { entry, source } = resolveModel(n);
-                // 目录不认识的名字（unknown 缺省 kind=video）不得覆盖用户已配置的既有条目：
-                // 中转站枚举导入动辄数百模型，盲覆盖会把用户手工设好的 image/tts kind 全刷成 video
-                const existing = merged.get(n);
-                merged.set(n, source === 'unknown' && existing ? existing : { model: n, kind: entry.kind });
-            }
-            return ctx.vault.updateChannel(cid, { models: [...merged.values()] });
+        case 'slots.list':
+            return {
+                slots: ctx.vault.listSlotBindings(),
+                slotMeta: SLOT_META,
+            };
+        case 'slots.get': {
+            const slot = requireSlot(args['slot']);
+            return { binding: ctx.vault.getSlotBinding(slot) };
         }
+        case 'slots.set':
+            return {
+                binding: ctx.vault.setSlotBinding({
+                    slot: requireSlot(args['slot']),
+                    channelId: requireString(args['channelId'], 'channelId'),
+                    model: requireString(args['model'], 'model'),
+                    protocol: requireString(args['protocol'], 'protocol'),
+                    capabilities: args['capabilities'],
+                    music: args['music'],
+                }),
+            };
+        case 'slots.clear':
+            return ctx.vault.clearSlotBinding(requireSlot(args['slot']));
+        case 'slots.test': {
+            // 真实最小调用（会产生一笔小额消费）：结论写回槽位 verifiedAt/verifyNote
+            const binding = ctx.vault.getSlotBinding(requireSlot(args['slot']));
+            if (!binding)
+                throw new VaultError('bad-request', `槽位未绑定，无可测试: ${String(args['slot'])}`);
+            return testSlotBinding(ctx.vault, binding);
+        }
+        case 'musicTemplates.list':
+            return { templates: [...BUILTIN_MUSIC_TEMPLATES, ...ctx.vault.listUserMusicTemplates()] };
+        case 'musicTemplates.save':
+            return {
+                template: ctx.vault.saveMusicTemplate({
+                    id: optionalString(args['id']),
+                    label: args['label'],
+                    fields: args['fields'],
+                    note: optionalString(args['note']),
+                }),
+            };
+        case 'musicTemplates.delete':
+            ctx.vault.deleteMusicTemplate(requireString(args['id'], 'id'));
+            return { deleted: args['id'] };
         case 'settings.get': {
             const d = ctx.vault.load();
-            return { defaultChannelId: d.defaultChannelId, budget: d.budget, gateDefaults: d.gateDefaults };
+            void d;
+            return { budget: d.budget, gateDefaults: d.gateDefaults };
         }
         case 'diagnostics.get': {
             // 设置页「环境与诊断」（§8）：异步探测 ffmpeg/drawtext 与 TTS 能力（handleApi 支持 Promise 透传）

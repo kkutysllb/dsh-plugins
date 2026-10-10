@@ -4,15 +4,20 @@ export class Timeline {
     clips = [];
     subtitles = [];
     audio = [];
+    music = null;
     constructor(canvas) {
         this.canvas = canvas;
     }
     get totalDurationUs() {
         return this.clips.reduce((acc, c) => Math.max(acc, c.startUs + c.durationUs), 0);
     }
-    addClip(src, durationUs, volume) {
+    addClip(src, durationUs, volume, srcDurationUs) {
         const startUs = this.clips.reduce((acc, c) => acc + c.durationUs, 0);
-        const clip = { src, startUs, durationUs, ...(volume !== undefined ? { volume } : {}) };
+        const clip = {
+            src, startUs, durationUs,
+            ...(volume !== undefined ? { volume } : {}),
+            ...(srcDurationUs !== undefined ? { srcDurationUs } : {}),
+        };
         this.clips.push(clip);
         return clip;
     }
@@ -22,6 +27,9 @@ export class Timeline {
     addAudio(src, startUs, durationUs, volume) {
         this.audio.push({ src, startUs, durationUs, ...(volume !== undefined ? { volume } : {}) });
     }
+    addMusic(src, durationUs, volume) {
+        this.music = { src, ...(durationUs !== undefined ? { durationUs } : {}), ...(volume !== undefined ? { volume } : {}) };
+    }
 }
 /** 镜头数组 → 时间线：每镜 clip；有台词给 subtitle（覆盖该镜区间）；有配音给 audio。镜头时长 = max(视频, 配音+400ms)。 */
 export function buildTimeline(input) {
@@ -29,7 +37,7 @@ export function buildTimeline(input) {
     for (const shot of input.shots) {
         const audioPadUs = shot.audio ? 400_000 : 0;
         const durationUs = Math.max(shot.durationUs, (shot.audioDurationUs ?? 0) + audioPadUs);
-        t.addClip(shot.video, durationUs);
+        t.addClip(shot.video, durationUs, undefined, shot.srcDurationSec);
         const startUs = t.clips[t.clips.length - 1].startUs;
         if (shot.subtitle)
             t.addSubtitle(shot.subtitle, startUs, startUs + durationUs);

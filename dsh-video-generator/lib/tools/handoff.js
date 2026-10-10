@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { join } from 'node:path';
 import { validateStory, validateScript, validateStoryboard, HandoffError } from "../schema/handoff.js";
 import { buildShotPrompt } from "../prompts.js";
+import { applyMvBudget } from "../music/budget.js";
 import { STAGES } from "../stages.js";
 import { DramaError } from "../store/project.js";
 /** 改编联动参数提取：带 adaptationId 就必须带全三件套（workspaceId/projectId）；
@@ -78,6 +79,9 @@ export function buildHandoffTools(ctx) {
             execute: async (args) => wrap(() => {
                 const story = validateStory(args?.['story']);
                 const run = runs.create(story.title);
+                // 编排模式（规格 §6.1）：mv=先曲后镜对点；缺省 drama
+                if (args?.['mode'] === 'mv')
+                    runs.setMode(run.id, 'mv');
                 persist(runs, run.id, 'story', story);
                 runs.setStage(run.id, 'story', 'done');
                 runs.appendEvent(run.id, 'stage-done', { stage: 'story' });
@@ -87,7 +91,7 @@ export function buildHandoffTools(ctx) {
                     ref.ws.projects.linkRun(ref.projectId, ref.adaptationId, run.id);
                     ref.ws.projects.mirrorAdaptationArtifact(ref.projectId, ref.adaptationId, 'story', story);
                 }
-                return { runId: run.id, stages: STAGES.slice(0, 1), next: '调用 vgen_script 提交剧本', ...(ref ? { adaptationId: ref.adaptationId, projectId: ref.projectId } : {}) };
+                return { runId: run.id, mode: runs.get(run.id)?.mode ?? 'drama', stages: STAGES.slice(0, 1), next: '调用 vgen_script 提交剧本', ...(ref ? { adaptationId: ref.adaptationId, projectId: ref.projectId } : {}) };
             }),
         },
         script: {
@@ -95,6 +99,13 @@ export function buildHandoffTools(ctx) {
                 const runId = requireRun(runs, args?.['runId']);
                 const script = validateScript(args?.['script']);
                 persist(runs, runId, 'script', script);
+                // 歌词资产（规格 §6.2）：会话模型随剧本产出，music.song（P2）与 MV 流程消费
+                if (typeof script.lyrics === 'string') {
+                    const lyricsFile = join(runDir(runs, runId), 'lyrics.json');
+                    const tmp = `${lyricsFile}.tmp-${process.pid}`;
+                    writeFileSync(tmp, JSON.stringify({ lyrics: script.lyrics }, null, 2), { mode: 0o600 });
+                    renameSync(tmp, lyricsFile);
+                }
                 runs.setStage(runId, 'script', 'done');
                 runs.appendEvent(runId, 'stage-done', { stage: 'script' });
                 const ref = adaptationRef(ctx, (args ?? {}));
@@ -117,6 +128,24 @@ export function buildHandoffTools(ctx) {
                     scenes: script['scenes'],
                 });
                 const style = typeof args?.['style'] === 'string' ? args['style'] : typeof script['style'] === 'string' ? script['style'] : '';
+                // MV 时长预算（规格 §6.5）：mode=mv 且 score.json 就绪 → 每镜 durationSec 等比缩放到歌曲时长
+                const mvRun = runs.get(runId);
+                if (mvRun?.mode === 'mv') {
+                    const scoreFile = join(runDir(runs, runId), 'music', 'score.json');
+                    if (existsSync(scoreFile)) {
+                        try {
+                            const score = JSON.parse(readFileSync(scoreFile, 'utf8'));
+                            if (typeof score.durationSec === 'number' && score.durationSec > 0) {
+                                const budget = applyMvBudget(storyboard.shots.map((sh) => sh.durationSec), score.durationSec);
+                                storyboard.shots.forEach((sh, i) => { sh.durationSec = budget.durations[i] ?? sh.durationSec; });
+                                runs.appendEvent(runId, 'mv-budget', { targetSec: score.durationSec, beforeSec: budget.beforeSec, afterSec: budget.afterSec, deviationSec: budget.deviationSec, clamped: budget.clamped });
+                            }
+                        }
+                        catch {
+                            // score 损坏 → 不约束（后续段仍可跑），不阻断交接
+                        }
+                    }
+                }
                 const enriched = enrichShots(storyboard.shots, storyboard.characters, style);
                 persist(runs, runId, 'storyboard', { shots: enriched });
                 runs.setStage(runId, 'storyboard', 'done');
@@ -150,6 +179,7 @@ export function handoffToolDefs(handoff) {
                 type: 'object',
                 properties: {
                     story: STORY_PARAM,
+                    mode: { type: 'string', enum: ['drama', 'mv'], description: '可选编排模式：mv=先曲后镜（先 vgen 音乐生成并对点，storyboard 时长自动预算到歌曲）；缺省 drama' },
                     workspaceId: { type: 'string', description: '漫剧改编任务：workspaceId（来自任务指令）' },
                     projectId: { type: 'string', description: '漫剧改编任务：项目 id（proj- 前缀）' },
                     adaptationId: { type: 'string', description: '漫剧改编任务：改编任务 id（adapt- 前缀）' },
@@ -158,16 +188,16 @@ export function handoffToolDefs(handoff) {
             },
             output: { schema: { type: 'object' }, render: jsonRender },
             timeoutMs: 10_000,
-            execute: (args) => handoff.story.execute(args),
+            execute: (args) => handoff.story.execute((args ?? {})),
         },
         {
             name: 'vgen_script',
-            description: '提交剧本（场次/角色引用/对白，引用完整性校验），挂到已有 run（LLM 三段交接第 2 步）。',
+            description: '提交剧本（场次/角色引用/对白，引用完整性校验；可选 lyrics 歌词文本），挂到已有 run（LLM 三段交接第 2 步）。',
             parameters: {
                 type: 'object',
                 properties: {
                     runId: RUNID_PARAM,
-                    script: { type: 'object', description: '剧本对象：story 字段 + scenes[{id,name,characters[]}]/dialog[{sceneId,characterId,line}]' },
+                    script: { type: 'object', description: '剧本对象：story 字段 + scenes[{id,name,characters[]}]/dialog[{sceneId,characterId,line}]/可选 lyrics 歌词' },
                     workspaceId: { type: 'string', description: '漫剧改编任务：workspaceId' },
                     projectId: { type: 'string', description: '漫剧改编任务：项目 id' },
                     adaptationId: { type: 'string', description: '漫剧改编任务：改编任务 id（镜像剧本回项目）' },

@@ -12,7 +12,6 @@ import { buildChannelsTools, channelsToolDefs } from "../tools/channels.js";
 import { buildDramaTools, dramaToolDefs } from "../tools/drama.js";
 import { DramaHost } from "../drama/gateway.js";
 import { handleDramaApi } from "./project-routes.js";
-import { modelUnavailableFrom } from "../model-selection.js";
 import { PLUGIN_ID, handleApi, healthPayload, isLoopbackRequest, resolveMediaPath, mediaContentType } from "./routes.js";
 export const name = PLUGIN_ID;
 /** cordis 依赖声明：这些服务就绪后才 apply（对齐 super-ppts 的模块级 inject 约定）。
@@ -29,7 +28,7 @@ export const vgenGuidance = `本机已安装 dsh-video-generator 插件（漫剧
 1) vgen_story 提交故事 JSON 开新 run：{ title, logline, style, characters: [{ id（^[a-z0-9_-]+$，≤48）, name, appearance }], chapters: [...] }；
 2) vgen_script 提交剧本 JSON：scenes: [{ id, name, description, characters: [id] }]、dialog: [{ sceneId, characterId, line }]，引用必须存在；
 3) vgen_storyboard 提交分镜数组：每镜 { index（从 1 连续）, line, prompt, characterIds, sceneId?, camera?, durationSec 2..10, voiceHint? }，工具自动注入四层提示词；
-4) vgen_generate { runId, target: 'assets'|'video'|'final', confirm?, concurrency?, gates?, gateApprovals?, rerunStage? }：assets 出角色三视图/场景主图/逐镜参考图，video 逐镜图生视频，final 配音并渲染成片。首次不带 confirm；返回 confirm-required（error.code）→ 向用户转述成本后 confirm:true 重调；gate-approval → 用户批准后 gateApprovals:["段名"] 重调；manual-gate → 收用户文件走 vgen_provide；重做某段 → rerunStage（媒体段重置 pending）；
+4) vgen_generate { runId, target: 'assets'|'video'|'music'|'final', confirm?, concurrency?, gates?, gateApprovals?, rerunStage? }：assets 出角色三视图/场景主图/逐镜参考图，video 逐镜图生视频，music 生成 BGM（drama 模式垫底乐；MV 模式生成主曲，须先经 vgen_script.lyrics 提交歌词），final 配音并渲染成片。首次不带 confirm；返回 confirm-required（error.code）→ 向用户转述成本后 confirm:true 重调；gate-approval → 用户批准后 gateApprovals:["段名"] 重调；manual-gate → 收用户文件走 vgen_provide；中断/失败续跑 → 直接重推（不带 rerunStage，已付费条目自动跳过）；点名全量重做某段 → rerunStage（旧条目作废、全部重新计费）；
 5) vgen_status { runId }：进度 + gates + reviews + 最近事件；
 6) vgen_review { runId, shot, score?, negativeHint?, confirm? } 质量闭环：不带 score → 返回成片 25/50/75% 三帧路径（用读图工具逐帧查看后评分）；带 score 1-5 → ≥3 记通过；≤2 自动追加负面词重拍（每镜 ≤2 次，重拍花费同 confirm 语义），重拍后返回新帧继续评；
 7) vgen_provide { runId, stage, files: [{ path, shot?, name? }] }：manual gate 产物注入（master-asset 文件名 char-*/scene-*；shot-assets/video 逐镜 shot 号，video 须全镜覆盖且时长≥0.5s；final-cut 首文件 .mp4 注入后 run 直接 done）；
@@ -50,7 +49,10 @@ export function apply(ctx) {
     const web = ctx.webServer;
     // 漫剧工坊网关：workspaceRegistry 软探测（宿主 ≤0.1.4 缺服务时 resolve 返回 workspace-unknown，
     // 工具与 RPC 都拿到稳定错误码，不崩载）。
-    const dramaHost = new DramaHost({ registry: typeof ctx.workspaceRegistry?.get === 'function' ? ctx.workspaceRegistry : null });
+    const dramaHost = new DramaHost({
+        registry: typeof ctx.workspaceRegistry?.get === 'function' ? ctx.workspaceRegistry : null,
+        runs,
+    });
     const disposers = [];
     // Agent 能力通告：软探测 section 可用性（漏声明 inject 宿主会抛 without inject，这里 tolerance 防崩载）。
     const sectionAvailable = typeof ctx.systemPrompt?.section === 'function';
@@ -59,29 +61,20 @@ export function apply(ctx) {
     }
     // 原生工具：直接注册（super-ppts 模式，不用回调式 inject）。
     const handoff = buildHandoffTools({ vault, runs, drama: dramaHost });
-    // 默认通道解析：generate 与 review 共用（按当前 defaultChannelId 现取，切通道即时生效）。
-    const resolveChannel = () => {
-        const d = vault.load().defaultChannelId;
-        const c = d ? vault.getChannel(d) : null;
-        if (!c) {
-            const missingId = d ?? 'default';
-            throw modelUnavailableFrom({ id: missingId, label: d ?? '默认通道', models: [] }, 'image/video/tts', null, '当前默认通道不存在');
-        }
-        return {
-            id: c.id,
-            label: c.label,
-            baseUrl: c.baseUrl,
-            apiKey: c.apiKey,
-            // 旧 vault 可能没有 models 字段：不迁移文件，运行时按空列表兼容。
-            models: Array.isArray(c.models) ? c.models : [],
-        };
+    // 用途槽接线：绑定表现取（切配置即时生效）；凭证解析拒绝缺失/停用通道。
+    const slots = () => vault.load().slots;
+    const channelOf = (channelId) => {
+        const c = vault.getChannel(channelId);
+        if (!c || !c.enabled)
+            return null;
+        return { id: c.id, label: c.label, baseUrl: c.baseUrl, apiKey: c.apiKey };
     };
     // 宿主生命周期信号：disposer 里 abort，在飞 vgen_generate 在段边界/并发泵
     // 检查点停下（置 run failed(host-interrupted)），不再继续调用通道 API 计费。
     const lifecycle = new AbortController();
-    const generateTools = buildGenerateTools({ vault, runs, channel: resolveChannel, signal: lifecycle.signal });
+    const generateTools = buildGenerateTools({ vault, runs, slots, channelOf, signal: lifecycle.signal });
     const provideTools = buildProvideTools({ runs, env: process.env });
-    const reviewTools = buildReviewTools({ vault, runs, channel: resolveChannel });
+    const reviewTools = buildReviewTools({ vault, runs, slots, channelOf });
     const channelsTools = buildChannelsTools({ vault, runs });
     const dramaTools = buildDramaTools(dramaHost);
     for (const dispose of [

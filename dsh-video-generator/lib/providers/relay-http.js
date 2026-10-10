@@ -46,10 +46,12 @@ async function requestJson(fetchImpl, url, apiKey, init, timeoutMs) {
         done();
     }
 }
-export function postJson(url, apiKey, body, fetchImpl = fetch, timeoutMs = 120000) {
+export function postJson(url, apiKey, body, fetchImpl = fetch, timeoutMs = 120000, 
+/** 可选附加头（如 DashScope 原生契约要求 X-DashScope-Async: enable，附录 B.4）。 */
+extraHeaders) {
     return requestJson(fetchImpl, url, apiKey, {
         method: 'POST',
-        headers: { ...authHeaders(apiKey), 'content-type': 'application/json' },
+        headers: { ...authHeaders(apiKey), 'content-type': 'application/json', ...extraHeaders },
         body: JSON.stringify(body),
     }, timeoutMs);
 }

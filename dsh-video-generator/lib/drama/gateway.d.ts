@@ -7,6 +7,7 @@
  */
 import { ProjectStore } from '../store/project.ts';
 import { ProposalStore } from '../store/proposal.ts';
+import type { RunStore } from '../store/runs.ts';
 /** workspace registry 最小面（宿主软探测：缺失时 drama 功能整体降级）。 */
 export interface WorkspaceRegistryFace {
     get(id: string): {
@@ -33,10 +34,14 @@ export interface ResolvedWorkspace {
 }
 export declare class DramaHost {
     private registry;
+    private runs;
     private cache;
     constructor(opts?: {
         registry?: WorkspaceRegistryFace | null;
+        runs?: RunStore | null;
     });
+    /** 视频 RunStore（可选注入：项目概览/Agent 面板的最近成片与花费汇总读它；缺席 → 相关字段降级）。 */
+    runsStore(): RunStore | null;
     registryAvailable(): boolean;
     /** 已注册工作区列表（只回 id/title，绝不回本地路径）。 */
     workspaceList(): WorkspaceBrief[];

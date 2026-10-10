@@ -57,6 +57,7 @@ export function collectArtifacts(runs, runId) {
         shots: listDir(runDir, 'shots', 'shots'),
         clips: listDir(runDir, 'clips', 'clips'),
         review: listTree(runDir, 'review', 'review'),
+        music: listDir(runDir, 'music', 'music'),
         final: { mp4: finalFile(runDir, 'final.mp4'), srt: finalFile(runDir, 'final.srt') },
     };
 }

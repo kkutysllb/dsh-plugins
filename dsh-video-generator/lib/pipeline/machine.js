@@ -1,21 +1,26 @@
-/** 七段流水线状态机：run.json 事实源推进 + 断点续跑 + gate(auto/ask/manual) + 并发泵 + 记账（规格 §5）。
+/** 七段流水线状态机：run.json 事实源推进 + 断点续跑 + gate(auto/ask/manual) + 并发泵 + 记账
+ *  （规格 §5；通道层 v2：模型一律来自用途槽绑定，单槽单模型，无候选轮询）。
  *  已知限制：断点续跑从事件流恢复的 shot 参考图为签名 URL（7 天有效）；过期导致 video 段失败时，
- *  将 run.json 中 shot-assets 段状态改回 pending 重推即可重新生成。
+ *  用 vgen_generate rerunStage='shot-assets' 显式重做（直接重推属条目级续跑，会跳过已有产物不重新生成）。
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { execFile } from 'node:child_process';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { estimateCny } from "../pricing.js";
+import { capabilityFlag } from "../store/slots.js";
 import { buildCharacterSheetPrompt, buildScenePrompt, buildShotPrompt } from "../prompts.js";
 import { STAGES } from "../stages.js";
-import { retryTransient } from "../poll.js";
+import { pollUntil, retryTransient, PollAbortedError } from "../poll.js";
 import { RelayError } from "../providers/relay-http.js";
-import { isExplicitModelUnavailable, ModelUnavailableError, modelUnavailableFrom, selectConfiguredModel } from "../model-selection.js";
+import { bindingUnavailable, isExplicitModelUnavailable, ModelUnavailableError, requireSlotBinding } from "../model-selection.js";
+import { HandoffError } from "../schema/handoff.js";
+import { providerForSlot } from "../providers/protocols.js";
 import { generateShotClip, saveUrl, SHOT_MOTION_PROMPT } from "./shot-clip.js";
 import { buildTimeline, writeSrt, Timeline } from "../finalcut/timeline.js";
 import { renderTimeline, probeDurationSec } from "../finalcut/render-ffmpeg.js";
 import { resolveVoice, buildMacSayCommand, buildSapiScript, synthesizeCloudSpeech } from "../finalcut/voice.js";
+import { analyzeMusicFile } from "../music/analyze.js";
+import { assembleScore, beatsFrom, evenSections, parseLyricsSections } from "../music/score.js";
 /** 宿主停用中断：段执行在检查点抛出，工具层转 interrupted 信封。 */
 export class RunInterruptedError extends Error {
     runId;
@@ -25,21 +30,11 @@ export class RunInterruptedError extends Error {
         this.runId = runId;
     }
 }
-function selectStageModel(deps, kind, injected) {
-    return injected ?? selectConfiguredModel(deps.channel, kind);
-}
-function requireCapability(channel, kind, model, provider) {
-    const capability = kind === 'image' ? 'image' : 'imageToVideo';
-    if (!provider.capabilities[capability]) {
-        const readableCapability = kind === 'image' ? 'image' : 'image-to-video';
-        throw modelUnavailableFrom(channel, kind, model, `Provider ${provider.id} 不支持 ${readableCapability}`);
-    }
-}
-function wrapExplicitModelError(channel, kind, model, err) {
+function wrapBindingError(binding, err) {
     if (err instanceof ModelUnavailableError)
         return err;
     if (isExplicitModelUnavailable(err)) {
-        return modelUnavailableFrom(channel, kind, model, err instanceof Error ? err.message : String(err));
+        return bindingUnavailable(binding, err instanceof Error ? err.message : String(err));
     }
     return err instanceof Error ? err : new Error(String(err));
 }
@@ -47,7 +42,8 @@ function wrapExplicitModelError(channel, kind, model, err) {
 const IMAGE_SIZE_PORTRAIT = '1024x1536';
 /** 角色三视图卡：横向并排三视图，横版构图。 */
 const IMAGE_SIZE_LANDSCAPE = '1536x1024';
-/** size 透传 + 服务端 400 单次降级（部分上游不认 size 参数；429/5xx 走外层 retryTransient）。 */
+/** size 透传 + 服务端 400 单次降级（部分上游不认 size 参数；429/5xx 走外层 retryTransient）。
+ *  是否透传 size 由槽位能力位 sizeParam 声明（默认透传，服务端不认时自动降档）。 */
 async function submitImageWithSize(p, stage, prompt, size, onFallback) {
     if (!size)
         return (await p.submit(stage, { prompt })).jobId;
@@ -73,6 +69,27 @@ function runExec(cmd, args) {
         execFile(cmd, args, { timeout: 120000, maxBuffer: 8 * 1024 * 1024 }, (err) => (err ? reject(err) : resolve()));
     });
 }
+/** 歌词资产（vgen_script 落盘 lyrics.json）→ 文本；缺失/损坏 → null。 */
+function readLyricsText(runs, runId) {
+    try {
+        const parsed = JSON.parse(readFileSync(join(runs.rootDir, runId, 'lyrics.json'), 'utf8'));
+        return typeof parsed.lyrics === 'string' && parsed.lyrics.trim() ? parsed.lyrics : null;
+    }
+    catch {
+        return null;
+    }
+}
+/** score.json 的歌曲时长（秒）；缺失/损坏 → 0。 */
+function readScoreDuration(runs, runId) {
+    try {
+        const parsed = JSON.parse(readFileSync(join(runs.rootDir, runId, 'music', 'score.json'), 'utf8'));
+        const v = Number(parsed.durationSec);
+        return Number.isFinite(v) && v > 0 ? v : 0;
+    }
+    catch {
+        return 0;
+    }
+}
 function readJson(runs, runId, name) {
     return JSON.parse(readFileSync(join(runs.rootDir, runId, `${name}.json`), 'utf8'));
 }
@@ -80,6 +97,27 @@ function readJson(runs, runId, name) {
 function lastEvent(events, type) {
     const hits = events.filter((e) => e.type === type);
     return hits.length ? hits[hits.length - 1] : undefined;
+}
+/** 条目级断点续跑（规格 §5.1「已完成段不重花钱」，对齐 music-job 模式）：
+ *  取该段最后一次 stage-redo 之后的 asset-item 事件为已完成集；显式 rerunStage 落 stage-redo，
+ *  之前的条目全部作废（用户点名重做）。key 为段内稳定标识（char:<id>/scene:<id>/shot:<index>）。 */
+function assetDoneSet(events, stage) {
+    let redoIdx = -1;
+    for (let i = events.length - 1; i >= 0; i--) {
+        const e = events[i];
+        if (e.type === 'stage-redo' && e.detail?.['stage'] === stage) {
+            redoIdx = i;
+            break;
+        }
+    }
+    const done = new Map();
+    for (let i = redoIdx + 1; i < events.length; i++) {
+        const e = events[i];
+        if (e.type !== 'asset-item' || e.detail?.['stage'] !== stage)
+            continue;
+        done.set(String(e.detail['key']), { file: String(e.detail['file'] ?? ''), url: String(e.detail['url'] ?? '') });
+    }
+    return done;
 }
 /** 简单并发泵：按 index 顺序发起，至多 limit 个在飞；任一失败即熔断（在飞任务自然完成，不再取新任务）。 */
 async function pump(items, limit, worker, live) {
@@ -125,6 +163,8 @@ function toTimeline(d) {
         t.addSubtitle(s.text, s.startUs, s.endUs);
     for (const a of d.audio)
         t.addAudio(a.src, a.startUs, a.durationUs, a.volume);
+    if (d.music)
+        t.addMusic(d.music.src, d.music.durationUs, d.music.volume);
     return t;
 }
 export async function advanceRun(deps) {
@@ -136,11 +176,30 @@ export async function advanceRun(deps) {
     const targetIdx = STAGES.indexOf(deps.target);
     const result = { runId, stages: { ...record.stages } };
     const gates = deps.gates ?? {};
-    // 先校验后序 video 模型，避免前序 image 阶段确认后才发现模型不可用。
+    /** 槽位解析三件套：绑定 + 凭证 + Provider。任何一步失败都是 model-unavailable（确认之前）。 */
+    const resolveSlot = (slot) => {
+        const binding = requireSlotBinding(deps.slots, slot);
+        const channel = deps.channelFor(binding);
+        const provider = deps.providers.forSlot(binding, channel, { fetchImpl });
+        return { binding, channel, provider };
+    };
+    const requireImageProvider = (slot) => {
+        const r = resolveSlot(slot);
+        if (!r.provider.capabilities.image) {
+            throw bindingUnavailable(r.binding, `Provider ${r.provider.id} 不支持 image 能力`);
+        }
+        return r;
+    };
+    // 先校验后序 video 槽，避免前序 image 阶段确认后才发现模型不可用（确认之前零花费）。
     if (targetIdx >= STAGES.indexOf('video') && record.stages['video'] !== 'done') {
-        const videoModel = selectStageModel(deps, 'video', deps.videoModel);
-        const videoProvider = deps.providers.forModel(videoModel, { fetchImpl });
-        requireCapability(deps.channel, 'video', videoModel, videoProvider);
+        const videoBinding = requireSlotBinding(deps.slots, 'video');
+        const canI2v = capabilityFlag(videoBinding, 'imageToVideo', true);
+        const canT2v = capabilityFlag(videoBinding, 'textToVideo', false);
+        if (!canI2v && !canT2v) {
+            throw bindingUnavailable(videoBinding, '能力位 imageToVideo/textToVideo 均未启用（设置页「用途槽 → 视频」勾选其一）');
+        }
+        const videoChannel = deps.channelFor(videoBinding);
+        deps.providers.forSlot(videoBinding, videoChannel, { fetchImpl });
     }
     const ensureGate = async (stage, info) => {
         const mode = gates[stage] ?? 'auto';
@@ -193,38 +252,46 @@ export async function advanceRun(deps) {
             const script = readJson(runs, runId, 'script');
             const assetDir = join(runs.rootDir, runId, 'assets');
             mkdirSync(assetDir, { recursive: true });
-            const imageModel = selectStageModel(deps, 'image', deps.imageModel);
-            const p = deps.providers.forModel(imageModel, { fetchImpl });
-            requireCapability(deps.channel, 'image', imageModel, p);
+            const { binding: imageBinding, channel, provider: p } = requireImageProvider('image.master');
             const jobs = [
                 ...script.characters.map((c) => ({
+                    key: `char:${c.id}`,
                     file: join(assetDir, `char-${c.id}.png`),
                     prompt: buildCharacterSheetPrompt({ name: c.name, appearance: c.appearance, style: script.style }).positive,
                     size: IMAGE_SIZE_LANDSCAPE,
                 })),
                 ...script.scenes.map((sc) => ({
+                    key: `scene:${sc.id}`,
                     file: join(assetDir, `scene-${sc.id}.png`),
                     prompt: buildScenePrompt({ name: sc.name, description: sc.description, style: script.style }).positive,
                     size: IMAGE_SIZE_PORTRAIT,
                 })),
             ];
+            // 条目级断点续跑：段中途失败（如 600s 工具窗口掐断）后重推，已付费且产物在盘的条目直接跳过
+            const doneItems = assetDoneSet(runs.get(runId).events, st);
             const urls = [];
             try {
                 begin(st);
                 await pump(jobs, deps.concurrency ?? 2, async (job) => {
-                    const est = deps.pricing ? estimateCny(imageModel, deps.pricing) : null;
+                    const prior = doneItems.get(job.key);
+                    if (prior && existsSync(prior.file))
+                        return;
+                    const est = deps.estimate(imageBinding);
                     if (!(await deps.confirmer(est, 'image')))
                         throw new Error(`用户取消（${st} 段，预测 ${est ?? 'unknown'}）`);
-                    const url = await retryTransient(() => submitImageWithSize(p, st, job.prompt, job.size, () => runs.appendEvent(runId, 'size-fallback', { stage: st, size: job.size })));
-                    runs.appendEvent(runId, 'spend', { stage: st, model: imageModel, estCny: est, jobId: String(url).slice(0, 80) });
+                    const size = capabilityFlag(imageBinding, 'sizeParam', true) ? job.size : undefined;
+                    const url = await retryTransient(() => submitImageWithSize(p, st, job.prompt, size, () => runs.appendEvent(runId, 'size-fallback', { stage: st, size: job.size })));
+                    runs.appendEvent(runId, 'spend', { stage: st, model: imageBinding.model, estCny: est, channel: channel.id, jobId: String(url).slice(0, 80) });
+                    deps.recordSpend?.({ channel: channel.id, model: imageBinding.model, kind: 'image', estCny: est, jobId: String(url).slice(0, 80) });
                     await saveUrl(fetchImpl, url, job.file);
+                    runs.appendEvent(runId, 'asset-item', { stage: st, key: job.key, file: job.file, url });
                     urls.push({ key: job.file, url });
                 }, ensureLive);
                 done(st);
             }
             catch (err) {
                 runs.setStage(runId, st, 'failed');
-                throw wrapExplicitModelError(deps.channel, 'image', imageModel, err);
+                throw wrapBindingError(imageBinding, err);
             }
         }
     }
@@ -237,31 +304,43 @@ export async function advanceRun(deps) {
             const sb = readJson(runs, runId, 'storyboard');
             const shotsDir = join(runs.rootDir, runId, 'shots');
             mkdirSync(shotsDir, { recursive: true });
-            const imageModel = selectStageModel(deps, 'image', deps.imageModel);
-            const p = deps.providers.forModel(imageModel, { fetchImpl });
-            requireCapability(deps.channel, 'image', imageModel, p);
+            const { binding: shotBinding, channel, provider: p } = requireImageProvider('image.shot');
+            const doneItems = assetDoneSet(runs.get(runId).events, st);
             const shotImages = [];
+            // 续跑种子：已付费且产物在盘的条目直接进结果集，保证最终 shot-urls 事件全量（video 段 i2v 输入不缺镜）
+            for (const shot of sb.shots) {
+                const prior = doneItems.get(`shot:${shot.index}`);
+                if (prior && existsSync(prior.file))
+                    shotImages.push({ index: shot.index, url: prior.url, file: prior.file });
+            }
             try {
                 begin(st);
                 await pump(sb.shots, deps.concurrency ?? 2, async (shot) => {
+                    const prior = doneItems.get(`shot:${shot.index}`);
+                    if (prior && existsSync(prior.file))
+                        return;
                     const anchors = shot.characterIds.map((cid) => {
                         const c = script.characters.find((x) => x.id === cid);
-                        return c ? `${c.name}（${c.appearance}）` : cid;
+                        return c ? `${c.name}（${c.appearance}）` : String(cid);
                     });
                     const merged = buildShotPrompt({
                         line: shot.prompt,
                         characterAnchors: anchors,
                         camera: shot.camera,
                         style: script.style,
+                        // 参考图提示：P0 仍为提示词级一致性；绑定声明 referenceImage 后 P1 接真参考图输入
                         referenceHint: shot.characterIds.length ? '画面主体与服饰严格参考参考图中的角色形象' : undefined,
                     });
-                    const est = deps.pricing ? estimateCny(imageModel, deps.pricing) : null;
+                    const est = deps.estimate(shotBinding);
                     if (!(await deps.confirmer(est, 'image')))
                         throw new Error(`用户取消（shot ${shot.index}）`);
-                    const url = await retryTransient(() => submitImageWithSize(p, st, merged.positive, IMAGE_SIZE_PORTRAIT, () => runs.appendEvent(runId, 'size-fallback', { stage: st, size: IMAGE_SIZE_PORTRAIT })));
-                    runs.appendEvent(runId, 'spend', { stage: st, model: imageModel, estCny: est, shot: shot.index, jobId: String(url).slice(0, 80) });
+                    const size = capabilityFlag(shotBinding, 'sizeParam', true) ? IMAGE_SIZE_PORTRAIT : undefined;
+                    const url = await retryTransient(() => submitImageWithSize(p, st, merged.positive, size, () => runs.appendEvent(runId, 'size-fallback', { stage: st, size: IMAGE_SIZE_PORTRAIT })));
+                    runs.appendEvent(runId, 'spend', { stage: st, model: shotBinding.model, estCny: est, shot: shot.index, channel: channel.id, jobId: String(url).slice(0, 80) });
+                    deps.recordSpend?.({ channel: channel.id, model: shotBinding.model, kind: 'image', estCny: est, jobId: String(url).slice(0, 80) });
                     const file = join(shotsDir, `shot-${String(shot.index).padStart(3, '0')}.png`);
                     await saveUrl(fetchImpl, url, file);
+                    runs.appendEvent(runId, 'asset-item', { stage: st, key: `shot:${shot.index}`, file, url });
                     shotImages.push({ index: shot.index, url, file });
                 }, ensureLive);
                 shotImages.sort((a, b) => a.index - b.index);
@@ -271,7 +350,7 @@ export async function advanceRun(deps) {
             }
             catch (err) {
                 runs.setStage(runId, st, 'failed');
-                throw wrapExplicitModelError(deps.channel, 'image', imageModel, err);
+                throw wrapBindingError(shotBinding, err);
             }
         }
         else {
@@ -286,23 +365,32 @@ export async function advanceRun(deps) {
         const st = 'video';
         const current = runs.get(runId).stages;
         if (current[st] !== 'done') {
-            await ensureGate(st, '逐镜图生视频');
+            await ensureGate(st, '逐镜视频生成');
             const sb = readJson(runs, runId, 'storyboard');
             const ev = lastEvent(runs.get(runId).events, 'shot-urls');
             const shotUrls = ev?.detail?.urls ?? result.shotImages;
-            if (!shotUrls?.length)
-                throw new Error('缺少 shot 参考图 URL：请先完成 shot-assets 段');
+            const { binding: videoBinding, channel, provider: p } = resolveSlot('video');
+            const canI2v = capabilityFlag(videoBinding, 'imageToVideo', true);
+            const canT2v = capabilityFlag(videoBinding, 'textToVideo', false);
+            // 模态决策：有参考图且声明 i2v → 图生视频；否则声明 t2v → 文生视频降级；两者皆无 → 明确失败
+            const useI2v = canI2v && !!shotUrls?.length;
+            if (!useI2v && !canT2v) {
+                throw bindingUnavailable(videoBinding, shotUrls?.length
+                    ? '未启用图生视频（imageToVideo 能力位未勾选）'
+                    : '缺少 shot 参考图且未启用文生视频降级（textToVideo 能力位未勾选）：请先完成 shot-assets 段，或在设置页「用途槽 → 视频」勾选');
+            }
+            const maxDuration = typeof videoBinding.capabilities['maxDurationSec'] === 'number' ? videoBinding.capabilities['maxDurationSec'] : 10;
             const clipsDir = join(runs.rootDir, runId, 'clips');
             mkdirSync(clipsDir, { recursive: true });
-            const videoModel = selectStageModel(deps, 'video', deps.videoModel);
-            const p = deps.providers.forModel(videoModel, { fetchImpl });
-            requireCapability(deps.channel, 'video', videoModel, p);
             const clipFiles = [];
             try {
                 begin(st);
-                await pump(shotUrls, deps.concurrency ?? 2, async (shot) => {
-                    const durationSec = sb.shots.find((s) => s.index === shot.index)?.durationSec ?? 5;
-                    const est = deps.pricing ? estimateCny(videoModel, deps.pricing) : null;
+                const jobs = useI2v
+                    ? (shotUrls ?? []).map((s) => ({ index: s.index, url: s.url }))
+                    : sb.shots.map((s) => ({ index: s.index, url: null }));
+                await pump(jobs, deps.concurrency ?? 2, async (shot) => {
+                    const durationSec = Math.min(sb.shots.find((s) => s.index === shot.index)?.durationSec ?? 5, maxDuration);
+                    const est = deps.estimate(videoBinding);
                     if (!(await deps.confirmer(est, 'video')))
                         throw new Error(`用户取消（shot ${shot.index}）`);
                     const file = join(clipsDir, `shot-${String(shot.index).padStart(3, '0')}.mp4`);
@@ -310,19 +398,24 @@ export async function advanceRun(deps) {
                         await generateShotClip({
                             provider: p,
                             fetchImpl,
-                            imageUrl: shot.url,
+                            imageUrl: useI2v ? shot.url : undefined,
                             prompt: SHOT_MOTION_PROMPT,
                             durationSec,
                             outFile: file,
                             pollDelayMs: deps.pollDelayMs,
+                            signal: deps.signal,
                             onSubmit: (jobId) => {
-                                runs.appendEvent(runId, 'spend', { stage: st, model: videoModel, estCny: est, shot: shot.index, jobId: jobId.slice(0, 80) });
+                                runs.appendEvent(runId, 'spend', { stage: st, model: videoBinding.model, estCny: est, shot: shot.index, channel: channel.id, jobId: jobId.slice(0, 80) });
+                                deps.recordSpend?.({ channel: channel.id, model: videoBinding.model, kind: 'video', estCny: est, jobId: jobId.slice(0, 80) });
                             },
                         });
                     }
                     catch (err) {
+                        // abort 不是 shot 失败：原样上抛给段级 catch 转中断语义（保留 run-interrupted 标记路径）
+                        if (err instanceof PollAbortedError)
+                            throw err;
                         if (isExplicitModelUnavailable(err) || err instanceof ModelUnavailableError) {
-                            throw wrapExplicitModelError(deps.channel, 'video', videoModel, err);
+                            throw wrapBindingError(videoBinding, err);
                         }
                         // 保留 shot 上下文前缀（原实现的判别性消息形态）
                         throw new Error(`shot ${shot.index}: ${err instanceof Error ? err.message : String(err)}`);
@@ -331,10 +424,13 @@ export async function advanceRun(deps) {
                 }, ensureLive);
                 clipFiles.sort();
                 result.clipFiles = clipFiles;
-                runs.appendEvent(runId, 'clips', { files: clipFiles });
+                runs.appendEvent(runId, 'clips', { files: clipFiles, mode: useI2v ? 'i2v' : 't2v' });
                 done(st);
             }
             catch (err) {
+                // 轮询被中止：走宿主停用标记路径（running 段置 failed + run-interrupted 事件），不算 shot 失败
+                if (err instanceof PollAbortedError)
+                    ensureLive();
                 runs.setStage(runId, st, 'failed');
                 throw err;
             }
@@ -343,6 +439,143 @@ export async function advanceRun(deps) {
             // 断点续跑：从事件流恢复 clips 清单
             const ev = lastEvent(runs.get(runId).events, 'clips');
             result.clipFiles = ev?.detail?.files;
+        }
+    }
+    if (targetIdx >= STAGES.indexOf('music')) {
+        const st = 'music';
+        const current = runs.get(runId).stages;
+        if (current[st] !== 'done') {
+            // 编排模式（规格 §6.1）：mv 用 MV 主曲（music.song，吃歌词），drama 用 BGM（music.bgm）
+            const isMv = (runs.get(runId).mode ?? 'drama') === 'mv';
+            const slotId = isMv ? 'music.song' : 'music.bgm';
+            const musicBinding = deps.slots[slotId];
+            if (!musicBinding) {
+                // D6：未绑定 → 跳过留痕，不阻断成片
+                runs.appendEvent(runId, 'music-skip', { reason: `用途槽 ${slotId} 未绑定${isMv ? '（MV 需要 MV 主曲）' : '（BGM 关闭）'}` });
+            }
+            else {
+                const explicitTarget = targetIdx === STAGES.indexOf('music');
+                await ensureGate(st, isMv ? 'MV 主曲生成' : 'BGM 生成');
+                const script = readJson(runs, runId, 'script');
+                const sb = readJson(runs, runId, 'storyboard');
+                // 时长请求 = 分镜时长合计（下限 15s）；成片端再做循环补长/裁切归一
+                const estTotalSec = sb.shots.reduce((acc, s) => acc + (s.durationSec ?? 5), 0);
+                const durationSec = Math.max(15, Math.min(300, Math.ceil(estTotalSec)));
+                const channel = deps.channelFor(musicBinding);
+                const provider = deps.providers.forSlot(musicBinding, channel, { fetchImpl });
+                const musicDir = join(runs.rootDir, runId, 'music');
+                const baseName = isMv ? 'song' : 'bgm';
+                const outFile = join(musicDir, `${baseName}.mp3`);
+                try {
+                    begin(st);
+                    mkdirSync(musicDir, { recursive: true });
+                    const lyricsText = isMv ? readLyricsText(runs, runId) : null;
+                    // 规格 §6.2：MV 主曲必须先有歌词（vgen_script.lyrics），缺失 → bad-request 指引补歌词（不代写、不产生花费）
+                    if (isMv && !lyricsText) {
+                        throw new HandoffError('bad-request', 'MV 主曲需要歌词：先用 vgen_script 携带 lyrics 字段提交歌词（[Intro]/[Verse]/[Chorus]… 段落标签体系），再推进 music 段');
+                    }
+                    // 断点续跑（规格 §5.1「已完成段不重花钱」）：上次 submit 已留痕（music-job）且未判死
+                    // （music-job-dead）→ 续轮询同一任务，不重复提交、不重复计费。判死仅指上游任务终态
+                    // failed；轮询超时/取消中止时任务在上游仍存活，重推应续查而非重花钱。
+                    const events = runs.get(runId).events;
+                    const idxLast = (type) => {
+                        for (let i = events.length - 1; i >= 0; i--)
+                            if (events[i].type === type)
+                                return i;
+                        return -1;
+                    };
+                    const jobIdx = idxLast('music-job');
+                    const resumeJobId = jobIdx > idxLast('music-job-dead') ? String(events[jobIdx].detail?.['jobId'] ?? '') : '';
+                    let jobId;
+                    if (resumeJobId) {
+                        jobId = resumeJobId;
+                        runs.appendEvent(runId, 'music-resume', { jobId: jobId.slice(0, 80) });
+                    }
+                    else {
+                        const est = deps.estimate(musicBinding);
+                        if (!(await deps.confirmer(est, 'music')))
+                            throw new Error(`用户取消（${st} 段，预测 ${est ?? 'unknown'}）`);
+                        const prompt = isMv
+                            ? `Comic-drama MV song, ${script.style || 'cinematic'}, catchy melody, clear structure, vocals`
+                            : `Instrumental background music, ${script.style || 'cinematic'}, calm and unobtrusive, seamless loop, no vocals`;
+                        const spec = { prompt, instrumental: !isMv, durationSec };
+                        if (isMv)
+                            spec['lyrics'] = lyricsText;
+                        jobId = String((await retryTransient(() => provider.submit(st, spec))).jobId);
+                        runs.appendEvent(runId, 'spend', { stage: st, model: musicBinding.model, estCny: est, channel: channel.id, jobId: String(jobId).slice(0, 80) });
+                        deps.recordSpend?.({ channel: channel.id, model: musicBinding.model, kind: 'music', estCny: est, jobId: String(jobId).slice(0, 80) });
+                        runs.appendEvent(runId, 'music-job', { jobId: String(jobId).slice(0, 80) });
+                    }
+                    // 轮询上限 480s（工具窗口 600s 内给 submit/下载/分析留头寸）；超时/中止时 jobId 已留痕，重推续查不重复计费
+                    const finalState = await pollUntil(() => provider.status(jobId), { isFinal: (s) => s.state === 'done' || s.state === 'failed', delayMs: deps.pollDelayMs ?? 1000, maxPollMs: 480000, signal: deps.signal });
+                    if (finalState.state === 'failed') {
+                        runs.appendEvent(runId, 'music-job-dead', { jobId: String(jobId).slice(0, 80) });
+                        throw new Error(`音乐生成失败: ${finalState.error ?? '?'}`);
+                    }
+                    const f = await provider.fetch(String(jobId));
+                    const headers = f.meta?.headers;
+                    const audioB64 = f.meta?.audioBase64;
+                    if (audioB64) {
+                        writeFileSync(outFile, Buffer.from(audioB64, 'base64'), { mode: 0o600 });
+                    }
+                    else {
+                        const url = f.outputs[0];
+                        if (!url)
+                            throw new Error('音乐任务完成但无输出');
+                        await saveUrl(fetchImpl, url, outFile, headers);
+                    }
+                    const durSec = deps.ffmpeg ? await probeDurationSec(outFile, deps.ffmpeg) : null;
+                    const effectiveSec = durSec ?? durationSec;
+                    // 网格三级来源（规格 §6.4）：api（适配器 sectionsPath）＞ 本地 PCM 分析 ＞ 均分估算——如实标注
+                    const apiSections = f.meta?.sections;
+                    const lyricSections = lyricsText ? parseLyricsSections(lyricsText).length : 0;
+                    let grid;
+                    if (apiSections?.length) {
+                        grid = { source: 'api', bpm: null, offsetSec: null, sections: apiSections, beats: beatsFrom(null, null, effectiveSec) };
+                    }
+                    else if (deps.ffmpeg) {
+                        try {
+                            const a = await analyzeMusicFile(outFile, deps.ffmpeg);
+                            if (a.sections.length >= 2) {
+                                grid = { source: 'local-analysis', bpm: a.bpm, offsetSec: a.offsetSec, sections: a.sections, beats: beatsFrom(a.bpm, a.offsetSec, effectiveSec) };
+                            }
+                            else {
+                                grid = { source: 'estimate', bpm: null, offsetSec: null, sections: evenSections(isMv ? Math.max(2, lyricSections) : 3, effectiveSec), beats: [] };
+                            }
+                        }
+                        catch {
+                            grid = { source: 'estimate', bpm: null, offsetSec: null, sections: evenSections(isMv ? Math.max(2, lyricSections) : 3, effectiveSec), beats: [] };
+                        }
+                    }
+                    else {
+                        grid = { source: 'estimate', bpm: null, offsetSec: null, sections: evenSections(isMv ? Math.max(2, lyricSections) : 3, effectiveSec), beats: [] };
+                    }
+                    const score = assembleScore({
+                        kind: isMv ? 'song' : 'bgm',
+                        file: `music/${baseName}.mp3`,
+                        durationSec: effectiveSec,
+                        grid,
+                        lyricsText: isMv ? (lyricsText ?? '') : '',
+                        model: musicBinding.model,
+                        channelId: channel.id,
+                    });
+                    writeFileSync(join(musicDir, 'score.json'), JSON.stringify(score, null, 2) + '\n', { mode: 0o600 });
+                    runs.appendEvent(runId, 'score-written', { file: 'music/score.json', source: grid.source, bpm: grid.bpm, sections: grid.sections.length });
+                    runs.appendEvent(runId, 'music-done', { file: `music/${baseName}.mp3`, durationSec: durSec, requestedSec: durationSec, kind: isMv ? 'song' : 'bgm' });
+                    done(st);
+                }
+                catch (err) {
+                    // 轮询被中止：走宿主停用标记路径，不算音乐失败（jobId 已留痕，重推续查）
+                    if (err instanceof PollAbortedError)
+                        ensureLive();
+                    runs.setStage(runId, st, 'failed');
+                    const msg = err instanceof Error ? err.message : String(err);
+                    runs.appendEvent(runId, 'music-failed', { error: msg.slice(0, 300) });
+                    if (explicitTarget)
+                        throw wrapBindingError(musicBinding, err);
+                    // D6：路径过段（target=final）时音乐失败不阻断 final-cut，成片仍出
+                }
+            }
         }
     }
     if (targetIdx >= STAGES.indexOf('final-cut')) {
@@ -356,6 +589,7 @@ export async function advanceRun(deps) {
             const clipsDir = join(runs.rootDir, runId, 'clips');
             const ev = lastEvent(runs.get(runId).events, 'clips');
             const clipFiles = ev?.detail?.files ?? result.clipFiles ?? [];
+            const ttsBinding = deps.slots['tts'];
             try {
                 begin(st);
                 const timelineShots = [];
@@ -380,7 +614,8 @@ export async function advanceRun(deps) {
                         }
                         catch (err) {
                             if (isExplicitModelUnavailable(err)) {
-                                throw modelUnavailableFrom(deps.channel, 'tts', deps.tts.model, err instanceof Error ? err.message : String(err));
+                                if (ttsBinding)
+                                    throw bindingUnavailable(ttsBinding, err instanceof Error ? err.message : String(err));
                             }
                             runs.appendEvent(runId, 'tts-fallback', { shot: shot.index, reason: err instanceof Error ? err.message : String(err) });
                             voice = resolveVoice({ voiceHint: text }, process.platform);
@@ -419,9 +654,34 @@ export async function advanceRun(deps) {
                         subtitle,
                         audio,
                         audioDurationUs: audioDurUs,
+                        srcDurationSec: durSec,
                     });
                 }
+                // MV 对点收口（规格 §6.5）：总长超歌 >2% → 等比修剪（渲染端按槽位 -t 裁超长素材）
+                if ((record.mode ?? 'drama') === 'mv') {
+                    const songSec = readScoreDuration(runs, runId);
+                    if (songSec > 0) {
+                        const targetUs = Math.round(songSec * 1e6);
+                        const totalUs = timelineShots.reduce((acc, t) => acc + t.durationUs, 0);
+                        if (totalUs > targetUs * 1.02) {
+                            const k = targetUs / totalUs;
+                            timelineShots.forEach((t) => { t.durationUs = Math.round(t.durationUs * k); });
+                            runs.appendEvent(runId, 'mv-trim', { beforeUs: totalUs, afterUs: targetUs });
+                        }
+                        else {
+                            runs.appendEvent(runId, 'mv-deviation', { totalUs, targetUs });
+                        }
+                    }
+                }
                 const data = buildTimeline({ canvas: { width: 1080, height: 1920, fps: 24 }, shots: timelineShots });
+                // BGM/MV 主曲混入（D6 默认开）：渲染端循环补长/裁切 + ducking + 淡入淡出
+                const bgmCandidates = (record.mode ?? 'drama') === 'mv' ? ['music/song.mp3', 'music/bgm.mp3'] : ['music/bgm.mp3'];
+                const bgmRel = bgmCandidates.find((f) => existsSync(join(runs.rootDir, runId, f)));
+                const bgmFile = bgmRel !== undefined ? join(runs.rootDir, runId, bgmRel) : null;
+                if (bgmFile) {
+                    data.addMusic(bgmFile, undefined, 0.22);
+                    runs.appendEvent(runId, 'bgm-mix', { file: bgmRel, volume: 0.22 });
+                }
                 const timeline = toTimeline(data);
                 const finalPath = join(runs.rootDir, runId, 'final.mp4');
                 const r = await renderTimeline(timeline, finalPath, { subtitles: true, ffmpeg: deps.ffmpeg });

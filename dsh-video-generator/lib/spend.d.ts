@@ -12,6 +12,8 @@ export declare class SpendLedger {
     constructor(file: string);
     static open(env?: NodeJS.ProcessEnv): SpendLedger;
     record(entry: Omit<SpendEntry, 'at'>): void;
+    /** 记账失败不阻断生成（审计教训：账本 IO 故障不应让已提交的任务报 internal）。 */
+    recordSafe(entry: Omit<SpendEntry, 'at'>): void;
     totals(): {
         count: number;
         estCny: number;

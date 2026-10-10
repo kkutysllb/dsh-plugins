@@ -1,29 +1,49 @@
+/** 用途槽选型层：未绑定/能力不匹配统一 model-unavailable（规格 2026-09-28 §2.3）。
+ *  单槽单模型——这里没有任何"候选列表/轮询/自动兜底"语义；image.shot 未绑定回落
+ *  image.master 是唯一的显式缺省。
+ */
+import { SLOT_META, slotUnavailableMessage } from "./store/slots.js";
 export class ModelUnavailableError extends Error {
     code = 'model-unavailable';
+    slot;
     channelId;
-    channelLabel;
-    kind;
     model;
-    constructor(channel, kind, model, reason) {
-        const channelName = channel.label?.trim() || channel.id || '默认通道';
-        const selectedModel = model?.trim() || '未配置';
-        const detail = reason?.trim() ? '原因：' + reason.trim() + '。' : '';
-        super('通道「' + channelName + '」(' + channel.id + ') 的 ' + kind + ' 模型不可用：' + selectedModel + '。' + detail + '请在设置页切换默认通道，或测试并重新配置模型。');
+    constructor(slot, opts = {}) {
+        const meta = SLOT_META[slot];
+        const head = opts.model
+            ? `用途槽「${meta.label}」(${slot}) 绑定的模型 ${opts.model} 不可用`
+            : slotUnavailableMessage(slot);
+        const detail = opts.reason?.trim() ? `原因：${opts.reason.trim()}。` : '';
+        const hint = opts.model ? '请在设置页「漫剧工坊 → 用途槽」更换模型，或先「测试」验证该槽位。' : '';
+        super(head + '。' + detail + hint);
         this.name = 'ModelUnavailableError';
-        this.channelId = channel.id;
-        this.channelLabel = channelName;
-        this.kind = kind;
-        this.model = model?.trim() || null;
+        this.slot = slot;
+        this.channelId = opts.channelId ?? null;
+        this.model = opts.model ?? null;
     }
 }
-export function modelUnavailableFrom(channel, kind, model, reason) {
-    return new ModelUnavailableError(channel, kind, model?.trim() || null, reason);
+/** 槽位未绑定。 */
+export function slotUnavailable(slot) {
+    return new ModelUnavailableError(slot);
 }
-export function selectConfiguredModel(channel, kind) {
-    const selected = channel.models?.find((entry) => entry.kind === kind && entry.model.trim());
-    if (!selected)
-        throw modelUnavailableFrom(channel, kind, null);
-    return selected.model.trim();
+/** 槽位已绑定但能力/上游不可用。 */
+export function bindingUnavailable(binding, reason) {
+    return new ModelUnavailableError(binding.slot, { channelId: binding.channelId, model: binding.model, reason });
+}
+/**
+ * 从槽位表解析绑定；未绑定抛 model-unavailable。
+ * image.shot 未绑定时回落 image.master（规格 §2.2 的唯一显式缺省）。
+ */
+export function requireSlotBinding(slots, slot) {
+    const hit = slots[slot];
+    if (hit)
+        return hit;
+    if (slot === 'image.shot') {
+        const master = slots['image.master'];
+        if (master)
+            return { ...master, slot: 'image.shot' };
+    }
+    throw slotUnavailable(slot);
 }
 /**
  * 判定上游是否明确表示模型或分发渠道不存在。

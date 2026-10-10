@@ -15,7 +15,7 @@ function mapState(s) {
 }
 export function createDashscopeRelayProvider(ch, fetchImpl = fetch) {
     const base = ch.baseUrl.trim().replace(/\/+$/, '');
-    const isI2v = ch.imageToVideo ?? ch.model.toLowerCase().includes('i2v');
+    const isI2v = ch.imageToVideo ?? false;
     const provider = {
         id: `dashscope-relay:${ch.model}`,
         capabilities: { textToVideo: !isI2v, imageToVideo: isI2v, maxDurationSec: 10, qualityTier: 5 },
@@ -33,7 +33,7 @@ export function createDashscopeRelayProvider(ch, fetchImpl = fetch) {
             const parameters = {};
             if (typeof spec['durationSec'] === 'number')
                 parameters['duration'] = spec['durationSec'];
-            const json = await postJson(`${base}${SYNTH_PATH}`, ch.apiKey, { model: ch.model, input, parameters }, fetchImpl, 60000);
+            const json = await postJson(`${base}${SYNTH_PATH}`, ch.apiKey, { model: ch.model, input, parameters }, fetchImpl, 60000, { 'X-DashScope-Async': 'enable' });
             const taskId = json.output?.task_id;
             if (!taskId)
                 throw new RelayError(500, `提交响应缺少 task_id: ${JSON.stringify(json).slice(0, 200)}`);

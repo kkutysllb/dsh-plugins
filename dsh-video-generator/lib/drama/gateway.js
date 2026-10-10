@@ -10,9 +10,15 @@ import { ProjectStore, DramaError } from "../store/project.js";
 import { ProposalStore } from "../store/proposal.js";
 export class DramaHost {
     registry;
+    runs;
     cache = new Map();
     constructor(opts = {}) {
         this.registry = opts.registry ?? null;
+        this.runs = opts.runs ?? null;
+    }
+    /** 视频 RunStore（可选注入：项目概览/Agent 面板的最近成片与花费汇总读它；缺席 → 相关字段降级）。 */
+    runsStore() {
+        return this.runs;
     }
     registryAvailable() {
         return this.registry !== null;

@@ -15,6 +15,7 @@ export interface RunArtifacts {
     shots: ArtifactFile[];
     clips: ArtifactFile[];
     review: ArtifactFile[];
+    music: ArtifactFile[];
     final: {
         mp4: ArtifactFile | null;
         srt: ArtifactFile | null;
