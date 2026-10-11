@@ -139,6 +139,13 @@ export interface KmConfig {
     semanticScoreThreshold?: LiveValue<number>;
     /** Number of recent user turns kept as native question/final-answer endpoints on the host context surface. */
     freshTurnCount: LiveValue<number>;
+    /**
+     * Archive the old surface prefix only once the measured surface exceeds
+     * this many heuristic tokens (PLAIN_DEFAULTS units). Between batch
+     * firings the surface grows append-only so the provider's prompt-prefix
+     * cache keeps hitting; freshTurnCount is how much survives each firing.
+     */
+    archiveThresholdTokens: LiveValue<number>;
     embedding?: EmbeddingConfig;
     llm?: {
         apiKey?: string;
@@ -161,6 +168,7 @@ export interface KmConfig {
  */
 export declare const PLAIN_DEFAULTS: {
     readonly freshTurnCount: 5;
+    readonly archiveThresholdTokens: 80000;
     readonly compactTurnCount: 6;
     readonly recallMaxNodes: 6;
     readonly semanticScoreThreshold: 0.7;

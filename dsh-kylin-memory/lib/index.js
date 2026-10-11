@@ -7884,6 +7884,11 @@ function readLive(value) {
 }
 var PLAIN_DEFAULTS = {
   freshTurnCount: 5,
+  // Sized for code/English-heavy coding sessions on 128k-context models:
+  // large enough that a long session compacts only a handful of times
+  // (each firing re-pays the retained window at full price), small enough to
+  // leave headroom for system prompt, tools, recall snapshot and output.
+  archiveThresholdTokens: 8e4,
   compactTurnCount: 6,
   recallMaxNodes: 6,
   // Automatic prompt injection optimizes for precision. On the existing
@@ -7900,6 +7905,7 @@ var DEFAULT_CONFIG = {
   recallScope: "all",
   semanticScoreThreshold: PLAIN_DEFAULTS.semanticScoreThreshold,
   freshTurnCount: PLAIN_DEFAULTS.freshTurnCount,
+  archiveThresholdTokens: PLAIN_DEFAULTS.archiveThresholdTokens,
   pagerankDamping: 0.85,
   pagerankIterations: 20
 };
@@ -8381,18 +8387,36 @@ var DSH_ARCHIVE_MARKER = [
 function isDshUserTurn(event) {
   return event?.type === "user/message" && event.data?.source?.kind === "user";
 }
-function selectDshRollingCompactionRange(session, freshTurnCount, currentUserAlreadyOnSurface = false) {
-  if (!Number.isInteger(freshTurnCount) || freshTurnCount < 1) {
-    throw new TypeError(`freshTurnCount must be a positive integer, received ${freshTurnCount}`);
+function sumDshSurfaceTokens(tokenMeter, session) {
+  const measured = tokenMeter?.measure?.(session);
+  if (!measured || !Array.isArray(measured.nodes)) return null;
+  let total = 0;
+  for (const node of measured.nodes) {
+    if (!Number.isFinite(node?.heuristicTokens)) return null;
+    total += Number(node.heuristicTokens);
+  }
+  return total;
+}
+function selectDshBatchArchiveRange(session, selection, currentUserAlreadyOnSurface = false) {
+  const { retainTurns, thresholdTokens, surfaceTokens } = selection;
+  if (!Number.isInteger(retainTurns) || retainTurns < 1) {
+    throw new TypeError(`retainTurns must be a positive integer, received ${retainTurns}`);
+  }
+  if (!Number.isInteger(thresholdTokens) || thresholdTokens < 1) {
+    throw new TypeError(`thresholdTokens must be a positive integer, received ${thresholdTokens}`);
+  }
+  if (!Number.isFinite(surfaceTokens) || surfaceTokens < 0) {
+    throw new TypeError(`surfaceTokens must be a non-negative finite number, received ${surfaceTokens}`);
   }
   const surface = session.surface?.nodes;
   const events = sessionEvents(session);
   if (!Array.isArray(surface) || !Array.isArray(events) || surface.length < 2) return null;
+  if (surfaceTokens <= thresholdTokens) return null;
   const userPositions = [];
   for (let index = 0; index < surface.length; index += 1) {
     if (isDshUserTurn(events[surface[index]])) userPositions.push(index);
   }
-  const retainOnSurface = freshTurnCount + (currentUserAlreadyOnSurface ? 1 : 0);
+  const retainOnSurface = retainTurns + (currentUserAlreadyOnSurface ? 1 : 0);
   if (userPositions.length <= retainOnSurface) return null;
   const keepFromPosition = userPositions[userPositions.length - retainOnSurface];
   const protectedHead = events[surface[0]]?.type === "system/message" ? 1 : 0;
@@ -8429,7 +8453,7 @@ function replaceDshArchivedPrefix(session, tokenMeter, range) {
     shadowedTokenCount
   });
   const replacement = session.append("user/message", {
-    id: `kylin-memory-archive:${String(session.id ?? "session")}:${range.start}-${range.end}`,
+    id: `kylin-memory-archive:${String(session.id ?? "session")}`,
     role: "user",
     source: dshMemorySource(),
     content: [{ type: "text", text: DSH_ARCHIVE_MARKER }]
@@ -9869,6 +9893,13 @@ defineMethod("transform", [
 var Config = Schema.object({
   /** Newest completed user turns kept on the native model surface. */
   freshTurnCount: Schema.number().step(1).min(1).default(PLAIN_DEFAULTS.freshTurnCount).volatile(),
+  /**
+   * Archive the old surface prefix only once the model-facing surface
+   * exceeds this many heuristic tokens. Larger values keep the provider's
+   * prompt-prefix cache hitting longer (fewer full-price re-pays); smaller
+   * values keep the surface smaller.
+   */
+  archiveThresholdTokens: Schema.number().step(1).min(1).default(PLAIN_DEFAULTS.archiveThresholdTokens).volatile(),
   /** Completed turns between two maintenance ticks (graph + retention GC). */
   maintenanceInterval: Schema.number().step(1).min(1).default(PLAIN_DEFAULTS.compactTurnCount).volatile(),
   /** Query-matched memory nodes returned by one recall. */
@@ -10053,6 +10084,7 @@ function runMessageRetention(db, policy, now = Date.now()) {
 var name = "dsh-kylin-memory";
 var inject = ["tools", "llm", "systemPrompt", "agentLoop", "agents", "sessions", "credentials", "tokenMeter"];
 var HOST = "dsh";
+var SETTINGS_NAMESPACE = "dsh-kylin-memory";
 function sessionKey(id) {
   return `${HOST}:${String(id)}`;
 }
@@ -10132,6 +10164,7 @@ function withEnvironmentDefaults(input) {
     // env fallback must look through it; the trailing branch keeps the
     // reference itself when neither the config nor the environment has a value.
     semanticScoreThreshold: readLive(input.semanticScoreThreshold) ?? envNumber("KYLIN_MEMORY_SEMANTIC_SCORE_THRESHOLD") ?? input.semanticScoreThreshold,
+    archiveThresholdTokens: readLive(input.archiveThresholdTokens) ?? envNumber("KYLIN_MEMORY_ARCHIVE_THRESHOLD_TOKENS") ?? input.archiveThresholdTokens,
     embedding: input.embedding ?? environmentEmbeddingConfig()
   };
 }
@@ -10140,6 +10173,10 @@ function apply(ctx, rawInput = {}) {
   const freshTurnCount = readLive(input.freshTurnCount) ?? PLAIN_DEFAULTS.freshTurnCount;
   if (!Number.isInteger(freshTurnCount) || freshTurnCount < 1) {
     throw new TypeError(`[kylin-memory] freshTurnCount must be a positive integer, received ${freshTurnCount}`);
+  }
+  const archiveThresholdTokens = readLive(input.archiveThresholdTokens) ?? PLAIN_DEFAULTS.archiveThresholdTokens;
+  if (!Number.isInteger(archiveThresholdTokens) || archiveThresholdTokens < 1) {
+    throw new TypeError(`[kylin-memory] archiveThresholdTokens must be a positive integer, received ${archiveThresholdTokens}`);
   }
   const recallScope = input.recallScope ?? DEFAULT_CONFIG.recallScope;
   if (!["all", "same-workspace"].includes(recallScope)) {
@@ -10192,6 +10229,7 @@ function apply(ctx, rawInput = {}) {
     compactTurnCount: input.maintenanceInterval ?? DEFAULT_CONFIG.compactTurnCount,
     recallMaxNodes: input.recallMaxNodes ?? DEFAULT_CONFIG.recallMaxNodes,
     freshTurnCount: input.freshTurnCount ?? PLAIN_DEFAULTS.freshTurnCount,
+    archiveThresholdTokens: input.archiveThresholdTokens ?? DEFAULT_CONFIG.archiveThresholdTokens,
     recallScope,
     semanticScoreThreshold: input.semanticScoreThreshold ?? DEFAULT_CONFIG.semanticScoreThreshold,
     embedding
@@ -10214,6 +10252,7 @@ function apply(ctx, rawInput = {}) {
   const activeExtractionControllers = /* @__PURE__ */ new Set();
   const reportedExtractionRoutes = /* @__PURE__ */ new Set();
   const compactionAttached = /* @__PURE__ */ new WeakSet();
+  const compactionMeterWarned = /* @__PURE__ */ new WeakSet();
   const compactionMetrics = {
     attached: 0,
     selected: 0,
@@ -10582,24 +10621,36 @@ You must call ${GRAPH_EXTRACTION_TOOL_NAME} exactly once. Do not emit a text res
     }
   }
   async function compactBeforeStep({ agent, messages, signal, step }, next) {
-    if (contextCompactionEnabled && !closing && !signal?.aborted) {
+    if (contextCompactionEnabled && (step === void 0 || step === 1) && !closing && !signal?.aborted) {
       try {
-        const hasIncomingUser = Array.isArray(messages) && messages.some((message) => message?.source?.kind === "user");
-        const range = selectDshRollingCompactionRange(
-          agent?.session,
-          readLive(config.freshTurnCount),
-          !hasIncomingUser
-        );
-        if (range) {
-          compactionMetrics.selected += 1;
-          const tokenMeter = typeof ctx.get === "function" ? ctx.get("tokenMeter") : ctx.tokenMeter;
-          const result = replaceDshArchivedPrefix(agent.session, tokenMeter, range);
-          compactionMetrics.succeeded += 1;
-          compactionMetrics.shadowedEvents += result.shadowedSeqs.length;
-          compactionMetrics.shadowedTokens += result.shadowedTokenCount;
-          ctx.logger.info(
-            `[kylin-memory] archived ${result.shadowedSeqs.length} surface events (~${result.shadowedTokenCount} tokens); retained ${readLive(config.freshTurnCount)} previous user turns`
+        const tokenMeter = typeof ctx.get === "function" ? ctx.get("tokenMeter") : ctx.tokenMeter;
+        const surfaceTokens = sumDshSurfaceTokens(tokenMeter, agent?.session);
+        if (surfaceTokens === null) {
+          if (agent && !compactionMeterWarned.has(agent)) {
+            compactionMeterWarned.add(agent);
+            ctx.logger.warn("[kylin-memory] tokenMeter cannot price the surface; batch archival disabled (fail-open)");
+          }
+        } else {
+          const hasIncomingUser = Array.isArray(messages) && messages.some((message) => message?.source?.kind === "user");
+          const range = selectDshBatchArchiveRange(
+            agent?.session,
+            {
+              retainTurns: readLive(config.freshTurnCount),
+              thresholdTokens: readLive(config.archiveThresholdTokens),
+              surfaceTokens
+            },
+            !hasIncomingUser
           );
+          if (range) {
+            compactionMetrics.selected += 1;
+            const result = replaceDshArchivedPrefix(agent.session, tokenMeter, range);
+            compactionMetrics.succeeded += 1;
+            compactionMetrics.shadowedEvents += result.shadowedSeqs.length;
+            compactionMetrics.shadowedTokens += result.shadowedTokenCount;
+            ctx.logger.info(
+              `[kylin-memory] archived ${result.shadowedSeqs.length} surface events (~${result.shadowedTokenCount} tokens) with the surface at ~${surfaceTokens} tokens; retained ${readLive(config.freshTurnCount)} user turns, ~${surfaceTokens - result.shadowedTokenCount} tokens stay native until the budget is exceeded again`
+            );
+          }
         }
       } catch (error) {
         compactionMetrics.failed += 1;
@@ -10909,6 +10960,39 @@ Last retention receipt: ${JSON.stringify(retentionMetrics.last ?? null)}`;
       return `Kylin Memory forget${args.dryRun ? " (dry run)" : ""} for ${scope}: turnMemories=${counts.turnMemories}, messages=${counts.messages}, navigationTriples=${counts.navigationTriples}, termsReclaimed=${counts.navigationTerms}, extractionWatermarks=${counts.extractionSessions}.`;
     }
   });
+  try {
+    const dynamicInject = ctx.inject;
+    if (typeof dynamicInject === "function") {
+      dynamicInject.call(ctx, ["settings"], (scoped) => {
+        const settings = scoped.settings;
+        if (settings?.installSection === void 0) return;
+        let source;
+        const adopt = () => {
+          if (source === void 0) return;
+          let resolved;
+          try {
+            resolved = source();
+          } catch {
+            return;
+          }
+          const from2 = resolved;
+          const into = config;
+          for (const field of ["freshTurnCount", "archiveThresholdTokens", "maintenanceInterval", "recallMaxNodes", "semanticScoreThreshold"]) {
+            if (from2[field] !== void 0) into[field] = from2[field];
+          }
+        };
+        settings.installSection(ctx, SETTINGS_NAMESPACE, Config, config, {
+          setSource: (current) => {
+            source = current;
+            adopt();
+          },
+          onChange: adopt
+        });
+      });
+    }
+  } catch (error) {
+    ctx.logger.warn(`[kylin-memory] settings namespace registration skipped: ${String(error)}`);
+  }
   const rpcDeps = {
     overview: () => {
       const stats = getStats(db);

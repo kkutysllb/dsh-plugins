@@ -24,18 +24,21 @@ var index_exports = {};
 __export(index_exports, {
   KylinMemoryConfigCard: () => KylinMemoryConfigCard,
   apply: () => apply,
-  inject: () => inject
+  inject: () => inject,
+  installStyles: () => installStyles
 });
 module.exports = __toCommonJS(index_exports);
 var import_react = require("react");
-var import_dsh_client_ui_primitives = require("@deepseek-ai/dsh-client-ui-primitives");
 var import_jsx_runtime = require("react/jsx-runtime");
-var inject = ["slots", "locale"];
+var inject = ["slots", "locale", "configForms"];
 var SETTINGS_NS = "dsh-kylin-memory";
 var LOCALE_NS = "kylinMemory.settings";
+var STYLE_ID = "dsh-kylin-memory-settings-styles";
 var zh = {
   freshTurnCount: "\u4FDD\u7559\u6700\u8FD1\u8F6E\u6570",
-  freshTurnCountHint: "\u6A21\u578B\u4E0A\u4E0B\u6587\u91CC\u4FDD\u7559\u6700\u8FD1\u591A\u5C11\u4E2A\u5B8C\u6574\u95EE\u7B54\u8F6E\uFF08\u7528\u6237\u95EE\u9898 + \u6700\u7EC8\u56DE\u7B54\uFF09\uFF0C\u66F4\u65E9\u7684\u5386\u53F2\u7531\u672C\u63D2\u4EF6\u5F52\u6863\u63A5\u7BA1\u3002",
+  freshTurnCountHint: "\u6279\u91CF\u5F52\u6863\u89E6\u53D1\u65F6\u4FDD\u7559\u6700\u8FD1\u591A\u5C11\u4E2A\u5B8C\u6574\u95EE\u7B54\u8F6E\uFF08\u7528\u6237\u95EE\u9898 + \u6700\u7EC8\u56DE\u7B54\uFF09\uFF0C\u66F4\u65E9\u7684\u5386\u53F2\u7531\u672C\u63D2\u4EF6\u5F52\u6863\u63A5\u7BA1\u3002",
+  archiveThresholdTokens: "\u5F52\u6863\u89E6\u53D1\u9608\u503C\uFF08token\uFF09",
+  archiveThresholdTokensHint: "\u6A21\u578B\u8868\u9762\u8D85\u8FC7\u8BE5\u542F\u53D1\u5F0F token \u91CF\u624D\u6279\u91CF\u5F52\u6863\u65E7\u524D\u7F00\uFF1B\u8C03\u5927\u51CF\u5C11\u7F13\u5B58\u5931\u6548\u3001\u8C03\u5C0F\u8868\u9762\u66F4\u7D27\u51D1\u3002",
   maintenanceInterval: "\u7EF4\u62A4\u8282\u594F\uFF08\u8F6E\uFF09",
   maintenanceIntervalHint: "\u6BCF\u5B8C\u6210\u591A\u5C11\u8F6E\u6267\u884C\u4E00\u6B21\u7EF4\u62A4\uFF08\u56FE\u7EF4\u62A4\u4E0E\u6D88\u606F\u4FDD\u7559\u6E05\u7406\uFF09\u3002",
   recallMaxNodes: "\u5355\u6B21\u53EC\u56DE\u4E0A\u9650",
@@ -54,7 +57,9 @@ var zh = {
 };
 var en = {
   freshTurnCount: "Retained recent turns",
-  freshTurnCountHint: "How many newest complete Q/A turns stay on the model context; older history is archived by this plugin.",
+  freshTurnCountHint: "How many newest complete Q/A turns stay native when a batch archive fires; older history is archived by this plugin.",
+  archiveThresholdTokens: "Archive trigger (tokens)",
+  archiveThresholdTokensHint: "Batch-archive the old surface prefix only after the model surface exceeds this heuristic token budget; higher values fewer cache breaks, lower values a tighter surface.",
   maintenanceInterval: "Maintenance cadence (turns)",
   maintenanceIntervalHint: "Run one maintenance tick (graph maintenance and retention GC) every this many completed turns.",
   recallMaxNodes: "Recall limit",
@@ -71,17 +76,198 @@ var en = {
   saveFailed: "The deployment did not accept these values; they were left for you to correct.",
   invalidNumber: "Enter a number, or leave blank to use the default."
 };
+var CARD_CSS = `
+.km-form {
+  display: flex;
+  flex-direction: column;
+  max-width: 760px;
+}
+
+.km-notice {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dsw-alias-label-tertiary, #8a94a3);
+}
+
+.km-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+}
+
+.km-field + .km-field {
+  border-top: 0.5px solid var(--dsw-alias-border-l2, rgba(127, 127, 127, 0.2));
+}
+
+.km-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.km-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--dsw-alias-label-primary, currentColor);
+}
+
+.km-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.km-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
+  line-height: 17px;
+  font-weight: 500;
+  white-space: nowrap;
+  background: var(--dsw-alias-bg-module-platform, rgba(127, 127, 127, 0.14));
+  color: var(--dsw-alias-label-secondary, #5a6472);
+}
+
+.km-reset {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dsw-alias-label-secondary, #5a6472);
+  cursor: pointer;
+}
+
+.km-reset:hover:not(:disabled) {
+  color: var(--dsw-alias-label-primary, currentColor);
+}
+
+.km-reset:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.km-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  border: 0.5px solid var(--dsw-alias-border-l4, rgba(127, 127, 127, 0.3));
+  border-radius: var(--dsw-radius-md, 12px);
+  background: var(--dsw-alias-bg-layer-3, transparent);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--dsw-alias-label-primary, currentColor);
+}
+
+.km-input::placeholder {
+  color: var(--dsw-alias-label-dimmed, #c9ced6);
+}
+
+.km-input:focus-visible {
+  outline: none;
+  border-color: var(--dsw-alias-state-business-primary, #4d6bfe);
+}
+
+.km-input:disabled {
+  color: var(--dsw-alias-label-tertiary, #8a94a3);
+  cursor: default;
+}
+
+.km-input[aria-invalid='true'] {
+  border-color: var(--dsw-alias-state-error-primary, #e5484d);
+}
+
+.km-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dsw-alias-label-tertiary, #8a94a3);
+}
+
+.km-invalid {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dsw-alias-state-error-primary, #e5484d);
+}
+
+.km-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 16px;
+}
+
+.km-failed {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dsw-alias-state-error-primary, #e5484d);
+}
+
+.km-save {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--dsw-radius-md, 12px);
+  padding: 5px 14px;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+  background: var(--dsw-alias-label-primary, #1f2329);
+  color: var(--dsw-alias-bg-layer-3, #ffffff);
+}
+
+.km-save:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.km-save:focus-visible,
+.km-reset:focus-visible {
+  outline: var(--dsw-focus-ring-width, 2px) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary, #4d6bfe));
+  outline-offset: 1px;
+}
+`;
+function installStyles() {
+  if (typeof document === "undefined") return () => {
+  };
+  if (document.getElementById(STYLE_ID) !== null) return () => {
+  };
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent = CARD_CSS;
+  document.head.appendChild(style);
+  return () => {
+    style.remove();
+  };
+}
 var FIELDS = [
   "freshTurnCount",
+  "archiveThresholdTokens",
   "maintenanceInterval",
   "recallMaxNodes",
   "semanticScoreThreshold"
 ];
 var FIELD_COPY = {
-  freshTurnCount: { label: "freshTurnCount", hint: "freshTurnCountHint" },
-  maintenanceInterval: { label: "maintenanceInterval", hint: "maintenanceIntervalHint" },
-  recallMaxNodes: { label: "recallMaxNodes", hint: "recallMaxNodesHint" },
-  semanticScoreThreshold: { label: "semanticScoreThreshold", hint: "semanticScoreThresholdHint" }
+  freshTurnCount: { label: "freshTurnCount", hint: "freshTurnCountHint", mode: "numeric" },
+  archiveThresholdTokens: { label: "archiveThresholdTokens", hint: "archiveThresholdTokensHint", mode: "numeric" },
+  maintenanceInterval: { label: "maintenanceInterval", hint: "maintenanceIntervalHint", mode: "numeric" },
+  recallMaxNodes: { label: "recallMaxNodes", hint: "recallMaxNodesHint", mode: "numeric" },
+  semanticScoreThreshold: { label: "semanticScoreThreshold", hint: "semanticScoreThresholdHint", mode: "decimal" }
 };
 function isOverridden(user, field) {
   return typeof user === "object" && user !== null && Object.prototype.hasOwnProperty.call(user, field);
@@ -95,18 +281,25 @@ function isValid(text) {
 }
 function ConfigField(props) {
   const id = `plugin-config-kylin-memory-${props.field}`;
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { "data-config-field": props.field, children: [
-    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", { htmlFor: id, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: props.label }),
-      props.overridden ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { "data-overridden": true, children: props.t("overridden") }) : null
+  const messageId = `${id}-message`;
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "km-field", "data-config-field": props.field, children: [
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "km-head", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", { className: "km-label", htmlFor: id, children: props.label }),
+      props.overridden ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { className: "km-badges", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "km-tag", children: props.t("overridden") }),
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { type: "button", className: "km-reset", disabled: props.disabled, onClick: props.onReset, children: props.t("reset") })
+      ] }) : null
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-      import_dsh_client_ui_primitives.Input,
+      "input",
       {
         id,
-        inputMode: "decimal",
-        "aria-invalid": props.invalid,
-        "aria-describedby": `${id}-hint`,
+        className: "km-input",
+        type: "text",
+        inputMode: props.mode,
+        autoComplete: "off",
+        "aria-invalid": props.invalid || void 0,
+        "aria-describedby": messageId,
         disabled: props.disabled,
         value: props.text,
         onChange: (event) => {
@@ -114,21 +307,34 @@ function ConfigField(props) {
         }
       }
     ),
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { id: `${id}-hint`, children: props.invalid ? props.t("invalidNumber") : props.hint }),
-    props.overridden ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_dsh_client_ui_primitives.Button, { variant: "ghost", size: "sm", disabled: props.disabled, onClick: props.onReset, children: props.t("reset") }) : null
+    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { id: messageId, className: props.invalid ? "km-invalid" : "km-hint", children: props.invalid ? props.t("invalidNumber") : props.hint })
   ] });
 }
 function KylinMemoryConfigCard(props) {
-  const form = props.form;
+  const live = props.self;
+  const [snapshot, setSnapshot] = (0, import_react.useState)(() => live?.getSnapshot());
+  (0, import_react.useEffect)(() => {
+    if (live === void 0) return;
+    setSnapshot(live.getSnapshot());
+    return live.subscribe(() => {
+      setSnapshot(live.getSnapshot());
+    });
+  }, [live]);
+  const form = props.form ?? (snapshot === void 0 || live === void 0 ? void 0 : { state: snapshot, mutate: (ops, expectedRevision) => live.mutate(ops, expectedRevision) });
   const [staged, setStaged] = (0, import_react.useState)({});
   const [saving, setSaving] = (0, import_react.useState)(false);
   const [failed, setFailed] = (0, import_react.useState)(false);
   const t = props.t;
   if (props.view === "summary") return null;
-  if (form === void 0 || form.state.status === "unavailable") {
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { role: "status", children: t("unavailable") });
+  if (form === void 0) {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "km-notice", role: "status", children: t(snapshot?.status === "unavailable" ? "unavailable" : "loading") });
   }
-  if (form.state.status === "loading") return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { role: "status", children: t("loading") });
+  if (form.state.status === "unavailable") {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "km-notice", role: "status", children: t("unavailable") });
+  }
+  if (form.state.status === "loading") {
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "km-notice", role: "status", children: t("loading") });
+  }
   const state = form.state;
   const textOf = (field) => staged[field] ?? acceptedText(state.value, field);
   const changed = FIELDS.filter((field) => textOf(field) !== acceptedText(state.value, field));
@@ -168,14 +374,15 @@ function KylinMemoryConfigCard(props) {
       setSaving(false);
     });
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { "data-config-namespace": SETTINGS_NS, children: [
-    !state.writable ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { role: "status", children: t("readOnly") }) : null,
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "km-form", "data-config-namespace": SETTINGS_NS, children: [
+    !state.writable ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "km-notice", role: "status", children: t("readOnly") }) : null,
     FIELDS.map((field) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
       ConfigField,
       {
         field,
         label: t(FIELD_COPY[field].label),
         hint: t(FIELD_COPY[field].hint),
+        mode: FIELD_COPY[field].mode,
         text: textOf(field),
         invalid: !isValid(textOf(field)),
         overridden: isOverridden(state.user, field),
@@ -190,20 +397,24 @@ function KylinMemoryConfigCard(props) {
       },
       field
     )),
-    failed ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { role: "status", children: t("saveFailed") }) : null,
-    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-      import_dsh_client_ui_primitives.Button,
-      {
-        variant: "primary",
-        size: "sm",
-        disabled: !dirty || invalid || disabled,
-        onClick: save,
-        children: t(saving ? "saving" : "save")
-      }
-    ) })
+    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "km-footer", children: [
+      failed ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { className: "km-failed", role: "status", children: t("saveFailed") }) : null,
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+        "button",
+        {
+          type: "button",
+          className: "km-save",
+          disabled: !dirty || invalid || disabled,
+          onClick: save,
+          children: t(saving ? "saving" : "save")
+        }
+      )
+    ] })
   ] });
 }
 function apply(ctx) {
+  const selfForm = ctx.configForms.get(SETTINGS_NS);
+  ctx.effect(() => installStyles(), "kylin-memory: settings styles");
   ctx.effect(
     () => ctx.locale.register(LOCALE_NS, { zh, en }),
     "kylin-memory: dictionaries"
@@ -212,7 +423,8 @@ function apply(ctx) {
     () => ctx.slots.inject("plugins.bundle.config", () => ctx.slots.register({
       name: "plugins.bundle.config",
       key: SETTINGS_NS,
-      locale: LOCALE_NS
+      locale: LOCALE_NS,
+      inject: () => ({ self: selfForm })
     }, KylinMemoryConfigCard)),
     "kylin-memory: settings page"
   );

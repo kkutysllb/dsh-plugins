@@ -44,6 +44,14 @@
         # compaction/summarization request and no growing checkpoint.
         contextCompactionEnabled: true
         freshTurnCount: 5
+        # Batch archival trigger: the old surface prefix is replaced only once
+        # the measured surface exceeds this many heuristic tokens. Between
+        # firings the surface grows append-only so the provider's prompt-prefix
+        # cache keeps hitting; each firing re-pays only the retained window at
+        # full price. Raise it for fewer (and rarer) cache breaks, lower it for
+        # a smaller surface. A threshold below the retained window's steady
+        # size degenerates to per-turn rolling archival.
+        archiveThresholdTokens: 80000
         # Cross-workspace recall: "all" (default) recalls across every
         # workspace of this profile; "same-workspace" restricts automatic
         # recall to memories captured in the current workspace.

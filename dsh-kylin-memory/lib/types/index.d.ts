@@ -4,7 +4,8 @@ import { type LiveValue } from "./types.ts";
  * Configuration schema for the host settings page (plugin detail page form).
  * Volatile fields are live-editable; see src/schema.ts for the field contract.
  */
-export { Config } from "./schema.ts";
+import { Config } from "./schema.ts";
+export { Config };
 import { type MessageRetentionConfig } from "./store/retention.ts";
 export declare const name = "dsh-kylin-memory";
 export declare const inject: string[];
@@ -40,6 +41,12 @@ export interface PluginConfig {
      * host settings page.
      */
     freshTurnCount?: LiveValue<number>;
+    /**
+     * Archive the old surface prefix only once the model-facing surface
+     * exceeds this many heuristic tokens. Schema-volatile: live-editable on
+     * the host settings page.
+     */
+    archiveThresholdTokens?: LiveValue<number>;
     /** Cross-workspace recall policy. "all" (default): global recall as before.
      * "same-workspace": only recall memories captured in the current workspace. */
     recallScope?: "all" | "same-workspace";
