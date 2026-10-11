@@ -7,7 +7,14 @@ export interface ResponsesImageCall {
     status: string;
     revisedPrompt?: string;
 }
-/** 从 Responses 响应里取出所有 image_generation_call 项。 */
+/**
+ * 兜底采集：上游有时不回 image_generation_call，而是把预签名图片 URL 藏在
+ * 消息文本里（真机实证：同一模型随机轮换「标准 base64」与「文本藏 URL」两种
+ * 形态）。只捞带图像特征的 URL，避免把 revised_prompt 里的普通链接当产物；
+ * 同 URL 去重。
+ */
+export declare function harvestTextImageUrls(body: unknown): string[];
+/** 从 Responses 响应里取出所有 image_generation_call 项；标准形态缺席时退回文本 URL 兜底。 */
 export declare function extractImageCalls(body: unknown): ResponsesImageCall[];
 /** 响应里的图像 token 用量（成本按 token 计，实测约 0.74 额度/token）。 */
 export declare function imageTokensOf(body: unknown): number | undefined;
