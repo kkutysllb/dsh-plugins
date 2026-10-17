@@ -92,7 +92,9 @@ window.__ModuleLoader__.load({
       var anyDown = hosts.length > 0 && hosts.some(function (x) { var c = conns[x.id]; return c && c.master === 'down' })
       var dotColor = hosts.length === 0 ? '#888' : (anyDown ? '#e5484d' : '#30a46c')
 
-      return h('div', { ref: wrapRef, style: S.chip, onClick: function () {
+      return h('div', { ref: wrapRef, style: S.chip, onClick: function (event) {
+        // 面板内点击不得再触发 chip 的开关（X / 按钮事件的兜底守卫）。
+        if (event && event.target && event.target.closest && event.target.closest('[data-kcb-ssh-panel]')) return
         // 打开前同步测量位置（修复：effect 写 pos 无重渲染导致面板永不出现）
         if (!st.open && wrapRef.current) {
           var r = wrapRef.current.getBoundingClientRect()
@@ -103,10 +105,10 @@ window.__ModuleLoader__.load({
       }, title: 'SSH 远程主机：点击展开' },
         h('span', { style: Object.assign({ background: dotColor }, S.dot) }),
         h('span', null, 'SSH'),
-        st.open && st.pos && h('div', { style: Object.assign({ top: st.pos.top, left: st.pos.left, width: st.pos.width }, S.panel), onClick: function (e) { e.stopPropagation() } },
+        st.open && st.pos && h('div', { 'data-kcb-ssh-panel': 'true', style: Object.assign({ top: st.pos.top, left: st.pos.left, width: st.pos.width }, S.panel), onClick: function (e) { e.stopPropagation() }, onMouseDown: function (e) { e.stopPropagation() } },
           h('div', { style: S.head },
             h('span', { style: S.ttl }, 'SSH 远程主机'),
-            h('button', { style: S.close, onClick: function () { st.open = false; render(function (n) { return n + 1 }) } }, '✕')
+            h('button', { style: S.close, onClick: function (e) { e.stopPropagation(); e.preventDefault(); st.open = false; render(function (n) { return n + 1 }) } }, '✕')
           ),
           hosts.length === 0 && h('div', { style: S.empty }, '未配置主机（设置页或 cordis.patch.yml 的 ssh-remote.config.hosts）'),
           hosts.map(function (x) {

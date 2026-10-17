@@ -675,10 +675,11 @@ export function apply(ctx, config) {
                 const h = pick(b && b.hostId)
                 const want = b && b.path ? String(b.path) : ''
                 const r = await runner.run(h, 'pwd && ls -1Ap | head -300', { cwd: want || undefined, timeoutMs: 20000 })
-                const lines = String(r.output || '').split(/\r?\n/)
+                const output = String(r.stdout ?? r.output ?? '')
+                const lines = output.split(/\r?\n/)
                 const resolved = (lines.shift() || '').trim()
                 if (r.timedOut || !resolved) {
-                  respond(res, 400, { ok: false, error: { code: 'directory-unreadable', message: r.timedOut ? '目录列举超时' : ((r.output || '').trim().slice(-200) || '目录不可读') } })
+                  respond(res, 400, { ok: false, error: { code: 'directory-unreadable', message: r.timedOut ? '目录列举超时' : (output.trim().slice(-200) || '目录不可读') } })
                   return
                 }
                 const entries = lines.filter(Boolean).map(name => ({ name: name.replace(/\/$/, ''), isDir: name.endsWith('/') }))
