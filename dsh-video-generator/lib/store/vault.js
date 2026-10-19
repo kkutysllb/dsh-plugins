@@ -9,6 +9,12 @@ import { harnessHome } from "./home.js";
 import { migrateV1ToV2 } from "./migrate-vault.js";
 import { isProtocolFamily, isSlotId, parseMusicTemplate, parseSlotBinding, } from "./slots.js";
 export { capabilityFlag, capabilityOf, isProtocolFamily, isSlotId, parseMusicTemplate, parseSlotBinding, sanitizeCapabilities, sanitizeMusicMapping, slotUnavailableMessage, PROTOCOL_FAMILIES, SLOT_IDS, SLOT_META, } from "./slots.js";
+/** 本地画布工作室通道的固定 id 与伪 baseUrl（仅为形状统一，无任何网络请求语义）。 */
+export const STUDIO_LOCAL_CHANNEL_ID = 'studio-local';
+export const STUDIO_LOCAL_BASE_URL = 'studio://local';
+export function isLocalChannel(c) {
+    return c.kind === 'studio-local';
+}
 export function defaultVaultData() {
     return {
         version: 2,
@@ -49,9 +55,14 @@ function sanitizeChannels(raw) {
             continue;
         const c = item;
         const id = typeof c.id === 'string' ? c.id : '';
-        const baseUrl = typeof c.baseUrl === 'string' ? c.baseUrl : '';
-        const apiKey = typeof c.apiKey === 'string' ? c.apiKey : '';
-        if (!ID_RE.test(id) || !baseUrl || !apiKey)
+        const kind = c.kind === 'studio-local' ? 'studio-local' : 'openai-compat';
+        const local = kind === 'studio-local';
+        // 本地通道无凭证：豁免 baseUrl/apiKey 要求，但 id 白名单照旧（防穿越与脏 id）。
+        const baseUrl = local ? STUDIO_LOCAL_BASE_URL : (typeof c.baseUrl === 'string' ? c.baseUrl : '');
+        const apiKey = local ? '' : (typeof c.apiKey === 'string' ? c.apiKey : '');
+        if (!ID_RE.test(id))
+            continue;
+        if (!local && (!baseUrl || !apiKey))
             continue;
         const protocols = Array.isArray(c.protocols)
             ? [...new Set(c.protocols.filter((p) => isProtocolFamily(p)))]
@@ -59,7 +70,7 @@ function sanitizeChannels(raw) {
         const ch = {
             id,
             label: typeof c.label === 'string' && c.label.trim() ? c.label.slice(0, 80) : id,
-            kind: 'openai-compat',
+            kind,
             baseUrl,
             apiKey,
             protocols,
@@ -185,11 +196,14 @@ export class VaultStore {
         const id = String(input.id ?? '');
         if (!ID_RE.test(id))
             throw new VaultError('bad-request', `非法通道 id: ${id}`);
-        const baseUrl = validateBaseUrl(input.baseUrl);
-        const apiKey = String(input.apiKey ?? '').trim();
-        if (apiKey.length < 8 || apiKey.length > 4096)
+        const kind = input.kind === 'studio-local' ? 'studio-local' : 'openai-compat';
+        const local = kind === 'studio-local';
+        // 本地通道不走 validateBaseUrl（studio://local 不是 https），也不需要 apiKey。
+        const baseUrl = local ? STUDIO_LOCAL_BASE_URL : validateBaseUrl(input.baseUrl ?? '');
+        const apiKey = local ? '' : String(input.apiKey ?? '').trim();
+        if (!local && (apiKey.length < 8 || apiKey.length > 4096))
             throw new VaultError('bad-request', 'apiKey 长度须在 8..4096');
-        const label = String(input.label ?? id).slice(0, 80);
+        const label = String(input.label ?? (local ? '本地画布工作室' : id)).slice(0, 80);
         const protocols = sanitizeProtocols(input.protocols);
         return this.mutate((d) => {
             if (d.channels.some((c) => c.id === id))
@@ -199,7 +213,7 @@ export class VaultStore {
             const ch = {
                 id,
                 label,
-                kind: 'openai-compat',
+                kind,
                 baseUrl,
                 apiKey,
                 protocols,
@@ -212,6 +226,10 @@ export class VaultStore {
     }
     updateChannel(id, patch) {
         const label = patch.label !== undefined ? String(patch.label).slice(0, 80) : undefined;
+        // 本地通道无凭证面：改它必须报明确错误，而不是拿 studio:// 去撞 https 校验（诊断信息会误导）。
+        if (isLocalChannel(this.getChannel(id) ?? {}) && (patch.baseUrl !== undefined || patch.apiKey !== undefined)) {
+            throw new VaultError('bad-request', '本地画布工作室通道没有 baseUrl / apiKey，无需配置凭证');
+        }
         const baseUrl = patch.baseUrl !== undefined ? validateBaseUrl(patch.baseUrl) : undefined;
         const protocols = patch.protocols !== undefined ? sanitizeProtocols(patch.protocols) : undefined;
         let apiKey;

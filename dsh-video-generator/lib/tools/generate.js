@@ -36,8 +36,11 @@ export function buildGenerateTools(ctx) {
     const ledger = SpendLedger.open(env);
     return {
         generate: {
-            execute: async (args, callSignal) => {
+            execute: async (args, callSignal, exec) => {
                 let denied = 0;
+                // 本地画布工作室桥：hostCtx 只给工作室真正读取的那一个面（它只经 resolveSessionRoot 读 workspaceRegistry）；
+                // exec 原样透传，让它自己按会话 id / cwd 定位画布，并把工具截止信号带给它的轮询。
+                const studio = { hostCtx: { workspaceRegistry: ctx.workspaceRegistry }, exec };
                 try {
                     const runId = String(args['runId'] ?? '');
                     if (!ctx.runs.get(runId))
@@ -84,6 +87,10 @@ export function buildGenerateTools(ctx) {
                         pricingByChannel.set(cid, ch ? await fetchPricing(ch, undefined, 15000).catch(() => null) : null);
                     }));
                     const estimateFor = (binding) => {
+                        // 本地画布工作室：本机算力，零外部花费 → 显式 0。
+                        // 若返回 null（「未知价一律确认」），每次本地渲染都要用户点一次确认，零配置的承诺就废了。
+                        if (binding.protocol === 'comfy-studio')
+                            return 0;
                         const table = pricingByChannel.get(binding.channelId);
                         return table ? estimateCny(binding.model, table) : null;
                     };
@@ -103,6 +110,7 @@ export function buildGenerateTools(ctx) {
                                 ? ctx.providersOverride.forSlot(binding, channel, opts)
                                 : providerForSlot(channel, binding, {
                                     fetchImpl: opts?.fetchImpl,
+                                    studio: opts?.studio ?? studio,
                                 }),
                         },
                         estimate: estimateFor,
@@ -224,7 +232,7 @@ export function generateToolDefs(tools) {
             output: { schema: { type: 'object' }, render: jsonRender },
             timeoutMs: 600000,
             // exec.signal 透传（0.1.7 契约）：截止触发 → 生成在段边界/并发泵检查点停下
-            execute: (args, exec) => tools.generate.execute(args, exec?.signal),
+            execute: (args, exec) => tools.generate.execute(args, exec?.signal, exec),
         },
         {
             name: 'vgen_status',

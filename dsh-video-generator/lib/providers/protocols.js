@@ -8,8 +8,9 @@ import { createDashscopeRelayProvider } from "./dashscope-relay.js";
 import { createKlingCompatProvider } from "./kling-compat.js";
 import { createOpenaiVideoProvider } from "./openai-video.js";
 import { createGenericMusicProvider } from "./generic-music.js";
+import { createComfyStudioProvider } from "./comfy-studio.js";
 export const PROTOCOL_FAMILY_LIST = [
-    'openai-images', 'openai-tts', 'dashscope-video', 'kling-video', 'openai-video', 'generic-music',
+    'openai-images', 'openai-tts', 'dashscope-video', 'kling-video', 'openai-video', 'generic-music', 'comfy-studio',
 ];
 export function providerForSlot(channel, binding, opts = {}) {
     const fetchImpl = opts.fetchImpl ?? fetch;
@@ -24,6 +25,9 @@ export function providerForSlot(channel, binding, opts = {}) {
             return createKlingCompatProvider(base, fetchImpl);
         case 'openai-video':
             return createOpenaiVideoProvider(base, fetchImpl);
+        case 'comfy-studio':
+            // 本地画布工作室：无 baseUrl/apiKey 语义，能力+档位由工作室自己的配置面解析
+            return createComfyStudioProvider(binding, opts.studio ?? {}, fetchImpl);
         case 'generic-music':
             return createGenericMusicProvider(channel, binding, fetchImpl);
         case 'openai-tts':

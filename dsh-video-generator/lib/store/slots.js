@@ -10,16 +10,26 @@ export function isSlotId(v) {
     return typeof v === 'string' && SLOT_IDS.includes(v);
 }
 export const PROTOCOL_FAMILIES = [
-    'openai-images', 'openai-tts', 'dashscope-video', 'kling-video', 'openai-video', 'generic-music',
+    'openai-images', 'openai-tts', 'dashscope-video', 'kling-video', 'openai-video', 'generic-music', 'comfy-studio',
 ];
+/** 走本地画布工作室的协议族：能力（图像/视频）由工作室的能力注册表按档位解析，本插件只表达能力与档位。 */
+export const STUDIO_PROTOCOL = 'comfy-studio';
+/** 支持本地画布工作室的槽（其余槽声明它属契约错位，守卫直接丢弃）。 */
+export const STUDIO_SLOTS = ['image.master', 'image.shot', 'video'];
+/** 档位白名单（与工作室侧一致；本插件不解释档位含义，只做取值校验）。 */
+export const STUDIO_TIERS = ['fast', 'balanced', 'quality'];
+export function isStudioTier(v) {
+    return typeof v === 'string' && STUDIO_TIERS.includes(v);
+}
 export function isProtocolFamily(v) {
     return typeof v === 'string' && PROTOCOL_FAMILIES.includes(v);
 }
 /** 每槽允许的能力位白名单（键 → 值类型）。白名单外的键在守卫时丢弃。 */
 const CAPABILITY_KEYS = {
-    'image.master': { sizeParam: 'boolean' },
-    'image.shot': { referenceImage: 'boolean' },
-    video: { imageToVideo: 'boolean', textToVideo: 'boolean', maxDurationSec: 'number' },
+    // tier 只在 comfy-studio 绑定上存活（parseSlotBinding 对非 studio 协议删除它），故不进 CAPABILITY_DEFAULTS。
+    'image.master': { sizeParam: 'boolean', tier: 'string' },
+    'image.shot': { referenceImage: 'boolean', tier: 'string' },
+    video: { imageToVideo: 'boolean', textToVideo: 'boolean', maxDurationSec: 'number', tier: 'string' },
     tts: { voice: 'string', instructions: 'string' },
     'music.bgm': { instrumental: 'boolean', loopable: 'boolean', durationControl: 'boolean', maxDurationSec: 'number' },
     'music.song': { vocals: 'boolean', lyricsInput: 'boolean', referenceAudio: 'boolean', returnsSections: 'boolean', maxDurationSec: 'number' },
@@ -194,6 +204,9 @@ export function parseSlotBinding(slot, raw) {
     const isMusic = slot === 'music.bgm' || slot === 'music.song';
     if (isMusic !== (protocol === 'generic-music'))
         return null;
+    // 本地画布工作室只服务图像/视频槽；给了不支持的槽 = 契约错位，整条丢弃
+    if (protocol === STUDIO_PROTOCOL && !STUDIO_SLOTS.includes(slot))
+        return null;
     const binding = {
         slot,
         channelId,
@@ -206,6 +219,14 @@ export function parseSlotBinding(slot, raw) {
         if (!music)
             return null;
         binding.music = music;
+    }
+    // tier 是本地画布工作室专属能力位：只有 studio 绑定留着它；其他协议的绑定删掉（不留死字段）。
+    if (protocol === STUDIO_PROTOCOL) {
+        if (!isStudioTier(binding.capabilities['tier']))
+            delete binding.capabilities['tier'];
+    }
+    else {
+        delete binding.capabilities['tier'];
     }
     const verifiedAt = limitedString(b.verifiedAt, 40);
     if (verifiedAt)

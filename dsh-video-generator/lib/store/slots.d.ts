@@ -10,8 +10,16 @@ export declare const SLOT_IDS: readonly SlotId[];
 export declare function isSlotId(v: unknown): v is SlotId;
 export type SlotKind = 'image' | 'video' | 'tts' | 'music';
 /** 协议族：适配器与协议一一对应；绑定级声明（同一中转站可同时提供多族协议）。 */
-export type ProtocolFamily = 'openai-images' | 'openai-tts' | 'dashscope-video' | 'kling-video' | 'openai-video' | 'generic-music';
+export type ProtocolFamily = 'openai-images' | 'openai-tts' | 'dashscope-video' | 'kling-video' | 'openai-video' | 'generic-music' | 'comfy-studio';
 export declare const PROTOCOL_FAMILIES: readonly ProtocolFamily[];
+/** 走本地画布工作室的协议族：能力（图像/视频）由工作室的能力注册表按档位解析，本插件只表达能力与档位。 */
+export declare const STUDIO_PROTOCOL: ProtocolFamily;
+/** 支持本地画布工作室的槽（其余槽声明它属契约错位，守卫直接丢弃）。 */
+export declare const STUDIO_SLOTS: readonly SlotId[];
+/** 档位白名单（与工作室侧一致；本插件不解释档位含义，只做取值校验）。 */
+export declare const STUDIO_TIERS: readonly ["fast", "balanced", "quality"];
+export type StudioTier = (typeof STUDIO_TIERS)[number];
+export declare function isStudioTier(v: unknown): v is StudioTier;
 export declare function isProtocolFamily(v: unknown): v is ProtocolFamily;
 export type CapabilityValue = boolean | number | string;
 /** 通用音乐映射（声明式端点，零 provider 绑定）：必填 4 项 = endpoint.path /

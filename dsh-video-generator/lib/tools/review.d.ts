@@ -8,6 +8,7 @@ import type { RunStore } from '../store/runs.ts';
 import { type SlotBinding, type SlotId } from '../store/slots.ts';
 import type { ChannelRef } from '../providers/protocols.ts';
 import type { Provider } from '../provider.ts';
+import type { StudioBridge } from '../providers/comfy-studio.ts';
 import { type PricingTable } from '../pricing.ts';
 import { extractReviewFrames } from '../review/frames.ts';
 import type { ToolResult, DshToolDefinition } from './handoff.ts';
@@ -26,6 +27,7 @@ export interface ReviewContext {
     providersOverride?: {
         forSlot: (binding: SlotBinding, channel: ChannelRef, opts?: {
             fetchImpl?: typeof fetch;
+            studio?: StudioBridge;
         }) => Provider;
     };
     fetchImpl?: typeof fetch;
@@ -33,6 +35,8 @@ export interface ReviewContext {
     extract?: typeof extractReviewFrames;
     /** undefined → locateFfmpeg(env)。 */
     ffmpeg?: string | null;
+    /** 宿主 workspace 注册表（本地画布工作室解析「会话 → 画布根」用，与 vgen_generate 同注入形态）。 */
+    workspaceRegistry?: unknown;
 }
 export interface ReviewArgs {
     runId: string;
@@ -43,7 +47,7 @@ export interface ReviewArgs {
 }
 export declare function buildReviewTools(ctx: ReviewContext): {
     review: {
-        execute: (args: ReviewArgs) => Promise<ToolResult>;
+        execute: (args: ReviewArgs, exec?: unknown) => Promise<ToolResult>;
     };
 };
 export declare function reviewToolDefs(tools: ReturnType<typeof buildReviewTools>): DshToolDefinition[];

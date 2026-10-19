@@ -28,7 +28,9 @@ export function buildReviewTools(ctx) {
     const ledger = SpendLedger.open(env);
     return {
         review: {
-            execute: async (args) => {
+            execute: async (args, exec) => {
+                // 本地画布工作室桥（与 vgen_generate 同形）：重拍同样可能落在本地视频槽上
+                const studio = { hostCtx: { workspaceRegistry: ctx.workspaceRegistry }, exec };
                 try {
                     const runId = typeof args?.runId === 'string' ? args.runId : '';
                     const record = ctx.runs.get(runId);
@@ -118,10 +120,11 @@ export function buildReviewTools(ctx) {
                     if (pricingMaybe === undefined)
                         pricingMaybe = await fetchPricing(channel, undefined, 15000).catch(() => null);
                     const pricing = pricingMaybe;
-                    const est = pricing ? estimateCny(videoBinding.model, pricing) : null;
+                    // 本地画布工作室认领零成本：与 vgen_generate 同口径，否则重拍会被「未知价一律确认」多拦一次
+                    const est = videoBinding.protocol === 'comfy-studio' ? 0 : (pricing ? estimateCny(videoBinding.model, pricing) : null);
                     const provider = ctx.providersOverride
-                        ? ctx.providersOverride.forSlot(videoBinding, channel, { fetchImpl })
-                        : providerForSlot(channel, videoBinding, { fetchImpl });
+                        ? ctx.providersOverride.forSlot(videoBinding, channel, { fetchImpl, studio })
+                        : providerForSlot(channel, videoBinding, { fetchImpl, studio });
                     let approved = false;
                     if (ctx.confirmer)
                         approved = await ctx.confirmer(est);
@@ -223,7 +226,7 @@ export function reviewToolDefs(tools) {
             },
             output: { schema: { type: 'object' }, render: jsonRender },
             timeoutMs: 600000,
-            execute: (args) => tools.review.execute(args),
+            execute: (args, exec) => tools.review.execute(args, exec),
         },
     ];
 }

@@ -29,6 +29,8 @@ export interface GenerateContext {
     tts?: CloudTtsConfig;
     /** 宿主生命周期信号：插件停用/卸载（HMR）时 abort，在飞生成在检查点停下。 */
     signal?: AbortSignal;
+    /** 宿主 workspace 注册表（本地画布工作室解析「会话 → 画布根」用；缺省时回退 exec 里的 cwd）。 */
+    workspaceRegistry?: unknown;
 }
 /** tts 槽绑定 → 云端 TTS 配置（音色/语气：能力位声明优先，env 兜底）。 */
 export declare function configuredCloudTts(binding: SlotBinding, channel: ChannelRef, env?: NodeJS.ProcessEnv): CloudTtsConfig;
@@ -46,7 +48,7 @@ export interface GenerateArgs {
 }
 export declare function buildGenerateTools(ctx: GenerateContext): {
     generate: {
-        execute: (args: GenerateArgs, callSignal?: AbortSignal) => Promise<ToolResult>;
+        execute: (args: GenerateArgs, callSignal?: AbortSignal, exec?: unknown) => Promise<ToolResult>;
     };
     status: {
         execute: (args: {

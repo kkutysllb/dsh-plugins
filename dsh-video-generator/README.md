@@ -172,6 +172,63 @@ qilin plugin --profile qilin add github:kkutysllb/dsh-video-generator
 - **预算与 gate**：单笔确认阈值（unknown 价一律确认）、媒体段 gate 缺省。
 - **升级迁移**：v2 及更早的 `vault.json`（通道 `models[]` + 默认通道）在首次加载时一次性迁移为槽位绑定，原文件备份为 `vault.json.v1.bak-<时间戳>`；`models[]` 中首个 image/video/tts 分别迁移到对应槽位（image 两槽同源），music 槽留空待配置。回滚：用备份覆盖 `vault.json` 并装回旧版插件。
 
+### 本地画布工作室（零通道配置，v2.2.0 起）
+
+不需要任何云端 key：若本机已装 **dsh-short-video-studio**（画布工作室插件），并让 **ComfyUI 运行在
+`http://localhost:8188`**，生成段就可以完全跑在本地。
+
+> **运行环境**：本功能的目标环境是 **NVIDIA（CUDA）显卡 + Windows** 的机器（fp8 档位权重与该平台的
+> 模型配置面）。macOS / Apple GPU 不是受支持环境——会撞 `Float8_e4m3fn … not support for that dtype`。
+> 前置检查只需两步：`vgen_channels` 的 `studio.probe` 能探到 ComfyUI（`comfyOk: true`），且工作室
+> 配置里声明的模型文件在 ComfyUI 的清单里。
+
+**Local canvas studio (zero channel setup)**: with `dsh-short-video-studio` installed locally and
+ComfyUI serving `http://localhost:8188`, the generation stages can run entirely on this machine —
+no cloud credentials involved.
+
+配置三步 / three steps：
+
+1. 设置页「通道管理」→ **添加本地画布工作室**，一键创建一条本地通道
+   （`kind=studio-local`，固定 id `studio-local`、缺省名「本地画布工作室」，`baseUrl` 固定
+   `studio://local`、无 API Key）。该 kind 豁免 https 与 key 长度校验，通道行显示「本地」徽标并隐藏
+   凭证字段；对本地通道改 `baseUrl`/`apiKey` 会被明确拒绝（"本地画布工作室通道没有 baseUrl / apiKey，
+   无需配置凭证"），而不是给出误导性的 https 校验错误。**本地通道不会与云端通道混用兜底**：
+   绑了它就在这条通道上生成。
+2. 把 **`image.master` / `image.shot` / `video`** 三个用途槽绑到这条通道——协议族选 **`comfy-studio`**，
+   并选**档位**：
+
+   | 档位 | 定位 | 建议用途 |
+   |---|---|---|
+   | `fast` | 最快（最少步数） | 抽卡试拍、快速验证分镜走向 |
+   | `balanced` | 质量与耗时折中 | 日常出片默认 |
+   | `quality` | 最高质量（缺省档） | 定稿；注意下方限制 ③ |
+
+3. 照常走 `vgen_generate`。产物**同时**落在两处：studio 的**画布节点**（「画布」tab 直接可见）
+   和本 run 的产出文件（以 `file://` 绝对路径交付，与云端通道产物同构，落盘时拷贝而非 fetch）。
+
+约束与边界：
+
+- 该协议族**只覆盖图文生成面**：允许的槽仅 `image.master` / `image.shot` / `video`，
+  能力位为这三槽的 `tier`（白名单 `fast|balanced|quality`）与 video 的 `maxDurationSec`。
+  把 `tts` / `music.*` 绑到 `comfy-studio` 会被形状守卫**丢弃**（同 `music` 族既有纪律——
+  错位即丢，不静默折算）。
+- 本地生成**不产生费用**，因此 `estimate` 与花费统计对本通道**记账为 0**（不触发成本确认）。
+
+**已知限制（如实声明 / known limits）**
+
+| # | 限制 | 影响面 | 说明 |
+|---|---|---|---|
+| ① | 依赖 studio 的**内部通道 `_internals`** | studio 升级可能变形状 | studio 未把该入口声明为 cordis service（其自述为内部通道）。适配器对模块与 `runRender` 做存在性与形状守卫；**缺失或形状不符时明确报错，不静默降级**到其他通道。处置：升级/回退 studio，或改绑其他通道 |
+| ② | 成片归一化**丢弃视频模型的原生音轨** | 视频模型自带声音（如 H3 的 AV 原生音轨）在归一化/拼接段被 `-an` 丢弃 | 配音（`tts` 槽）与 BGM（`music.bgm` 槽）**不受影响**。本期只记录不修 |
+| ③ | `quality` 档单镜视频**可能超出 `vgen_generate` 的 600s 工具窗口** | 生成期可能超时返回 | 建议优先 `fast` / `balanced`；各档实际单镜耗时见 [release/v2.2.0.md](release/v2.2.0.md)（**待真机确认**） |
+| ④ | 本地生成**不在 `/api/pricing` 口径内** | 成本报表 | 记账为 0；只表示本通道不产生账单，不构成其他承诺 |
+| ⑤ | **目标运行环境是 NVIDIA（CUDA）+ Windows** | 非该环境不保证能出片 | 档位工作流、fp8 权重与模型文件名分隔符都按该环境配置。本插件只把「能力 + 档位」转给画布工作室，**不校验后端 dtype、也不代管模型供给**——云端的「通道可用性」在这里没有对应物。在 Apple GPU（MPS）上实测会撞 fp8 不支持（`Float8_e4m3fn … not support for that dtype`），那是环境差异，不是本插件缺陷；取证见 [release/v2.2.0.md](release/v2.2.0.md) 的「目标运行环境」 |
+| ⑥ | **模型档位文件须按工作室默认值装齐** | 缺文件时 ComfyUI 报 `value_not_in_list`（逐条列出缺哪个） | 本插件不代管模型供给，也不改写工作室配置（`~/.dsh/dsh-short-video-studio.json`）：文件名分隔符随平台（Windows `\`、macOS/Linux `/`）。缺项按 ComfyUI 原文补齐后重跑即可 |
+
+> 前置不满足时（未装 studio / ComfyUI 未启动）：`vgen_channels health` 的健康探测会失败
+> （探测 ComfyUI 的 `/system_stats`），直接生成会得到**明确错误**，不会静默改用其他通道。
+> ComfyUI 可达但**模型没装齐**时，错误来自 ComfyUI 的工作流校验（逐条列出缺哪个文件）——照它提示补模型即可。
+
 ## 环境变量
 
 | 变量 | 作用 | 缺省 |
@@ -195,6 +252,9 @@ qilin plugin --profile qilin add github:kkutysllb/dsh-video-generator
 - 音乐：BGM 已全链路（`music` 段生成 + 成片混音：循环补长/裁切、人声 ducking、首尾淡入淡出，默认开启、未绑定自动跳过）；MV 已支持 `mode=mv` 先曲后镜 + 段落/节拍网格三级来源（api / 本地分析 / 均分兜底，`score.json` 溯源）；歌词经 `vgen_script.lyrics` 由会话模型产出（14 段落标签体系：`[Intro]/[Verse]/[Chorus]/[Bridge]/[Outro]`…，MV 用 song 槽推进前必须已有歌词，否则 `bad-request` 指引补写）。**MV 编排实际形态**：`vgen_storyboard` 先行提交占位 → 推进 `music` 段生成歌曲与网格 → **重新提交 `vgen_storyboard`**（此时按歌曲时长等比缩放每镜时长）→ 继续出片；网格允许手工覆盖：直接改 run 目录 `music/score.json` 后重新提交 storyboard 并重跑后续段。素材短于歌曲的撑帧延长不支持（只裁不撑，`mv-trim`/`mv-deviation` 事件留痕）。
 - kling 上游饱和，`pin-kling-contract.ts` 真机钉契约挂起；Windows SAPI 配音未真机验证（无 Windows 机器）；`openai-video` 通用族契约（/v1/videos）按 Sora 风格实现，真机待钉。
 - happyhorse 等免费档模型带平台水印 → 仅文档警示 + 设置页备注。
+- **本地画布工作室通道（`comfy-studio`）另有四条限制**：依赖 studio 内部通道 `_internals`（升级可能变形状）、
+  成片归一化丢弃视频模型原生音轨、`quality` 档单镜视频可能超出 600s 工具窗口、本地生成不在 `/api/pricing`
+  口径内（记账 0）。逐条说明见上文[「本地画布工作室（零通道配置）」](#本地画布工作室零通道配置v220-起)。
 
 **水印提示**：happyhorse 等免费档视频模型可能带平台水印，介意请在「通道管理」中改用付费模型。
 

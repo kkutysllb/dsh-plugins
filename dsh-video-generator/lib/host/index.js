@@ -72,9 +72,9 @@ export function apply(ctx) {
     // 宿主生命周期信号：disposer 里 abort，在飞 vgen_generate 在段边界/并发泵
     // 检查点停下（置 run failed(host-interrupted)），不再继续调用通道 API 计费。
     const lifecycle = new AbortController();
-    const generateTools = buildGenerateTools({ vault, runs, slots, channelOf, signal: lifecycle.signal });
+    const generateTools = buildGenerateTools({ vault, runs, slots, channelOf, signal: lifecycle.signal, workspaceRegistry: ctx.workspaceRegistry });
     const provideTools = buildProvideTools({ runs, env: process.env });
-    const reviewTools = buildReviewTools({ vault, runs, slots, channelOf });
+    const reviewTools = buildReviewTools({ vault, runs, slots, channelOf, workspaceRegistry: ctx.workspaceRegistry });
     const channelsTools = buildChannelsTools({ vault, runs });
     const dramaTools = buildDramaTools(dramaHost);
     for (const dispose of [

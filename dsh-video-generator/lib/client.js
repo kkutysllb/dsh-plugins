@@ -136,6 +136,18 @@ window.__ModuleLoader__.load({
 			diagFfmpegMissing: "未找到（渲染成片不可用，可设 VGEN_FFMPEG）",
 			diagTtsOk: "可用（{m}）",
 			diagTtsMissing: "默认通道无 kind=tts 模型（旁白回退本地语音）",
+			studioTitle: "本地画布工作室",
+			addStudio: "添加本地画布工作室",
+			studioBadge: "本地",
+			studioProbing: "探测中…",
+			studioIntro: "本机装好 dsh-short-video-studio（画布工作室）与 ComfyUI 后，一键添加本地通道即可零配置生成图像/视频——无凭证、无云端费用。",
+			studioReady: "可用：ComfyUI {v}（{url}）",
+			studioReadyNoVer: "可用：ComfyUI（{url}）",
+			studioUnavailable: "不可用：{reason}",
+			studioExists: "本地画布工作室已存在，直接使用",
+			studioLocalDesc: "本地画布工作室（无凭证、无云端费用）",
+			slotTier: "档位",
+			slotStudioHint: "按档位调度本机画布工作室（无凭证、无云端费用）",
 		};
 
 		var en = {
@@ -232,6 +244,18 @@ window.__ModuleLoader__.load({
 			diagFfmpegMissing: "not found (final-cut unavailable; set VGEN_FFMPEG)",
 			diagTtsOk: "available ({m})",
 			diagTtsMissing: "no kind=tts model on the default channel (narration falls back to local voice)",
+			studioTitle: "Local canvas studio",
+			addStudio: "Add local studio",
+			studioBadge: "Local",
+			studioProbing: "Probing…",
+			studioIntro: "With dsh-short-video-studio and ComfyUI installed locally, one click adds a local channel and generates images/videos with zero config — no credentials, no cloud cost.",
+			studioReady: "Available: ComfyUI {v} ({url})",
+			studioReadyNoVer: "Available: ComfyUI ({url})",
+			studioUnavailable: "Unavailable: {reason}",
+			studioExists: "Local studio already exists — use it",
+			studioLocalDesc: "Local canvas studio (no credentials, no cloud cost)",
+			slotTier: "Tier",
+			slotStudioHint: "Dispatched to the local canvas studio by tier (no credentials, no cloud cost)",
 		};
 
 		/** 极简插值："重拍 {n} 次" → fill(tpl, { n: x }) */
@@ -593,7 +617,11 @@ window.__ModuleLoader__.load({
 					try { data = text ? JSON.parse(text) : {}; }
 					catch (e) { throw new Error("bad JSON (" + response.status + ")"); }
 					if (data && data.ok) return data.value;
-					throw new Error(String((data && data.error && data.error.message) || ("HTTP " + response.status)));
+					// 错误信封带上 code（conflict / bad-request …）：调用方要按 code 分支
+					// （如「本地画布工作室已存在」按幂等处理），不能只靠 message 文案。
+					var err = new Error(String((data && data.error && data.error.message) || ("HTTP " + response.status)));
+					err.code = (data && data.error && data.error.code) || "internal";
+					throw err;
 				});
 			});
 		}
@@ -710,6 +738,8 @@ window.__ModuleLoader__.load({
 			".vg-set-group-head{display:flex;align-items:baseline;gap:7px;padding:0 2px 6px;font-size:13px;line-height:20px;font-weight:600;color:var(--dsw-alias-label-primary,#1a1a1a);}",
 			".vg-set-group-count{padding:1px 8px;border-radius:999px;background:var(--dsw-alias-bg-layer-2,#f0f0f0);font-size:11px;line-height:16px;font-weight:500;color:var(--dsw-alias-label-secondary,#666);font-variant-numeric:tabular-nums;}",
 			".vg-set-group-hint{margin:0;padding:0 2px 4px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,#888);}",
+			// 「本地」徽标（本地画布工作室通道）：品牌色胶囊，与 group-count 同节奏
+			".vg-set-badge{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--dsw-alias-state-business-tertiary,rgba(65,118,230,.12));font-size:11px;line-height:16px;font-weight:500;color:var(--dsw-alias-state-business-primary,#4176e6);vertical-align:middle;}",
 			// 菜单式设置行：标题/描述在左、控件在右、细分隔线（对齐 DSH General section 行配方）
 			".vg-set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 2px;border-bottom:1px solid var(--dsw-alias-border-l2,#ddd);}",
 			".vg-set-row:last-child{border-bottom:none;}",
@@ -1079,13 +1109,19 @@ window.__ModuleLoader__.load({
 			var t = props.t;
 			var ch = props.ch;
 			var probe = props.probe || {};
+			// 本地画布工作室通道（kind=studio-local）：无凭证面——不显示 baseUrl/apiKey，
+			// 也不提供「测试」（本地无鉴权/枚举语义，可用性由 studio.probe 表达）。
+			var isLocal = ch.kind === "studio-local";
 			var children = [
 				// 菜单式行：标题/描述在左、开关在右、细分隔线（对齐 SideCardSection row 配方）
 				React.createElement("div", { key: "row", className: "vg-set-row" },
 					React.createElement("div", { className: "vg-set-row-text" },
-						React.createElement("div", { className: "vg-set-row-title" }, ch.label || ch.id),
+						React.createElement("div", { className: "vg-set-row-title" },
+							ch.label || ch.id,
+							isLocal ? React.createElement("span", { className: "vg-set-badge" }, t("studioBadge")) : null,
+						),
 						React.createElement("div", { className: "vg-set-row-desc" },
-							ch.id + " · " + ch.baseUrl + " · " + ch.apiKeyMasked,
+							isLocal ? (ch.id + " · " + t("studioLocalDesc")) : (ch.id + " · " + ch.baseUrl + " · " + ch.apiKeyMasked),
 						),
 					),
 					React.createElement("div", { className: "vg-set-row-control" },
@@ -1106,7 +1142,8 @@ window.__ModuleLoader__.load({
 				React.createElement("div", { key: "acts", className: "vg-set-row", style: { borderBottom: "none", paddingTop: 0, paddingBottom: 8 } },
 					React.createElement("div", { className: "vg-set-row-text" }),
 					React.createElement("div", { className: "vg-set-row-control" },
-						React.createElement("button", { className: "vg-set-btn", disabled: props.busy || !!probe.busy, onClick: function () { props.onTestChannel(ch.id); } },
+						// 本地通道无「测试」按钮：它没有鉴权/模型枚举面（可用性见 studio.probe 状态行）
+						isLocal ? null : React.createElement("button", { className: "vg-set-btn", disabled: props.busy || !!probe.busy, onClick: function () { props.onTestChannel(ch.id); } },
 							probe.busy ? t("testing") : t("test")),
 						React.createElement("button", { className: "vg-set-btn vg-set-btn-danger", disabled: props.busy, onClick: function () { props.onDeleteChannel(ch); } }, t("deleteCh")),
 					),
@@ -1125,7 +1162,32 @@ window.__ModuleLoader__.load({
 		var SLOT_ORDER = ["image.master", "image.shot", "video", "tts", "music.bgm", "music.song"];
 		var SLOT_PROTOCOL_FIXED = { "image.master": "openai-images", "image.shot": "openai-images", tts: "openai-tts", "music.bgm": "generic-music", "music.song": "generic-music" };
 
+		/* 本地画布工作室（comfy-studio 协议族）：零通道配置的本机生成。
+		 * 通道/模型名由契约固定（host 侧 vault 的 STUDIO_LOCAL_CHANNEL_ID），
+		 * 用户侧唯一可变量是「档位」（capabilities.tier）；具体实现由画布工作室
+		 * 的能力注册表按档位解析——UI 只表达能力与档位，不认识任何模型/工作流。 */
+		var STUDIO_PROTOCOL = "comfy-studio";
+		var STUDIO_CHANNEL_ID = "studio-local";
+		var STUDIO_MODEL = "本地工作室";
+		var STUDIO_TIERS = ["fast", "balanced", "quality"];
+		var STUDIO_DEFAULT_TIER = "quality";
+		/** 可绑定本地工作室的槽（与 host 侧 STUDIO_SLOTS 一致；其余槽声明它属契约错位，被守卫丢弃）。 */
+		var STUDIO_SLOTS = ["image.master", "image.shot", "video"];
+
+		function isStudioProtocol(protocol) {
+			return protocol === STUDIO_PROTOCOL;
+		}
+
+		/** 档位取值（白名单外的值一律回落缺省，不把脏值发给 host）。 */
+		function studioTierOf(caps) {
+			var tier = caps && caps.tier;
+			return STUDIO_TIERS.indexOf(tier) >= 0 ? tier : STUDIO_DEFAULT_TIER;
+		}
+
 		function defaultSlotProtocol(slot, binding) {
+			// 已保存的本地工作室绑定必须原样回显：图像槽协议在上面是「固定」的，
+			// 若被改写成固定协议，草稿一存就把 studio 绑定冲掉了。
+			if (binding && binding.protocol === STUDIO_PROTOCOL) return STUDIO_PROTOCOL;
 			if (SLOT_PROTOCOL_FIXED[slot]) return SLOT_PROTOCOL_FIXED[slot];
 			return (binding && binding.protocol) || "dashscope-video";
 		}
@@ -1168,6 +1230,25 @@ window.__ModuleLoader__.load({
 			var setDraft = function (patch) { props.setDraft(slot, Object.assign({}, draft, patch)); };
 			var isMusic = slot === "music.bgm" || slot === "music.song";
 			var isVideo = slot === "video";
+			// 本地画布工作室（comfy-studio）绑定：图像/视频槽可选（host 侧 STUDIO_SLOTS 同口径）；
+			// 选中后通道与模型名都是契约固定值，用户侧唯一可变量是档位。
+			var isStudio = isStudioProtocol(draft.protocol);
+			var canStudio = STUDIO_SLOTS.indexOf(slot) >= 0;
+			var protocolOptions = isVideo
+				? ["dashscope-video", "kling-video", "openai-video"]
+				: [SLOT_PROTOCOL_FIXED[slot]];
+			if (canStudio) protocolOptions = protocolOptions.concat([STUDIO_PROTOCOL]);
+			/** 切协议：选 comfy-studio 时把通道/模型钉成契约值并补档位；切走时清掉档位（不留死字段）。 */
+			var setProtocol = function (value) {
+				var next = Object.assign({}, caps);
+				if (value === STUDIO_PROTOCOL) {
+					if (STUDIO_TIERS.indexOf(next.tier) < 0) next.tier = STUDIO_DEFAULT_TIER;
+					setDraft({ protocol: value, channelId: STUDIO_CHANNEL_ID, model: STUDIO_MODEL, caps: next });
+				} else {
+					delete next.tier;
+					setDraft({ protocol: value, caps: next });
+				}
+			};
 			var row = function (title, desc, control, key) {
 				return React.createElement("div", { key: key || title, className: "vg-set-row" },
 					React.createElement("div", { className: "vg-set-row-text" },
@@ -1191,34 +1272,51 @@ window.__ModuleLoader__.load({
 				),
 			];
 			var channels = (props.chans && props.chans.channels) || [];
-			kids.push(row(t("slotChannel"), null,
-				React.createElement("select", {
-					className: "vg-set-select", value: draft.channelId,
-					onChange: function (e) { setDraft({ channelId: e.target.value }); },
-				},
-					React.createElement("option", { value: "" }, channels.length ? t("slotChannel") + "…" : t("slotNeedChannel")),
-					channels.map(function (c) { return React.createElement("option", { key: c.id, value: c.id }, (c.label || c.id) + (c.enabled ? "" : " (off)")); }),
-				), "ch"));
-			kids.push(row(t("slotModel"), null,
-				React.createElement("input", {
-					className: "vg-set-input", value: draft.model, placeholder: "model-name",
-					onChange: function (e) { setDraft({ model: e.target.value }); },
-				}), "model"));
-			if (isVideo) {
+			if (isStudio) {
+				// 本地通道固定为 studio-local：不提供通道下拉（于是也没有 baseUrl/apiKey 提示）
+				kids.push(row(t("slotChannel"), t("studioLocalDesc"),
+					React.createElement("span", { className: "vg-set-row-desc", style: { fontFamily: "ui-monospace,monospace" } }, STUDIO_CHANNEL_ID), "ch"));
+			} else {
+				kids.push(row(t("slotChannel"), null,
+					React.createElement("select", {
+						className: "vg-set-select", value: draft.channelId,
+						onChange: function (e) { setDraft({ channelId: e.target.value }); },
+					},
+						React.createElement("option", { value: "" }, channels.length ? t("slotChannel") + "…" : t("slotNeedChannel")),
+						channels.map(function (c) { return React.createElement("option", { key: c.id, value: c.id }, (c.label || c.id) + (c.enabled ? "" : " (off)")); }),
+					), "ch"));
+			}
+			if (isStudio) {
+				// 「模型」位换成「档位」：本地工作室按档位解析能力实现（模型名由契约固定）
+				kids.push(row(t("slotTier"), t("slotStudioHint"),
+					React.createElement("select", {
+						className: "vg-set-select", value: studioTierOf(caps),
+						onChange: function (e) { var c = Object.assign({}, caps); c.tier = e.target.value; setDraft({ caps: c }); },
+					},
+						STUDIO_TIERS.map(function (tier) { return React.createElement("option", { key: tier, value: tier }, tier); }),
+					), "tier"));
+			} else {
+				kids.push(row(t("slotModel"), null,
+					React.createElement("input", {
+						className: "vg-set-input", value: draft.model, placeholder: "model-name",
+						onChange: function (e) { setDraft({ model: e.target.value }); },
+					}), "model"));
+			}
+			if (isVideo || canStudio) {
+				// 图像槽多一个本地工作室选项（固定协议仍是缺省）；视频槽是三族 + 本地工作室
 				kids.push(row(t("slotProtocol"), null,
 					React.createElement("select", {
 						className: "vg-set-select", value: draft.protocol,
-						onChange: function (e) { setDraft({ protocol: e.target.value }); },
+						onChange: function (e) { setProtocol(e.target.value); },
 					},
-						React.createElement("option", { value: "dashscope-video" }, "dashscope-video"),
-						React.createElement("option", { value: "kling-video" }, "kling-video"),
-						React.createElement("option", { value: "openai-video" }, "openai-video"),
+						protocolOptions.map(function (p) { return React.createElement("option", { key: p, value: p }, p); }),
 					), "proto"));
 			} else {
 				kids.push(row(t("slotProtocol"), null,
 					React.createElement("span", { className: "vg-set-row-desc" }, SLOT_PROTOCOL_FIXED[slot]), "proto"));
 			}
-			if (slot === "image.master" || slot === "image.shot") {
+			// 本地工作室自己决定取样尺寸/参考图，sizeParam / referenceImage 对它无意义 → 不显示
+			if ((slot === "image.master" || slot === "image.shot") && !isStudio) {
 				var capKey = slot === "image.master" ? "sizeParam" : "referenceImage";
 				kids.push(row(t("slotCaps"), capKey,
 					React.createElement("input", {
@@ -1344,6 +1442,8 @@ window.__ModuleLoader__.load({
 
 		function ChannelsView(props) {
 			var t = props.t;
+			// 本地画布工作室探测状态（null = 还没探到；{available,busy,message}）
+			var studio = props.studio || null;
 			var data = props.chans || { channels: [] };
 			var channels = data.channels || [];
 			var budgetDraft = props.budgetDraft;
@@ -1373,6 +1473,27 @@ window.__ModuleLoader__.load({
 								onDeleteChannel: props.onDeleteChannel,
 							});
 						}),
+					// 本地画布工作室入口（零通道配置）：可用性由 studio.probe 表达——
+					// 可用时显示 ComfyUI 版本与地址，不可用给出原因并禁用按钮；
+					// 点按钮先复探（可用性可能已变），再建 studio-local 通道（已存在按幂等处理）。
+					React.createElement("div", { key: "studio", className: "vg-set-row" },
+						React.createElement("div", { className: "vg-set-row-text" },
+							React.createElement("div", { className: "vg-set-row-title" }, t("studioTitle")),
+							React.createElement("div", { className: "vg-set-row-desc" },
+								studio && studio.message
+									? React.createElement("span", { className: studio.available ? "vg-set-probe-ok" : "vg-set-probe-err" }, studio.message)
+									: t("studioIntro"),
+							),
+						),
+						React.createElement("div", { className: "vg-set-row-control" },
+							React.createElement("button", {
+								className: "vg-set-btn vg-set-btn-primary",
+								disabled: props.busy || !studio || !!studio.busy || !studio.available,
+								title: studio && studio.message ? studio.message : t("studioIntro"),
+								onClick: props.onAddStudio,
+							}, studio && studio.busy ? t("studioProbing") : t("addStudio")),
+						),
+					),
 				),
 				// 分组卡片2.5：用途槽（v2 核心——每槽恰好一个模型 + 真实小额测试）
 				React.createElement(SlotsCard, {
@@ -1571,12 +1692,14 @@ window.__ModuleLoader__.load({
 						templates: props.templates,
 						slotDrafts: props.slotDrafts,
 						slotMsg: props.slotMsg,
+						studio: props.studio,
 						onSetSlotDraft: props.onSetSlotDraft,
 						onSaveSlot: props.onSaveSlot,
 						onTestSlot: props.onTestSlot,
 						onApplyTemplate: props.onApplyTemplate,
 						onSaveTemplate: props.onSaveTemplate,
 						onDeleteTemplate: props.onDeleteTemplate,
+						onAddStudio: props.onAddStudio,
 						onCreateChannel: props.onCreateChannel,
 						onToggleEnabled: props.onToggleEnabled,
 						onTestChannel: props.onTestChannel,
@@ -1622,9 +1745,29 @@ window.__ModuleLoader__.load({
 				var diagsState = React.useState(null);
 				var diags = diagsState[0], setDiags = diagsState[1];
 
+				// 本地画布工作室探测状态（null = 未探；{available,busy,message}）
+				var studioState = React.useState(null);
+				var studio = studioState[0], setStudio = studioState[1];
+
+				/** studio.probe 结果 → UI 状态：可用时拼 ComfyUI 版本与地址，不可用时给原因文案。 */
+				var formatStudio = function (value) {
+					var p = value || {};
+					if (!p.available) {
+						return { available: false, comfyUrl: p.comfyUrl || "", message: fill(t("studioUnavailable"), { reason: p.reason || t("diagMissing") }) };
+					}
+					return {
+						available: true,
+						comfyUrl: p.comfyUrl || "",
+						message: p.comfyVersion
+							? fill(t("studioReady"), { v: p.comfyVersion, url: p.comfyUrl || "" })
+							: fill(t("studioReadyNoVer"), { url: p.comfyUrl || "" }),
+					};
+				};
+
 				var refreshChannels = React.useCallback(function () {
 					return Promise.all([
 						api("channels.list").then(setChansData),
+						api("studio.probe").then(function (v) { setStudio(formatStudio(v)); }).catch(function () {}),
 						api("diagnostics.get").then(setDiags).catch(function () {}),
 						api("settings.get").then(function (s) {
 							setBudgetDraft({
@@ -1682,6 +1825,25 @@ window.__ModuleLoader__.load({
 						.catch(function () { setBusy(false); });
 				};
 
+				/** 一键添加本地画布工作室：先复探（可用性可能已变）→ 建 studio-local 通道；
+				 * 通道已存在（conflict）按幂等处理——文案「已存在，直接使用」。 */
+				var onAddStudio = function () {
+					setStudio(function (prev) { return Object.assign({}, prev || {}, { busy: true }); });
+					return api("studio.probe").then(function (value) {
+						var state = formatStudio(value);
+						setStudio(Object.assign({}, state, { busy: false }));
+						if (!state.available) { flash("", state.message); return null; }
+						return api("channels.create", { kind: "studio-local" }).then(function () {
+							flash(t("saved"), "");
+						}).catch(function (e) {
+							if (e && e.code === "conflict") { flash(t("studioExists"), ""); return null; }
+							throw e;
+						});
+					}).catch(function (e) { flash("", String(e.message || e)); })
+						.then(function () { return refreshChannels(); })
+						.catch(function () {});
+				};
+
 				var onToggleEnabled = function (id, enabled) {
 					run(api("channels.update", { id: id, patch: { enabled: enabled } }));
 				};
@@ -1719,11 +1881,24 @@ window.__ModuleLoader__.load({
 				var capsPayload = function (slot, draft) {
 					draft = draft || {};
 					var caps = draft.caps || {};
+					// 档位是本地画布工作室专属能力位：只有 comfy-studio 绑定带上它
+					// （host 侧 parseSlotBinding 对非 studio 协议会删掉它，带上是死字段）
+					var isStudio = isStudioProtocol(draft.protocol);
 					if (slot === "video") {
-						return { imageToVideo: !!caps.imageToVideo, textToVideo: !!caps.textToVideo, maxDurationSec: Number(caps.maxDurationSec) || 10 };
+						var video = { imageToVideo: !!caps.imageToVideo, textToVideo: !!caps.textToVideo, maxDurationSec: Number(caps.maxDurationSec) || 10 };
+						if (isStudio) video.tier = studioTierOf(caps);
+						return video;
 					}
-					if (slot === "image.master") return { sizeParam: !!caps.sizeParam };
-					if (slot === "image.shot") return { referenceImage: !!caps.referenceImage };
+					if (slot === "image.master") {
+						var master = { sizeParam: !!caps.sizeParam };
+						if (isStudio) master.tier = studioTierOf(caps);
+						return master;
+					}
+					if (slot === "image.shot") {
+						var shot = { referenceImage: !!caps.referenceImage };
+						if (isStudio) shot.tier = studioTierOf(caps);
+						return shot;
+					}
 					if (slot === "tts") {
 						var out = {};
 						if (caps.voice) out.voice = String(caps.voice);
@@ -1743,11 +1918,14 @@ window.__ModuleLoader__.load({
 
 				var onSaveSlot = function (slot) {
 					var draft = slotDrafts[slot] || {};
-					if (!draft.channelId) { flash("", t("slotNeedChannel")); return; }
+					// 本地工作室绑定的通道/模型名由契约固定（用户不可编辑，也不能被草稿带偏）
+					var isStudio = isStudioProtocol(draft.protocol);
+					var channelId = isStudio ? STUDIO_CHANNEL_ID : draft.channelId;
+					if (!channelId) { flash("", t("slotNeedChannel")); return; }
 					var payload = {
 						slot: slot,
-						channelId: draft.channelId,
-						model: String(draft.model || "").trim(),
+						channelId: channelId,
+						model: isStudio ? STUDIO_MODEL : String(draft.model || "").trim(),
 						protocol: draft.protocol || defaultSlotProtocol(slot, null),
 						capabilities: capsPayload(slot, draft),
 					};
@@ -1826,6 +2004,7 @@ window.__ModuleLoader__.load({
 					diags: diags,
 					chans: chans, probe: probe,
 					form: form, setForm: setForm,
+					studio: studio,
 					budgetDraft: budgetDraft, setBudgetDraft: setBudgetDraft,
 					slotsData: slotsData,
 					templates: templates,
@@ -1844,6 +2023,7 @@ window.__ModuleLoader__.load({
 					onToggleEnabled: onToggleEnabled,
 					onTestChannel: onTestChannel,
 					onDeleteChannel: onDeleteChannel,
+					onAddStudio: onAddStudio,
 					onSaveBudget: onSaveBudget,
 				});
 			}

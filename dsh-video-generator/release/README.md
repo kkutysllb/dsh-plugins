@@ -8,6 +8,7 @@
 
 | 版本 | 日期 | 说明 |
 |---|---|---|
+| [v2.2.0](v2.2.0.md) | 2026-10-19 | 本地画布工作室接入：新增 comfy-studio 协议族 + studio-local 本地通道（零通道配置调用本机 dsh-short-video-studio 出图/出片）；本地零成本记账 0；file:// 交付；vgen_review 重拍路径同步接通 |
 | [v2.1.4](v2.1.4.md) | 2026-10-10 | DSH 0.2.1-alpha.2 复核：**零代码适配**（源码未改）+ 新增 0.2.x 契约哨兵 6 条 + 发版索引回填；真正交付 v2.1.3 未发布的兼容门修复（registry 上的 2.1.2 在 0.2.1-alpha.x 上会被整包静默禁用） |
 | [v2.1.3](v2.1.3.md) | 2026-10-04 | peer 兼容门左支上界 `<0.2.0` → `<1.0.0`（右支 QiLin 3.x 原样保留）——修复 dsh 0.2.1-alpha.1 下插件被兼容门静默禁用；**当时未发布到 npm**，其修复随 v2.1.4 进入 registry |
 | [v2.1.2](v2.1.2.md) | 2026-10-04 | 用户反馈三修：分镜 characterIds 宽容校验（字符串/角色名映射 + 报错列有效 id）+ master-asset/shot-assets 条目级断点续跑（重推跳过已付费条目；rerunStage=显式全量重做）+ 项目/任务删除入口（drama.project.delete / drama.task.delete） |

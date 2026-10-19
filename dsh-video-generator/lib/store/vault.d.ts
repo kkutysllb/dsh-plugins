@@ -4,10 +4,18 @@
  */
 import { type MusicTemplate, type ProtocolFamily, type SlotBinding, type SlotId } from './slots.ts';
 export { capabilityFlag, capabilityOf, isProtocolFamily, isSlotId, parseMusicTemplate, parseSlotBinding, sanitizeCapabilities, sanitizeMusicMapping, slotUnavailableMessage, PROTOCOL_FAMILIES, SLOT_IDS, SLOT_META, type CapabilityValue, type GenericMusicMapping, type MusicTemplate, type ProtocolFamily, type SlotBinding, type SlotId, type SlotKind, type SlotMeta, } from './slots.ts';
+/** 通道类别：openai-compat = 远端 OpenAI 兼容端点；studio-local = 本机画布工作室（无凭证、无网络语义）。 */
+export type ChannelKind = 'openai-compat' | 'studio-local';
+/** 本地画布工作室通道的固定 id 与伪 baseUrl（仅为形状统一，无任何网络请求语义）。 */
+export declare const STUDIO_LOCAL_CHANNEL_ID = "studio-local";
+export declare const STUDIO_LOCAL_BASE_URL = "studio://local";
+export declare function isLocalChannel(c: {
+    kind?: ChannelKind;
+}): boolean;
 export interface ChannelConfig {
     id: string;
     label: string;
-    kind: 'openai-compat';
+    kind: ChannelKind;
     baseUrl: string;
     apiKey: string;
     /** 实测/用户声明的协议族集合（信息性：供槽位绑定时的下拉提示；真实验证在槽位「测试」）。 */
@@ -43,8 +51,10 @@ export type MaskedChannel = Omit<ChannelConfig, 'apiKey'> & {
 };
 export interface ChannelInput {
     id: string;
-    baseUrl: string;
-    apiKey: string;
+    /** 缺省 openai-compat；studio-local 时 baseUrl/apiKey 由实现填充，调用方可省略。 */
+    kind?: ChannelKind;
+    baseUrl?: string;
+    apiKey?: string;
     label?: string;
     enabled?: boolean;
     protocols?: ProtocolFamily[];

@@ -180,7 +180,7 @@ export async function advanceRun(deps) {
     const resolveSlot = (slot) => {
         const binding = requireSlotBinding(deps.slots, slot);
         const channel = deps.channelFor(binding);
-        const provider = deps.providers.forSlot(binding, channel, { fetchImpl });
+        const provider = deps.providers.forSlot(binding, channel, { fetchImpl, studio: deps.studio });
         return { binding, channel, provider };
     };
     const requireImageProvider = (slot) => {
@@ -199,7 +199,7 @@ export async function advanceRun(deps) {
             throw bindingUnavailable(videoBinding, '能力位 imageToVideo/textToVideo 均未启用（设置页「用途槽 → 视频」勾选其一）');
         }
         const videoChannel = deps.channelFor(videoBinding);
-        deps.providers.forSlot(videoBinding, videoChannel, { fetchImpl });
+        deps.providers.forSlot(videoBinding, videoChannel, { fetchImpl, studio: deps.studio });
     }
     const ensureGate = async (stage, info) => {
         const mode = gates[stage] ?? 'auto';
@@ -462,7 +462,7 @@ export async function advanceRun(deps) {
                 const estTotalSec = sb.shots.reduce((acc, s) => acc + (s.durationSec ?? 5), 0);
                 const durationSec = Math.max(15, Math.min(300, Math.ceil(estTotalSec)));
                 const channel = deps.channelFor(musicBinding);
-                const provider = deps.providers.forSlot(musicBinding, channel, { fetchImpl });
+                const provider = deps.providers.forSlot(musicBinding, channel, { fetchImpl, studio: deps.studio });
                 const musicDir = join(runs.rootDir, runId, 'music');
                 const baseName = isMv ? 'song' : 'bgm';
                 const outFile = join(musicDir, `${baseName}.mp3`);

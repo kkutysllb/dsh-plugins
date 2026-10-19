@@ -3,14 +3,15 @@
  * 对齐 dsh-super-ppts 路由模式；handler 不碰 node:http，便于无宿主测试。
  */
 import { resolve, sep } from 'node:path';
-import { VaultError } from "../store/vault.js";
+import { isLocalChannel, STUDIO_LOCAL_CHANNEL_ID, VaultError } from "../store/vault.js";
 import { collectArtifacts } from "./artifacts.js";
 import { isStage } from "../stages.js";
 import { isSlotId, SLOT_IDS, SLOT_META } from "../store/slots.js";
 import { testSlotBinding } from "../slot-probe.js";
+import { probeStudio } from "../providers/comfy-studio.js";
 import { BUILTIN_MUSIC_TEMPLATES } from "../providers/music-templates.js";
 export const PLUGIN_ID = 'dsh-video-generator';
-export const PLUGIN_VERSION = '2.1.4';
+export const PLUGIN_VERSION = '2.2.0';
 // 仅精确 loopback 名（'127.0.0.1' 的 URL hostname 形态已剥括号，故 '::1'/'[::1]' 双收录无害）
 const TRUSTED_LOCAL = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 // DNS-rebind / 跨站防御（非认证）：Host 头存在即权威精确匹配；remote 仅在 Host 缺失时兜底——
@@ -104,7 +105,16 @@ function dispatch(ctx, name, args) {
     switch (name) {
         case 'channels.list':
             return { channels: ctx.vault.listChannels() };
-        case 'channels.create':
+        case 'channels.create': {
+            // 本地画布工作室是一键创建：id 固定、无凭证面，调用方（设置页按钮）只给 kind。
+            if (args['kind'] === 'studio-local') {
+                return ctx.vault.createChannel({
+                    id: STUDIO_LOCAL_CHANNEL_ID,
+                    kind: 'studio-local',
+                    label: optionalString(args['label']),
+                    protocols: ['comfy-studio'],
+                });
+            }
             return ctx.vault.createChannel({
                 id: requireString(args['id'], 'id'),
                 baseUrl: requireString(args['baseUrl'], 'baseUrl'),
@@ -112,6 +122,10 @@ function dispatch(ctx, name, args) {
                 label: optionalString(args['label']),
                 protocols: Array.isArray(args['protocols']) ? args['protocols'] : undefined,
             });
+        }
+        case 'studio.probe':
+            // 只读探测：不建通道、不渲染、不花钱（设置页据此决定「添加本地通道」按钮是否可用）
+            return probeStudio({});
         case 'channels.update': {
             const p = (args['patch'] ?? {});
             // 严格类型边界：'false' 字符串不再翻转为 true（非布尔=不更新）；protocols 非数组=不更新
@@ -132,6 +146,16 @@ function dispatch(ctx, name, args) {
             const ch = ctx.vault.getChannel(cid);
             if (!ch)
                 throw new VaultError('not-found', `通道不存在: ${cid}`);
+            // 本地画布工作室没有网络端点可探：探测器换成「模块 + ComfyUI 可达性」，同样零成本
+            if (isLocalChannel(ch)) {
+                return probeStudio({}).then((probed) => {
+                    const ok = probed.available && probed.comfyOk;
+                    ctx.vault.markChannelVerified(cid, ok
+                        ? `studio ok${probed.comfyVersion ? ' · comfyui ' + probed.comfyVersion : ''}`
+                        : `studio ${probed.available ? 'comfyui-unreachable' : 'unavailable'}`);
+                    return { probe: { ok, error: ok ? undefined : (probed.available ? 'comfyui-unreachable' : 'studio-unavailable'), models: [], studio: probed } };
+                });
+            }
             // 通道级验证结论留痕（槽位级的真实小额验证在 slots.test）
             return ctx.probe({ baseUrl: ch.baseUrl, apiKey: ch.apiKey }).then((probed) => {
                 ctx.vault.markChannelVerified(cid, `probe ${probed.ok ? 'ok' : String(probed.error ?? 'unknown')} · ${probed.models.length} models`);

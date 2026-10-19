@@ -8,6 +8,7 @@ import type { Provider } from '../provider.ts';
 import { type SlotBinding, type SlotId } from '../store/slots.ts';
 import { type StageId } from '../stages.ts';
 import { type ChannelRef } from '../providers/protocols.ts';
+import type { StudioBridge } from '../providers/comfy-studio.ts';
 import { type CloudTtsConfig } from '../finalcut/voice.ts';
 export interface MachineDeps {
     runs: RunStore;
@@ -21,6 +22,7 @@ export interface MachineDeps {
     providers: {
         forSlot: (binding: SlotBinding, channel: ChannelRef, opts?: {
             fetchImpl?: typeof fetch;
+            studio?: StudioBridge;
         }) => Provider;
     };
     /** 按绑定估价（工具层按各槽通道拉价目后注入；失败为 null → 估价未知走确认）。 */
@@ -46,6 +48,8 @@ export interface MachineDeps {
         estCny: number | null;
         jobId: string;
     }) => void;
+    /** 本地画布工作室桥（只有绑定到 comfy-studio 协议的槽会消费它；工具层从 exec 透传）。 */
+    studio?: StudioBridge;
 }
 /** 宿主停用中断：段执行在检查点抛出，工具层转 interrupted 信封。 */
 export declare class RunInterruptedError extends Error {
