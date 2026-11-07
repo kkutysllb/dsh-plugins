@@ -123,14 +123,43 @@ Brief 要求演讲备注时，页面规划阶段就为每页起草一句话备�
   并用 `check_typography.py` 机检（见 §6）。库为空时提示用户到 Web 设置页
   「演示文稿」上传并命名模板。
 
+#### 5.1 模板契约（硬门，模板任务必做）
+
+模板任务的排版事实源是 `ppts_contract` 返回的契约，不是模板名：
+
+1. 调 `ppts_contract`（`action=ensure`，`id`=模板 id/名称）：宿主用
+   `template_spec.py` 物化并归一化契约（层级→role、字体别名、中文色名→hex）。
+2. 只有 `status=parsed` 才能继续。`missing/ambiguous` 立刻用
+   `ppts_task action=needs-input` 让用户补规范或裁决，**不得按默认排版继续**。
+3. 契约 `levels[]` 是硬性验收项：`role / font / sizePt / lineSpacing / color`。
+   生成脚本从契约读值，不得手写字号；注意 `sizePt` 是折算后的 pt。
+4. 每个文本 shape 必须打标签：`shape.name = "sp:<role>"`
+   （title / subtitle / body / footnote / page-number / chart-label / 自定义 role；
+   纯装饰文本用 `sp:decoration`）。未打标签 = UNVERIFIED，门直接失败。
+5. VI Build 复制模板页后逐个文本 shape 重新打标签；模板自带的 shape 名不可信。
+
+契约与 `constraints` 一起进入 Brief/验收表。`ppts_templates` 的 `contract`
+摘要只用于判断状态，排版取值以 `ppts_contract` 为准。
+
 ### 6. 构建与检视循环
 
 每次实质修订：跑脚本 → **结构机检**（validate_pptx.py：FAIL 必须先修，
 不进视觉门）→ **排版机检**（模板任务必做：`check_typography.py <产物> --spec <模板规范.json>
---max-colors N`，把模板约束变成可判定的门；查出 FAIL 先修再渲）→ 渲染 PDF/PNG
+--max-colors N`）→ **模板一致性机检**（模板任务必做：
+
+```bash
+python3 <插件包根>/skills/ppts-pptx/scripts/check_template_conformance.py deck.pptx --contract <契约.json>
+```
+
+按 role 逐项核对字体/字号/行距/颜色；有 FAIL/UNVERIFIED 先修再渲）→ 渲染 PDF/PNG
 （**只重渲有改动的页**，未动页沿用上一轮 PNG）
 → 对照验收表逐行检视 → 记录 `PASS / NEEDS_REVISION / BLOCKED` + 证据 +
 下一步修订 → 循环至全部 MUST 通过。
+
+模板任务在 `ppts_task action=done` 时宿主会再跑一遍结构/排版/一致性三道门；
+返回 `ok:false` + `code=qc-blocked` 时，按 `blockers` 的
+`{page,shape,role,check,expected,actual}` 修**生成脚本**（不要只改导出的 pptx），
+重新登记 artifact 后再 done。反复修正仍不过 → 停下让用户处理，不得绕过。
 
 方向性失败（参考迁移、图片策略、构图、层级、页面架构）回到对应决策层修，
 不用局部修补糊弄；局部缺陷（溢出、对齐、对比度）才用局部修改。
@@ -144,6 +173,8 @@ Brief 要求演讲备注时，页面规划阶段就为每页起草一句话备�
 （[references/review-and-delivery.md](references/review-and-delivery.md)）：
 最终 `.pptx` 与导出 `.pdf` 副本**成对交付**；任务流（Brief 带「任务 ID」）内
 用 ppts_task artifact **双登记**（pptx 与 pdf 各一条），面板产物区才完整。
+模板任务必须 `ppts_task action=done` 通过模板一致性门（宿主自动跑），
+不要用聊天里的一句「已按模板完成」代替。
 
 ## 混合交付：动效与嵌入（Phase 0 切换 / Phase 1 GIF 嵌入）
 

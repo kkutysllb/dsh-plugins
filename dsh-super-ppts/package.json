@@ -1,6 +1,6 @@
 {
   "name": "dsh-super-ppts",
-  "version": "1.5.1",
+  "version": "2.0.0",
   "description": "DSH 原生演示文稿超级插件：PPTX 可编辑交付（pptx-designer 引擎 + 视觉验收）与 HTML 在线演示交付（8 种形态）统一技能编排。",
   "type": "module",
   "engines": {
@@ -11,7 +11,8 @@
     "smoke": "node scripts/smoke-plugin.mjs",
     "prepack": "npm run build && npm run smoke",
     "sync:mirror": "node scripts/sync-to-dsh-plugins.mjs",
-    "sync:check": "node scripts/sync-to-dsh-plugins.mjs --check"
+    "sync:check": "node scripts/sync-to-dsh-plugins.mjs --check",
+    "test:unit": "node --test tests/*.test.mjs"
   },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

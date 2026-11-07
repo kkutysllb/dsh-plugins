@@ -137,11 +137,120 @@ window.__ModuleLoader__.load({
 			newTask: "新建任务",
 			recent: "最近任务",
 			panelTitle: "演示文稿",
+			// ── 流水线（Job）──
+			jobsTab: "流水线",
+			workspaceSub: "一次制作 = 一条流水线：立项、规划、生成、规范门、视觉门、交付",
+			newProduction: "新建制作",
+			backToWorkspace: "返回工作区",
+			historyTitle: "历史任务",
+			historyEmpty: "没有历史任务",
+			historyBadge: "历史",
+			historyDelete: "删除",
+			historyDeleteConfirm: "删除历史任务「{name}」？任务目录与产物引用会一并删除，不可恢复。",
+			historyDeleteFailed: "删除历史任务失败",
+			jobsTitle: "制作流水线",
+			jobsIntro: "一次制作 = 一个 Job：立项 → 规划 → 生成 → 规范门 → 视觉门 → 交付。",
+			jobNewTitle: "新建流水线",
+			jobTopic: "主题",
+			jobTopicPlaceholder: "一句话说明要做什么演示",
+			jobFormat: "交付形态",
+			jobTemplate: "模板（可选）",
+			jobNoTemplate: "不使用模板",
+			jobCreate: "创建流水线",
+			jobEmpty: "还没有流水线任务",
+			jobOpen: "打开",
+			jobBack: "返回列表",
+			jobNext: "下一步",
+			jobNextGate: "处理闸门",
+			jobNextWork: "执行工单",
+			jobNoNext: "没有待办",
+			jobRunQc: "运行质检",
+			jobApprove: "通过",
+			jobReject: "驳回",
+			jobRejectTitle: "驳回并让 Agent 修改",
+			jobRejectHint: "写明原因和具体修改要求；提交后会生成修改工单并自动派给 Agent。",
+			jobRejectPlaceholder: "例如：第 3 页图表与结论不一致；标题字号统一为模板 18pt；按公司模板重排版式……",
+			jobRejectReasonRequired: "请填写驳回原因或修改要求",
+			jobRejectSubmit: "提交并派单",
+			jobRejectCancel: "取消",
+			jobRejectSent: "已提交驳回，修改工单已派出",
+			jobGateNoteLabel: "驳回意见",
+			jobRejectChipVisual: "视觉不统一",
+			jobRejectChipContent: "内容不符合受众",
+			jobRejectChipTemplate: "模板字号/版式不对",
+			jobRejectChipStructure: "结构需调整",
+			jobWorkorders: "工单队列",
+			jobArtifacts: "产物",
+			jobMaterials: "素材",
+			jobNoMaterials: "暂无素材",
+			jobBlockers: "阻断项",
+			jobQcPass: "质检通过",
+			jobQcFail: "质检未通过",
+			jobClaim: "开工",
+			jobComplete: "完成",
+			jobFail: "失败",
+			jobRefresh: "刷新",
+			jobStageBrief: "立项",
+			jobStagePlan: "规划",
+			jobStageBuild: "生成",
+			jobStageConformance: "规范门",
+			jobStageVisual: "视觉门",
+			jobStageDelivery: "交付",
+			jobGatePending: "未开始",
+			jobGateReady: "待处理",
+			jobGatePassed: "已通过",
+			jobGateApproved: "已批准",
+			jobGateRejected: "未通过",
+			jobGateBlocked: "已阻断",
+			jobStatusActive: "进行中",
+			jobStatusWaiting: "等待操作",
+			jobStatusDelivered: "已交付",
+			jobStatusBlocked: "已阻断",
+			jobCreated: "流水线已创建",
+			jobCreateFailed: "创建流水线失败",
+			jobActionFailed: "操作失败",
+			jobSent: "工单已投递到会话",
+			jobSendFailed: "投递失败（可复制工单正文手动发送）",
+			jobDeliveredHint: "已交付：全门通过",
+			jobWorkorderQueued: "排队",
+			jobWorkorderRunning: "进行中",
+			jobWorkorderDone: "完成",
+			jobWorkorderFailed: "失败",
+			jobWorkorderCancelled: "取消",
+			jobArtifactRevision: "版本 {n}",
+
+
+			jobGates: "闸门",
+			jobGateG0: "G0 · 立项",
+			jobGateG1: "G1 · 规划",
+			jobGateG2: "G2 · 产物",
+			jobGateG3: "G3 · 规范",
+			jobGateG4: "G4 · 视觉",
+			jobGateG5: "G5 · 交付",
+			jobContract: "模板规范",
+			jobContractEmpty: "未选择模板，或不套模板规范",
+			jobTemplateBuiltinBadge: "内置模板",
+			jobTemplateBuiltinHint: "已使用内置模板的视觉风格；内置模板没有用户 .pptx 排版契约，不走模板一致性门",
+			jobTemplateUnavailable: "模板契约不可用/未解析",
+			jobContractLevel: "层级",
+			jobUploadCorrected: "上传纠正版",
+			jobUploading: "上传中…",
+			jobUploaded: "纠正版已登记，请重新运行质检",
+			jobUploadFailed: "上传纠正版失败",
+			jobBlockerPage: "页",
+			jobBlockerShape: "元素",
+			jobBlockerExpected: "期望",
+			jobBlockerActual: "实际",
+			jobNoWorkorders: "暂无工单",
+			jobNoArtifacts: "暂无产物",
+
 			newTaskTitle: "新建演示任务",
 			newTaskIntro: "从一个想法、文本或本地文件开始，Agent 会直接帮你制作。",
 			// ── 新建任务视图 ──
 			startTask: "开始制作",
 			advancedOptions: "更多选项",
+			modelLabel: "模型",
+			modelDefault: "跟随引擎默认",
 			configSummary: "配置摘要",
 			formatPptxCard: "可编辑 PPTX",
 			formatHtmlCard: "HTML 演示",
@@ -241,6 +350,10 @@ window.__ModuleLoader__.load({
 			stageReview: "验收审查",
 			progressStageLine: "第 {i}/{n} 阶段 · {label}",
 			waitingStage: "等待 Agent 汇报阶段进度…",
+			progressCurrentStage: "当前阶段",
+			progressStages: "制作阶段",
+			progressActivity: "任务动态",
+			progressLatest: "最近 5 条",
 			openSession: "打开 Agent 会话",
 			cancelTask: "取消任务",
 			launchRecovery: "任务已落盘，但 Agent 会话未能启动（提交可能不可达）。可以重试启动，或取消任务。",
@@ -375,11 +488,120 @@ window.__ModuleLoader__.load({
 			newTask: "New task",
 			recent: "Recent tasks",
 			panelTitle: "Presentations",
+			// ── Pipeline (Job) ──
+			jobsTab: "Pipeline",
+			workspaceSub: "One production, one pipeline: brief → plan → build → conformance → visual → delivery",
+			newProduction: "New production",
+			backToWorkspace: "Back to workspace",
+			historyTitle: "History",
+			historyEmpty: "No historical tasks",
+			historyBadge: "History",
+			historyDelete: "Delete",
+			historyDeleteConfirm: "Delete historical task \"{name}\"? Its task directory and artifact references will be removed; this cannot be undone.",
+			historyDeleteFailed: "Failed to delete historical task",
+			jobsTitle: "Production pipeline",
+			jobsIntro: "One production = one Job: brief → plan → build → conformance → visual → delivery.",
+			jobNewTitle: "New pipeline job",
+			jobTopic: "Topic",
+			jobTopicPlaceholder: "One line describing the deck",
+			jobFormat: "Format",
+			jobTemplate: "Template (optional)",
+			jobNoTemplate: "No template",
+			jobCreate: "Create job",
+			jobEmpty: "No pipeline jobs yet",
+			jobOpen: "Open",
+			jobBack: "Back to list",
+			jobNext: "Next",
+			jobNextGate: "Handle gate",
+			jobNextWork: "Run work order",
+			jobNoNext: "Nothing pending",
+			jobRunQc: "Run QC",
+			jobApprove: "Approve",
+			jobReject: "Reject",
+			jobRejectTitle: "Reject and let the Agent revise",
+			jobRejectHint: "Describe the problem and the exact changes; submitting creates a revision work order and dispatches it to the Agent.",
+			jobRejectPlaceholder: "e.g. chart on page 3 contradicts the conclusion; unify title size to the template 18pt; re-layout with the company template…",
+			jobRejectReasonRequired: "Please provide a reason or revision requirement",
+			jobRejectSubmit: "Submit and dispatch",
+			jobRejectCancel: "Cancel",
+			jobRejectSent: "Rejection submitted; revision work order dispatched",
+			jobGateNoteLabel: "Rejection note",
+			jobRejectChipVisual: "Visual inconsistency",
+			jobRejectChipContent: "Content misses audience",
+			jobRejectChipTemplate: "Template size/layout wrong",
+			jobRejectChipStructure: "Structure needs adjustment",
+			jobWorkorders: "Work orders",
+			jobArtifacts: "Artifacts",
+			jobMaterials: "Materials",
+			jobNoMaterials: "No materials",
+			jobBlockers: "Blockers",
+			jobQcPass: "QC passed",
+			jobQcFail: "QC failed",
+			jobClaim: "Start",
+			jobComplete: "Complete",
+			jobFail: "Fail",
+			jobRefresh: "Refresh",
+			jobStageBrief: "Brief",
+			jobStagePlan: "Plan",
+			jobStageBuild: "Build",
+			jobStageConformance: "Conformance",
+			jobStageVisual: "Visual",
+			jobStageDelivery: "Delivery",
+			jobGatePending: "Pending",
+			jobGateReady: "Ready",
+			jobGatePassed: "Passed",
+			jobGateApproved: "Approved",
+			jobGateRejected: "Rejected",
+			jobGateBlocked: "Blocked",
+			jobStatusActive: "Active",
+			jobStatusWaiting: "Waiting",
+			jobStatusDelivered: "Delivered",
+			jobStatusBlocked: "Blocked",
+			jobCreated: "Pipeline job created",
+			jobCreateFailed: "Failed to create pipeline job",
+			jobActionFailed: "Action failed",
+			jobSent: "Work order sent to session",
+			jobSendFailed: "Send failed (copy the work order and send manually)",
+			jobDeliveredHint: "Delivered: all gates passed",
+			jobWorkorderQueued: "Queued",
+			jobWorkorderRunning: "Running",
+			jobWorkorderDone: "Done",
+			jobWorkorderFailed: "Failed",
+			jobWorkorderCancelled: "Cancelled",
+			jobArtifactRevision: "rev {n}",
+
+
+			jobGates: "Gates",
+			jobGateG0: "G0 · Brief",
+			jobGateG1: "G1 · Plan",
+			jobGateG2: "G2 · Artifact",
+			jobGateG3: "G3 · Conformance",
+			jobGateG4: "G4 · Visual",
+			jobGateG5: "G5 · Delivery",
+			jobContract: "Template contract",
+			jobContractEmpty: "No template, or no contract enforced",
+			jobTemplateBuiltinBadge: "Built-in template",
+			jobTemplateBuiltinHint: "Built-in visual style applied; built-in templates have no user .pptx contract, so the template conformance gate is skipped",
+			jobTemplateUnavailable: "Template contract unavailable/unparsed",
+			jobContractLevel: "Level",
+			jobUploadCorrected: "Upload corrected deck",
+			jobUploading: "Uploading…",
+			jobUploaded: "Corrected deck registered; run QC again",
+			jobUploadFailed: "Failed to upload corrected deck",
+			jobBlockerPage: "Page",
+			jobBlockerShape: "Shape",
+			jobBlockerExpected: "Expected",
+			jobBlockerActual: "Actual",
+			jobNoWorkorders: "No work orders",
+			jobNoArtifacts: "No artifacts",
+
 			newTaskTitle: "New presentation task",
 			newTaskIntro: "Start from an idea, some text or local files — the Agent builds it for you.",
 			// ── New task view ──
 			startTask: "Start building",
 			advancedOptions: "More options",
+			modelLabel: "Model",
+			modelDefault: "Use engine default",
 			configSummary: "Setup summary",
 			formatPptxCard: "Editable PPTX",
 			formatHtmlCard: "HTML presentation",
@@ -479,6 +701,10 @@ window.__ModuleLoader__.load({
 			stageReview: "Final review",
 			progressStageLine: "Stage {i}/{n} · {label}",
 			waitingStage: "Waiting for the Agent to report progress…",
+			progressCurrentStage: "Current stage",
+			progressStages: "Production stages",
+			progressActivity: "Activity",
+			progressLatest: "Latest 5",
 			openSession: "Open agent session",
 			cancelTask: "Cancel task",
 			launchRecovery: "The task is saved but the Agent session never launched (delivery may have failed). Retry launch or cancel.",
@@ -704,7 +930,34 @@ window.__ModuleLoader__.load({
 		 *    绝不返回 'submitted'。
 		 * 返回 'submitted'（已写入并提交）/ 'copied'（降级剪贴板）/ 'none'（全失败）。
 		 */
-		function sendToChatV4(ctx, text, workspaceId) {
+		/** 把 Job 选择的模型应用到承载工单的会话；服务缺失/失败都只降级，不阻断派单。 */
+		function applySessionModel(service, sessionId, model) {
+			if (!model || typeof model.provider !== "string" || typeof model.model !== "string" || sessionId === null || sessionId === undefined) {
+				return Promise.resolve();
+			}
+			try {
+				if (!service || typeof service.directoryFor !== "function") return Promise.resolve();
+				var directory = service.directoryFor(sessionId);
+				if (!directory || typeof directory.select !== "function") return Promise.resolve();
+				var selection = { provider: model.provider, model: model.model };
+				if (typeof model.reasoningEffort === "string" && model.reasoningEffort !== "") selection.reasoningEffort = model.reasoningEffort;
+				function attemptSelect(tries) {
+					return Promise.resolve(directory.select(selection)).then(function (result) {
+						if (result && result.ok === false) throw new Error("model select failed");
+					}).catch(function () {
+						if (tries <= 0) return undefined;
+						return new Promise(function (resolve) { setTimeout(resolve, 120); }).then(function () {
+							return attemptSelect(tries - 1);
+						});
+					});
+				}
+				return attemptSelect(9).catch(function () { /* 模型选择尽力而为，不阻断任务 */ });
+			} catch (error) {
+				return Promise.resolve();
+			}
+		}
+
+		function sendToChatV4(ctx, text, workspaceId, model, modelService) {
 			var fallback = function () { return clipboardFallback(ctx, text); };
 			var sessions = ctx && ctx.sessions;
 			var plan;
@@ -750,8 +1003,10 @@ window.__ModuleLoader__.load({
 				if (sessionId === null || sessionId === undefined) return fallback();
 				backToChat(ctx);
 				var deliver = function () {
-					return deliverToSession(ctx, sessions, sessionId, text, 0).then(function (outcome) {
-						return outcome === "submitted" ? "submitted" : fallback();
+					return applySessionModel(modelService, sessionId, model).then(function () {
+						return deliverToSession(ctx, sessions, sessionId, text, 0).then(function (outcome) {
+							return outcome === "submitted" ? "submitted" : fallback();
+						});
 					});
 				};
 				// 0.1.7：递送期持引用（scope 借代的前提）；using 缺席（旧宿主）直接递送。
@@ -768,6 +1023,10 @@ window.__ModuleLoader__.load({
 		// 设置页导航字形：Lucide「presentation」（幕布 + 支架），经 currentColor
 		// mask 跟随导航 hover/active 配色，维持壳层 16px 图标节奏。
 		var NAV_MARKER = "data-dsh-super-ppts-settings-nav";
+		// 新版宿主（QiLin 3.1.9+）把分区图标包进 span.navIcon（内含 settings.section.icon
+		// 插槽），旧的「隐藏 button 直接子 svg」选择器不再命中，会与下方 ::before 各画一个
+		// 图标。这里给真正的图标容器单独打标记，由 CSS 隐藏。
+		var NAV_ICON_MARKER = "data-dsh-super-ppts-nav-icon";
 		var NAV_ICON_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 3h20'/%3E%3Cpath d='M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3'/%3E%3Cpath d='m7 21 5-5 5 5'/%3E%3C/svg%3E";
 
 		var CSS = [
@@ -884,8 +1143,74 @@ window.__ModuleLoader__.load({
 			".sp-tab{display:inline-flex;flex:none;align-items:center;height:28px;padding:0 10px;border:0;border-radius:14px;background:transparent;color:var(--dsw-alias-label-tertiary,#888);font-size:13px;line-height:21px;cursor:pointer;transition:background .15s,color .15s;}",
 			".sp-tab:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));color:var(--dsw-alias-label-primary,#1a1a1a);}",
 			".sp-tab-active,.sp-tab-active:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));color:var(--dsw-alias-label-primary,#1a1a1a);}",
+			// ── 流水线（Job）──
+			".sp-jobs{display:flex;flex-direction:column;gap:14px;}",
+			".sp-job-form{display:flex;flex-direction:column;gap:10px;padding:16px 18px;border:0.5px solid var(--dsw-alias-border-l3,#c9c9c9);border-radius:16px;}",
+			".sp-job-form-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}",
+			".sp-job-list{display:flex;flex-direction:column;gap:8px;}",
+			".sp-job-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border:0.5px solid var(--dsw-alias-border-l3,#c9c9c9);border-radius:12px;cursor:pointer;text-align:left;background:transparent;color:inherit;font:inherit;}",
+			".sp-job-row:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));border-color:var(--dsw-alias-border-l2,#ddd);}",
+			// ── 单一工作区头（替代三 tab）──
+			".sp-workspace-head{align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}",
+			".sp-workspace-heading{display:flex;flex-direction:column;gap:4px;min-width:0;}",
+			".sp-workspace-sub{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,#888);}",
+			".sp-workspace-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}",
+			".sp-history-row{opacity:.95;padding:0;gap:0;}",
+			".sp-history-open{flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:12px 14px;border:0;background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;border-radius:12px 0 0 12px;}",
+			".sp-history-open:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));}",
+			".sp-history-delete{flex:none;height:100%;padding:0 14px;border:0;border-left:1px solid var(--dsw-alias-border-l2,#ddd);background:transparent;color:var(--dsw-alias-label-tertiary,#888);font-size:12px;cursor:pointer;border-radius:0 12px 12px 0;}",
+			".sp-history-delete:hover{background:var(--dsw-alias-state-error-primary,#e5484d);color:#fff;}",
+
+			".sp-job-row-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}",
+			".sp-job-row-title{font-size:14px;color:var(--dsw-alias-label-primary,#1a1a1a);}",
+			".sp-job-row-meta{font-size:12px;color:var(--dsw-alias-label-tertiary,#888);}",
+			".sp-job-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}",
+			".sp-job-title{font-size:16px;font-weight:600;color:var(--dsw-alias-label-primary,#1a1a1a);}",
+			".sp-job-meta{font-size:12px;color:var(--dsw-alias-label-tertiary,#888);}",
+			".sp-stage-rail{display:flex;gap:6px;flex-wrap:wrap;}",
+			".sp-stage{flex:1 1 0;min-width:92px;padding:8px 10px;border-radius:10px;border:0.5px solid var(--dsw-alias-border-l3,#c9c9c9);font-size:12px;color:var(--dsw-alias-label-tertiary,#888);text-align:center;}",
+			".sp-stage-active{border-color:var(--dsw-alias-state-business-primary,#4176e6);color:var(--dsw-alias-label-primary,#1a1a1a);background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));}",
+			".sp-stage-done{border-color:var(--dsw-alias-state-success-primary,#00b450);color:var(--dsw-alias-state-success-primary,#00b450);}",
+			".sp-stage-blocked{border-color:var(--dsw-alias-state-error-primary,#e5484d);color:var(--dsw-alias-state-error-primary,#e5484d);}",
+			".sp-job-next{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--dsw-alias-bg-layer-3,#fff);border:1px solid var(--dsw-alias-border-l2,#ddd);}",
+			".sp-job-next-text{flex:1;min-width:0;font-size:13px;color:var(--dsw-alias-label-primary,#1a1a1a);}",
+			".sp-gate-list,.sp-wo-list,.sp-job-artifact-list{display:flex;flex-direction:column;gap:6px;}",
+			".sp-gate-row,.sp-wo-row,.sp-job-artifact-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border-bottom:1px solid var(--dsw-alias-border-l2,#ddd);font-size:12px;}",
+			".sp-gate-row:last-child,.sp-wo-row:last-child,.sp-job-artifact-row:last-child{border-bottom:none;}",
+			".sp-gate-block{display:flex;flex-direction:column;gap:0;}",
+			".sp-gate-block:last-child .sp-gate-row{border-bottom:none;}",
+			".sp-gate-note{margin:0 10px 8px;padding:8px 10px;border-radius:8px;background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary,#666);}",
+			".sp-reject-panel{display:flex;flex-direction:column;gap:10px;margin:0 0 12px;padding:14px;border:1px solid var(--dsw-alias-border-l3,#c9c9c9);border-radius:12px;background:var(--dsw-alias-bg-layer-1,#fff);}",
+			".sp-reject-head{font-size:13px;font-weight:600;color:var(--dsw-alias-label-primary,#1a1a1a);}",
+			".sp-reject-hint{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,#888);}",
+			".sp-reject-chips{display:flex;flex-wrap:wrap;gap:8px;}",
+			".sp-reject-chip{height:26px;padding:0 10px;border:1px solid var(--dsw-alias-border-l2,#ddd);border-radius:13px;background:transparent;color:var(--dsw-alias-label-secondary,#666);font-size:12px;font-family:inherit;cursor:pointer;}",
+			".sp-reject-chip:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));}",
+			".sp-reject-input{width:100%;min-height:90px;resize:vertical;}",
+			".sp-reject-actions{display:flex;justify-content:flex-end;gap:8px;}",
+
+			".sp-gate-label{font-weight:600;color:var(--dsw-alias-label-primary,#1a1a1a);min-width:34px;}",
+			".sp-gate-status{font-size:11px;padding:1px 8px;border-radius:999px;background:var(--dsw-alias-bg-layer-2,#f0f0f0);color:var(--dsw-alias-label-secondary,#666);}",
+			".sp-gate-status-approved,.sp-gate-status-passed{color:var(--dsw-alias-state-success-primary,#00b450);}",
+			".sp-gate-status-rejected,.sp-gate-status-blocked{color:var(--dsw-alias-state-error-primary,#e5484d);}",
+			".sp-job-blockers{margin:0;padding-left:18px;font-size:12px;line-height:18px;color:var(--dsw-alias-state-error-primary,#e5484d);}",
+			".sp-job-section-title{font-size:13px;font-weight:600;color:var(--dsw-alias-label-primary,#1a1a1a);margin:4px 0 0;}",
+
 			// 视图根：两个视图都是单列纵向流（视图自持类名，壳层不下发 className）
 			".sp-view-new-task,.sp-view-recent{display:flex;flex-direction:column;gap:20px;}",
+			// 新建制作：主表单 + 右侧摘要卡（宽屏两栏，窄屏单栏）
+			".sp-create{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,.8fr);gap:24px;align-items:start;}",
+			".sp-create-main{display:flex;flex-direction:column;gap:18px;min-width:0;}",
+			".sp-create-side{position:sticky;top:12px;}",
+			".sp-create-card{display:flex;flex-direction:column;gap:14px;padding:18px;border:1px solid var(--dsw-alias-border-l3,#c9c9c9);border-radius:16px;background:var(--dsw-alias-bg-layer-1,#fff);}",
+			".sp-create-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;}",
+			".sp-create-grid .sp-field{margin:0;}",
+			".sp-create-card .sp-config-summary{display:flex;flex-direction:column;gap:8px;padding:0;border:0;background:transparent;}",
+			".sp-create-card .sp-start{width:100%;align-self:stretch;}",
+			".sp-create-model{margin:0;font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary,#666);}",
+			"@media (max-width:1000px){.sp-create{grid-template-columns:1fr;}.sp-create-side{position:static;}}",
+			"@container (max-width:760px){.sp-create{grid-template-columns:1fr;}.sp-create-side{position:static;}}",
+
 			// 新建任务视图：主题 → 快速开始 → 交付形态 → 更多选项 → 摘要 → 素材
 			// 小节标题沿用上游 ruleCard h3 配方（13px/20 regular tertiary）
 			".sp-new-title{margin:0 0 8px 2px;font-size:13px;line-height:20px;font-weight:400;color:var(--dsw-alias-label-tertiary,#888);}",
@@ -1046,6 +1371,57 @@ window.__ModuleLoader__.load({
 			".sp-step-pending{opacity:.55;}",
 			".sp-progress-events{display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:21px;color:var(--dsw-alias-label-tertiary,#888);}",
 			".sp-event{border-left:2px solid var(--dsw-alias-border-l3,#c9c9c9);padding-left:8px;}",
+			// ── 进度页美化（覆盖上面的基础契约样式，类名保持不变）──
+			".sp-view-progress{display:flex;flex-direction:column;gap:14px;width:100%;max-width:960px;}",
+			".sp-progress-head{align-items:flex-start;gap:12px;padding:16px 18px;border:1px solid var(--dsw-alias-border-l2,#ddd);border-radius:16px;background:var(--dsw-alias-bg-layer-2,#f7f7f7);}",
+			".sp-progress-head .sp-back{flex:none;height:28px;padding:0 10px;border-radius:14px;border:1px solid var(--dsw-alias-border-l3,#c9c9c9);background:transparent;color:var(--dsw-alias-label-secondary,#666);font-size:12px;cursor:pointer;}",
+			".sp-progress-head .sp-back:hover{background:var(--dsw-alias-interactive-bg-hover,rgba(38,49,72,.06));color:var(--dsw-alias-label-primary,#1a1a1a);}",
+			".sp-progress-title-block{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;}",
+			".sp-progress-title-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;}",
+			".sp-progress-title-row .sp-task-title{font-size:17px;line-height:25px;font-weight:600;overflow-wrap:anywhere;}",
+			".sp-progress-title-row .sp-task-status{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;background:var(--dsw-alias-bg-layer-3,#fff);border:1px solid var(--dsw-alias-border-l2,#ddd);font-size:12px;color:var(--dsw-alias-label-secondary,#666);}",
+			".sp-progress-title-row .sp-task-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--dsw-alias-state-business-primary,#4176e6);}",
+			".sp-progress-title-row .sp-progress-status-failed::before,.sp-progress-title-row .sp-progress-status-cancelled::before{background:var(--dsw-alias-state-error-primary,#e5484d);}",
+			".sp-progress-title-row .sp-progress-status-completed::before{background:var(--dsw-alias-state-success-primary,#00b450);}",
+			".sp-progress-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,#888);}",
+			".sp-progress-hero{padding:16px 18px;border:1px solid var(--dsw-alias-border-l2,#ddd);border-radius:16px;background:var(--dsw-alias-bg-layer-3,#fff);display:flex;flex-direction:column;gap:10px;}",
+			".sp-progress-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}",
+			".sp-progress-kicker{font-size:11px;line-height:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--dsw-alias-label-tertiary,#888);}",
+			".sp-progress-hero .sp-progress-line{font-size:15px;line-height:23px;font-weight:600;}",
+			".sp-progress-percent{font-size:13px;line-height:20px;color:var(--dsw-alias-label-secondary,#666);font-variant-numeric:tabular-nums;}",
+			".sp-progress-bar{height:6px;border-radius:999px;background:var(--dsw-alias-bg-layer-2,#f0f0f0);overflow:hidden;}",
+			".sp-progress-bar > span{display:block;height:100%;border-radius:999px;background:var(--dsw-alias-state-business-primary,#4176e6);transition:width .3s ease;}",
+			".sp-progress-hero .sp-progress-detail{font-size:13px;line-height:21px;color:var(--dsw-alias-label-secondary,#666);}",
+			".sp-progress-section{padding:16px 18px;border:1px solid var(--dsw-alias-border-l2,#ddd);border-radius:16px;background:var(--dsw-alias-bg-layer-2,#f7f7f7);}",
+			".sp-progress-section-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:14px;font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary,#888);}",
+			".sp-progress-section-title{font-size:13px;line-height:20px;font-weight:600;color:var(--dsw-alias-label-primary,#1a1a1a);}",
+			".sp-progress-section .sp-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;}",
+			".sp-progress-section .sp-step{display:flex;flex-direction:column;align-items:flex-start;gap:7px;height:auto;padding:0 8px 0 0;border-radius:0;background:transparent;position:relative;min-width:0;text-align:left;}",
+			".sp-progress-section .sp-step::after{content:'';position:absolute;top:11px;left:24px;right:0;height:2px;border-radius:999px;background:var(--dsw-alias-border-l3,#c9c9c9);}",
+			".sp-progress-section .sp-step:last-child::after{display:none;}",
+			".sp-progress-section .sp-step-done::after,.sp-progress-section .sp-step-active::after{background:var(--dsw-alias-state-business-primary,#4176e6);opacity:.35;}",
+			".sp-progress-section .sp-step-idx{position:relative;z-index:1;width:22px;height:22px;border:1.5px solid var(--dsw-alias-border-l3,#c9c9c9);background:var(--dsw-alias-bg-layer-2,#f7f7f7);color:var(--dsw-alias-label-tertiary,#888);font-size:11px;font-weight:600;}",
+			".sp-progress-section .sp-step-done .sp-step-idx{background:var(--dsw-alias-state-business-primary,#4176e6);border-color:var(--dsw-alias-state-business-primary,#4176e6);color:#fff;}",
+			".sp-progress-section .sp-step-active .sp-step-idx{border-color:var(--dsw-alias-state-business-primary,#4176e6);color:var(--dsw-alias-state-business-primary,#4176e6);background:transparent;box-shadow:0 0 0 4px rgba(65,118,230,.14);}",
+			".sp-progress-section .sp-step-active{color:var(--dsw-alias-state-business-primary,#4176e6);font-weight:600;}",
+			".sp-progress-section .sp-step > span:last-child{font-size:12px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}",
+			".sp-progress-section .sp-progress-events{gap:0;}",
+			".sp-progress-section .sp-event{display:flex;gap:10px;padding:9px 0;border-left:0;border-bottom:1px solid var(--dsw-alias-border-l2,#ddd);}",
+			".sp-progress-section .sp-event:last-child{border-bottom:none;}",
+			".sp-ev-dot{flex:none;width:6px;height:6px;margin-top:7px;border-radius:50%;background:var(--dsw-alias-label-tertiary,#888);}",
+			".sp-progress-section .sp-event:first-child .sp-ev-dot{background:var(--dsw-alias-state-business-primary,#4176e6);box-shadow:0 0 0 3px rgba(65,118,230,.15);}",
+			".sp-ev-body{min-width:0;display:flex;flex-direction:column;gap:2px;}",
+			".sp-ev-text{font-size:13px;line-height:20px;color:var(--dsw-alias-label-primary,#1a1a1a);overflow-wrap:anywhere;}",
+			".sp-ev-time{font-size:11px;line-height:16px;color:var(--dsw-alias-label-tertiary,#888);font-variant-numeric:tabular-nums;}",
+			".sp-progress-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;padding-top:2px;}",
+			".sp-progress-actions .sp-open-session{height:32px;padding:0 14px;border-radius:16px;border:1px solid var(--dsw-alias-state-business-primary,#4176e6);background:var(--dsw-alias-state-business-primary,#4176e6);color:#fff;font-size:13px;cursor:pointer;}",
+			".sp-progress-actions .sp-open-session:hover{filter:brightness(1.06);}",
+			".sp-progress-actions .sp-cancel{height:32px;padding:0 14px;border-radius:16px;border:1px solid var(--dsw-alias-border-l2,#ddd);background:transparent;color:var(--dsw-alias-label-secondary,#666);font-size:13px;cursor:pointer;}",
+			".sp-progress-actions .sp-cancel:hover{border-color:var(--dsw-alias-state-error-primary,#e5484d);color:var(--dsw-alias-state-error-primary,#e5484d);}",
+			".sp-launch-recovery,.sp-needs-input,.sp-error-recovery,.sp-terminal-note{padding:14px 16px;border-radius:12px;border:1px solid var(--dsw-alias-border-l2,#ddd);background:var(--dsw-alias-bg-layer-3,#fff);font-size:13px;line-height:21px;color:var(--dsw-alias-label-secondary,#666);}",
+			".sp-needs-input .sp-input-answer{width:100%;box-sizing:border-box;margin:8px 0;}",
+			"@media (max-width:640px){.sp-progress-section .sp-steps{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:16px;}.sp-progress-section .sp-step:nth-child(3)::after{display:none;}.sp-progress-head{flex-wrap:wrap;}}",
+
 			".sp-launch-recovery,.sp-needs-input,.sp-error-recovery{display:flex;flex-direction:column;gap:8px;border:0.5px solid var(--dsw-alias-border-l3,#c9c9c9);border-radius:12px;padding:12px 14px;font-size:13px;line-height:21px;}",
 			".sp-launch-recovery{border-style:dashed;}",
 			".sp-needs-input{border-style:dashed;}",
@@ -1093,10 +1469,13 @@ window.__ModuleLoader__.load({
 			"@container (max-width:640px){.sp-formats{grid-template-columns:1fr;}.sp-tpl-picker .sp-tpl-grid{grid-template-columns:1fr;}"
 				+ ".sp-grid{grid-template-columns:1fr;}.sp-tpl-grid{grid-template-columns:1fr;}"
 				+ ".sp-task-item{align-items:flex-start;}.sp-task-open{margin-left:0;align-self:flex-start;}.sp-tabs{margin-left:0;}}",
-			// 设置页导航图标替换：DSH 0.1.x 的 settings.section 契约只投影
-			// id/order/label，壳层对外部分区一律渲染通用齿轮。这里只对本插件
-			// 被标记的行生效：隐藏齿轮 SVG，用 ::before mask 画幕布字形。
+			// 设置页导航图标替换：老宿主（DSH 0.1.x / QiLin ≤3.1.7）的 settings.section
+			// 契约只投影 id/order/label，壳层对外部分区一律渲染通用齿轮；新宿主
+			// （QiLin 3.1.9+）改用 span.navIcon 包裹 settings.section.icon 插槽，齿轮不再
+			// 是被标记按钮的直接子 svg。两条隐藏通道并存，再给被标记行画 ::before
+			// 幕布字形——保证任何宿主上都只留一个图标。
 			"[" + NAV_MARKER + "] > svg:first-child{display:none;}",
+			"[" + NAV_ICON_MARKER + "]{display:none !important;}",
 			"[" + NAV_MARKER + "]::before{content:'';flex:none;width:16px;height:16px;background:currentColor;"
 				+ "-webkit-mask:url(\"" + NAV_ICON_SVG + "\") center / contain no-repeat;"
 				+ "mask:url(\"" + NAV_ICON_SVG + "\") center / contain no-repeat;}",
@@ -1207,8 +1586,21 @@ window.__ModuleLoader__.load({
 				for (var i = 0; i < buttons.length; i++) {
 					var button = buttons[i];
 					var text = (button.textContent || "").trim();
-					if (current.length > 0 && text === current) button.setAttribute(NAV_MARKER, "");
-					else button.removeAttribute(NAV_MARKER);
+					// 先清掉上一轮的图标标记：宿主可能复用按钮节点、只换掉子元素。
+					var stale = button.querySelectorAll("[" + NAV_ICON_MARKER + "]");
+					for (var j = 0; j < stale.length; j++) stale[j].removeAttribute(NAV_ICON_MARKER);
+					if (!(current.length > 0 && text === current)) {
+						button.removeAttribute(NAV_MARKER);
+						continue;
+					}
+					button.setAttribute(NAV_MARKER, "");
+					// 宿主图标容器：老宿主是 button 的直接 <svg>；新宿主是 <span class="navIcon">
+					// 包裹的插槽。统一按「首个子元素 + 无文本 + 内部含 svg」识别（svg 元素自身
+					// 的 querySelector 不含自身，故老宿主由上面的 CSS 通道兜底）。
+					var glyph = button.firstElementChild;
+					if (glyph !== null && (glyph.textContent || "").trim() === "" && glyph.querySelector("svg") !== null) {
+						glyph.setAttribute(NAV_ICON_MARKER, "");
+					}
 				}
 			}
 			sync();
@@ -1219,6 +1611,8 @@ window.__ModuleLoader__.load({
 				observer.disconnect();
 				var marked = document.querySelectorAll("[" + NAV_MARKER + "]");
 				for (var i = 0; i < marked.length; i++) marked[i].removeAttribute(NAV_MARKER);
+				var icons = document.querySelectorAll("[" + NAV_ICON_MARKER + "]");
+				for (var i = 0; i < icons.length; i++) icons[i].removeAttribute(NAV_ICON_MARKER);
 			};
 		}
 
@@ -1250,6 +1644,7 @@ window.__ModuleLoader__.load({
 		var SP_VIEW_NEW = "new-task";
 		var SP_VIEW_RECENT = "recent";
 		var SP_VIEW_TASK = "task";
+		var SP_VIEW_JOBS = "jobs";
 
 		/**
 		 * 任务状态 → 恢复落点视图（规格「状态 → 恢复落点」表，Plan 2b D1 修正）：
@@ -1447,13 +1842,509 @@ window.__ModuleLoader__.load({
 		 * 壳层只传 props（含 useWorkspaces），不下发 className，避免壳层与视图
 		 * 争夺根节点；单独渲染视图工厂时类名同样成立。
 		 */
+
+		/* ── 流水线（Job）视图：阶段轨 / 闸门 / 工单 / 质检 ──
+		 * 数据面全部走 host jobs.* / gates.* / workorders.* / qc.run；
+		 * 机器门由宿主跑脚本，用户门只在这里批准/驳回。
+		 */
+		var SP_JOB_STAGES = ["brief", "plan", "build", "conformance", "visual", "delivery"];
+		var SP_JOB_STAGE_LABEL = {
+			brief: "jobStageBrief", plan: "jobStagePlan", build: "jobStageBuild",
+			conformance: "jobStageConformance", visual: "jobStageVisual", delivery: "jobStageDelivery",
+		};
+		var SP_JOB_GATE_LABEL = { G0: "jobGateG0", G1: "jobGateG1", G2: "jobGateG2", G3: "jobGateG3", G4: "jobGateG4", G5: "jobGateG5" };
+		var SP_JOB_STAGE_GATE = { brief: "G0", plan: "G1", build: "G2", conformance: "G3", visual: "G4", delivery: "G5" };
+		var SP_JOB_GATE_STATUS = {
+			pending: "jobGatePending", ready: "jobGateReady", passed: "jobGatePassed",
+			approved: "jobGateApproved", rejected: "jobGateRejected", blocked: "jobGateBlocked",
+		};
+
+		function jobStatusText(t, status) {
+			if (status === "delivered") return t("jobStatusDelivered");
+			if (status === "blocked") return t("jobStatusBlocked");
+			if (status === "waiting-user") return t("jobStatusWaiting");
+			return t("jobStatusActive");
+		}
+		function jobGateText(t, status) {
+			return t(SP_JOB_GATE_STATUS[status] || "jobGatePending");
+		}
+		function jobStageText(t, stage) {
+			return t(SP_JOB_STAGE_LABEL[stage] || "jobStageBrief");
+		}
+		function jobGateLabel(t, gateId) {
+			return t(SP_JOB_GATE_LABEL[gateId] || gateId);
+		}
+		function jobBtn(text, onClick, disabled) {
+			return React.createElement("button", {
+				type: "button", className: "sp-btn", disabled: !!disabled, onClick: onClick,
+			}, text);
+		}
+
+		function makeJobsView(t, options) {
+			var opts = options || {};
+			function Jobs(props) {
+				var jobsState = React.useState([]);
+				var jobs = jobsState[0], setJobs = jobsState[1];
+				var tasksState = React.useState([]);
+				var tasks = tasksState[0], setTasks = tasksState[1];
+				var errState = React.useState("");
+				var err = errState[0], setErr = errState[1];
+				function load() {
+					return Promise.all([
+						api("jobs.list", {}).then(function (value) { setJobs((value && value.jobs) || []); }).catch(function (error) { setErr(String((error && error.message) || error)); }),
+						api("tasks.list", {}).then(function (value) { setTasks((value && value.tasks) || []); }).catch(function () { setTasks([]); }),
+					]);
+				}
+				React.useEffect(function () { load(); }, []);
+				var jobRows = jobs.map(function (job) {
+					var gate = job.nextAction && job.nextAction.gateId ? job.nextAction.gateId : "";
+					return React.createElement("button", {
+						type: "button", className: "sp-job-row", key: job.id,
+						onClick: function () { if (opts.onOpen) opts.onOpen(job); },
+					},
+						React.createElement("span", { className: "sp-job-row-main" },
+							React.createElement("span", { className: "sp-job-row-title" }, String(job.title || "")),
+							React.createElement("span", { className: "sp-job-row-meta" },
+								jobStageText(t, job.stage) + " · " + jobStatusText(t, job.status) + (gate ? " · " + gate : "")),
+						),
+						React.createElement("span", { className: "sp-gate-status" }, t("jobOpen")),
+					);
+				});
+				function removeLegacy(task) {
+					if (!opts.onDeleteLegacy) return;
+					Promise.resolve(opts.onDeleteLegacy(task)).then(function (done) {
+						if (done) load();
+					}).catch(function (error) {
+						setErr(t("historyDeleteFailed") + "：" + String((error && error.message) || error));
+					});
+				}
+				var historyRows = tasks.map(function (task) {
+					var statusKey = SP_TASK_STATUS_KEYS[task.status];
+					return React.createElement("div", {
+						className: "sp-job-row sp-history-row", key: task.id,
+					},
+						React.createElement("button", {
+							type: "button", className: "sp-history-open",
+							onClick: function () { if (opts.onOpenLegacy) opts.onOpenLegacy(task); },
+						},
+							React.createElement("span", { className: "sp-job-row-main" },
+								React.createElement("span", { className: "sp-job-row-title" }, String(task.title || "")),
+								React.createElement("span", { className: "sp-job-row-meta" },
+									(statusKey ? t(statusKey) : String(task.status || "")) + " · " + formatDate(task.updatedAt)),
+							),
+							React.createElement("span", { className: "sp-gate-status" }, t("historyBadge")),
+						),
+						React.createElement("button", {
+							type: "button", className: "sp-history-delete", title: t("historyDelete"),
+							"aria-label": t("historyDelete"),
+							onClick: function (event) {
+								if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+								removeLegacy(task);
+							},
+						}, t("historyDelete")),
+					);
+				});
+				return React.createElement("div", { className: "sp-jobs sp-view-jobs" },
+					React.createElement("div", { className: "sp-job-section-title" }, t("jobsTitle")),
+					React.createElement("div", { className: "sp-job-list" },
+						jobRows.length > 0 ? jobRows : React.createElement("div", { className: "sp-empty" }, t("jobEmpty")),
+					),
+					React.createElement("div", { className: "sp-job-section-title" }, t("historyTitle")),
+					React.createElement("div", { className: "sp-job-list" },
+						historyRows.length > 0 ? historyRows : React.createElement("div", { className: "sp-empty" }, t("historyEmpty")),
+					),
+					err ? React.createElement("div", { className: "sp-msg-err" }, err) : null,
+				);
+			}
+			return Jobs;
+		}
+
+		function makeJobDetailView(t, options) {
+			var opts = options || {};
+			function Detail(props) {
+				var p = props || {};
+				var job = p.job !== undefined ? p.job : opts.job;
+				var apiFn = typeof opts.api === "function" ? opts.api : api;
+				var send = typeof opts.sendToSession === "function" ? opts.sendToSession : null;
+				var onUpdated = typeof opts.onUpdated === "function" ? opts.onUpdated : function () {};
+				var onBack = typeof opts.onBack === "function" ? opts.onBack : function () {};
+				var busyState = React.useState("");
+				var busy = busyState[0], setBusy = busyState[1];
+				var msgState = React.useState("");
+				var msg = msgState[0], setMsg = msgState[1];
+				var errState = React.useState("");
+				var err = errState[0], setErr = errState[1];
+				var contractState = React.useState(null);
+				var contract = contractState[0], setContract = contractState[1];
+				var rejectState = React.useState(null);
+				var rejecting = rejectState[0], setRejecting = rejectState[1];
+				var fileRef = React.useRef(null);
+				var templateId = job && job.brief && job.brief.templateId;
+				var templateName = job && job.brief && job.brief.templateName;
+				var templateSource = job && job.brief && job.brief.templateSource;
+				var builtinTemplate = templateSource === "builtin"
+					|| (typeof templateId === "string" && templateId.indexOf("builtin-") === 0);
+				React.useEffect(function () {
+					if (!templateId || builtinTemplate) { setContract(null); return; }
+					apiFn("contracts.get", { id: templateId }).then(function (value) {
+						setContract(value && value.contract ? value.contract : null);
+					}).catch(function () { setContract(null); });
+				}, [templateId, builtinTemplate]);
+				if (!job) return null;
+
+				function apply(value) {
+					var next = value && value.job ? value.job : value;
+					if (next && next.id) onUpdated(next);
+				}
+				function call(method, payload) {
+					setBusy(method); setErr(""); setMsg("");
+					return apiFn(method, payload).then(function (value) {
+						setBusy("");
+						apply(value);
+						return value;
+					}).catch(function (error) {
+						setBusy(""); setErr(t("jobActionFailed") + "：" + String((error && error.message) || error));
+					});
+				}
+				function refresh() {
+					return apiFn("jobs.get", { id: job.id }).then(function (next) { onUpdated(next); }).catch(function (error) { setErr(String((error && error.message) || error)); });
+				}
+				function uploadCorrected(event) {
+					var file = event && event.target && event.target.files && event.target.files[0];
+					if (!file) return;
+					setBusy("upload"); setErr(""); setMsg("");
+					var kind = job.format === "html" ? "html" : "pptx";
+					var url = "/super-ppts/jobs/artifact-upload?jobId=" + encodeURIComponent(job.id) + "&kind=" + kind;
+					return fetch(url, {
+						method: "POST",
+						headers: { "content-type": "application/octet-stream" },
+						body: file,
+					}).then(function (response) { return response.json(); }).then(function (envelope) {
+						setBusy("");
+						if (!envelope || envelope.ok !== true) { setErr(t("jobUploadFailed")); return; }
+						apply(envelope.value);
+						setMsg(t("jobUploaded"));
+					}).catch(function (error) {
+						setBusy("");
+						setErr(t("jobUploadFailed") + "：" + String((error && error.message) || error));
+					});
+				}
+				function startWorkOrder(wo) {
+					if (send === null) { setErr(t("jobSendFailed")); return; }
+					setBusy("wo"); setErr(""); setMsg("");
+					apiFn("workorders.claim", { jobId: job.id, workOrderId: wo.id }).then(function (next) {
+						apply(next);
+						var header = "【流水线工单】\nJob: " + job.id + "\nWorkOrder: " + wo.id
+							+ "\n完成后调用 ppts_job action=complete（jobId/workOrderId）；产物先用 action=artifact 登记。\n\n";
+						return Promise.resolve(send(header + wo.prompt, job.workspace && job.workspace.id, job.model)).then(function (phase) {
+							setBusy("");
+							if (phase === "submitted") { setMsg(t("jobSent")); return; }
+							setErr(t("jobSendFailed"));
+							return apiFn("workorders.fail", { jobId: job.id, workOrderId: wo.id, reason: "send-failed" }).then(apply);
+						});
+					}).catch(function (error) { setBusy(""); setErr(t("jobActionFailed") + "：" + String((error && error.message) || error)); });
+				}
+
+				var autoQcRef = React.useRef({});
+				React.useEffect(function () {
+					if (job.status === "delivered" || job.status === "cancelled" || job.status === "blocked") return;
+					var action = job.nextAction || {};
+					if (action.kind !== "gate" || (action.gateId !== "G2" && action.gateId !== "G3")) return;
+					if (busy !== "") return;
+					var signature = (job.artifacts || []).map(function (art) { return art.id + ":" + art.revision; }).join(",");
+					var key = action.gateId + ":" + signature;
+					if (autoQcRef.current[key]) return;
+					autoQcRef.current[key] = true;
+					call("qc.run", { jobId: job.id }).then(function (result) {
+						// 失败保留 key，避免自动重试风暴；用户仍可手动点「运行质检」重试。
+						if (!result) autoQcRef.current[key] = true;
+					});
+				}, [job.id, job.status, job.nextAction && job.nextAction.kind, job.nextAction && job.nextAction.gateId, (job.artifacts || []).map(function (art) { return art.id + ":" + art.revision; }).join(","), busy]);
+				var autoRef = React.useRef({});
+				React.useEffect(function () {
+					var action = job.nextAction || {};
+					if (job.status === "delivered" || job.status === "cancelled" || job.status === "blocked" || action.kind !== "workorder" || !action.workOrderId) return;
+					if (autoRef.current[action.workOrderId]) return;
+					var target = null;
+					(job.workorders || []).forEach(function (wo) { if (wo.id === action.workOrderId) target = wo; });
+					if (target === null || target.status !== "queued") return;
+					autoRef.current[action.workOrderId] = true;
+					startWorkOrder(target);
+				}, [job.id, job.status, job.nextAction && job.nextAction.kind, job.nextAction && job.nextAction.workOrderId]);
+
+				var rail = SP_JOB_STAGES.map(function (stage) {
+					var gate = job.gates[SP_JOB_STAGE_GATE[stage]] || {};
+					var cls = "sp-stage";
+					if (gate.status === "approved" || gate.status === "passed") cls += " sp-stage-done";
+					else if (gate.status === "rejected" || gate.status === "blocked" || (job.status === "blocked" && job.stage === "blocked")) cls += " sp-stage-blocked";
+					else if (job.stage === stage) cls += " sp-stage-active";
+					return React.createElement("span", { className: cls, key: stage }, jobStageText(t, stage));
+				});
+
+				function beginReject(gateId) {
+					setRejecting({ gateId: gateId, note: "" });
+					setErr(""); setMsg("");
+				}
+				function cancelReject() { setRejecting(null); }
+				function updateRejectNote(value) {
+					setRejecting(function (prev) {
+						return prev === null ? null : { gateId: prev.gateId, note: value };
+					});
+				}
+				function appendRejectSuggestion(text) {
+					setRejecting(function (prev) {
+						if (prev === null) return null;
+						var before = String(prev.note || "").trim();
+						return { gateId: prev.gateId, note: (before === "" ? "" : before + "；") + text };
+					});
+				}
+				function dispatchRevision(nextJob, gateId, note) {
+					var isPlan = gateId === "G1";
+					var target = null;
+					var action = nextJob && nextJob.nextAction ? nextJob.nextAction : {};
+					if (action.kind === "workorder" && action.workOrderId) {
+						(nextJob.workorders || []).forEach(function (wo) { if (wo.id === action.workOrderId) target = wo; });
+					}
+					if (target === null) {
+						// 旧宿主兼容：reject 没生成工单时，客户端补一张修改工单，避免流程断在这里。
+						var artifacts = (nextJob.artifacts || []).map(function (art) { return "- " + art.kind + " v" + art.revision + "：" + art.path; }).join("\n");
+						var title = isPlan ? "按 G1 驳回意见修订规划" : "按 " + gateId + " 驳回意见修改";
+						var prompt = [
+							"【流水线工单】用户在 " + gateId + " 驳回了当前交付。",
+							"",
+							"驳回原因 / 修改要求：",
+							note,
+							"",
+							"当前产物：",
+							artifacts === "" ? "（暂无）" : artifacts,
+							"",
+							isPlan
+								? "请按驳回意见修订页面规划/大纲，提交新版本后停下等待用户确认；不要直接生成 PPTX。"
+								: "请基于现有产物按意见修改，不要整份重做；修改后重新生成并登记新 revision（ppts_job action=artifact），再 action=complete。模板任务继续遵守 ppts_contract 与 sp:<role> 标签。",
+						].join("\n");
+						return apiFn("workorders.create", {
+							jobId: nextJob.id,
+							role: isPlan ? "planner" : "builder",
+							stage: isPlan ? "plan" : "build",
+							title: title,
+							prompt: prompt,
+							acceptance: isPlan ? ["规划修订已提交"] : ["按驳回意见修改完成", "新 revision 已登记"],
+						}).then(function (created) {
+							// workorders.create 返回 WorkOrder；兼容少数宿主返回 Job 的情况。
+							var createdWo = created && created.workOrder ? created.workOrder : created;
+							if (createdWo && createdWo.id && createdWo.status === "queued") {
+								autoRef.current[createdWo.id] = true;
+								startWorkOrder(createdWo);
+								return;
+							}
+							var jobNext = created && created.job ? created.job : created;
+							var nextAction = jobNext && jobNext.nextAction ? jobNext.nextAction : {};
+							var createdTarget = null;
+							(jobNext.workorders || []).forEach(function (wo) { if (wo.id === nextAction.workOrderId) createdTarget = wo; });
+							if (createdTarget !== null) {
+								autoRef.current[createdTarget.id] = true;
+								startWorkOrder(createdTarget);
+							}
+						});
+					}
+					if (target.status === "queued") {
+						autoRef.current[target.id] = true;
+						startWorkOrder(target);
+					}
+					return undefined;
+				}
+				function submitReject() {
+					if (rejecting === null) return;
+					var note = String(rejecting.note || "").trim();
+					if (note === "") { setErr(t("jobRejectReasonRequired")); return; }
+					var gateId = rejecting.gateId;
+					call("gates.reject", { jobId: job.id, gateId: gateId, note: note }).then(function (result) {
+						if (!result) return;
+						setRejecting(null); setMsg(t("jobRejectSent"));
+						return dispatchRevision(result, gateId, note);
+					}).catch(function (error) {
+						setErr(t("jobActionFailed") + "：" + String((error && error.message) || error));
+					});
+				}
+				var gateRows = ["G0", "G1", "G2", "G3", "G4", "G5"].map(function (gateId) {
+					var gate = job.gates[gateId] || {};
+					var userGate = gate.kind === "user";
+					var actions = [];
+					if (userGate && gate.status !== "approved") {
+						actions.push(jobBtn(t("jobApprove"), function () { call("gates.approve", { jobId: job.id, gateId: gateId }); }, busy !== ""));
+						actions.push(jobBtn(t("jobReject"), function () { beginReject(gateId); }, busy !== ""));
+					}
+					if (!userGate && (gateId === "G2" || gateId === "G3") && job.status !== "delivered") {
+						actions.push(jobBtn(t("jobRunQc"), function () { call("qc.run", { jobId: job.id }).then(refresh); }, busy !== ""));
+					}
+					var editor = rejecting !== null && rejecting.gateId === gateId
+						? React.createElement("div", { className: "sp-reject-panel" },
+							React.createElement("div", { className: "sp-reject-head" }, t("jobRejectTitle") + " · " + jobGateLabel(t, gateId)),
+							React.createElement("p", { className: "sp-reject-hint" }, t("jobRejectHint")),
+							React.createElement("div", { className: "sp-reject-chips" },
+								["jobRejectChipVisual", "jobRejectChipContent", "jobRejectChipTemplate", "jobRejectChipStructure"].map(function (key) {
+									return React.createElement("button", {
+										type: "button", className: "sp-reject-chip", key: key,
+										onClick: function () { appendRejectSuggestion(t(key)); },
+									}, t(key));
+								}),
+							),
+							React.createElement("textarea", {
+								className: "sp-textarea sp-reject-input", rows: 3,
+								placeholder: t("jobRejectPlaceholder"),
+								value: rejecting.note || "",
+								onChange: function (event) { updateRejectNote(String((event && event.target && event.target.value) || "")); },
+							}),
+							React.createElement("div", { className: "sp-reject-actions" },
+								jobBtn(t("jobRejectCancel"), cancelReject, busy !== ""),
+								React.createElement("button", {
+									type: "button", className: "sp-btn sp-btn-primary sp-reject-submit",
+									disabled: String(rejecting.note || "").trim() === "" || busy !== "",
+									onClick: submitReject,
+								}, t("jobRejectSubmit")),
+							),
+						)
+						: null;
+					var note = gate.note
+						? React.createElement("div", { className: "sp-gate-note" }, t("jobGateNoteLabel") + "：" + String(gate.note))
+						: null;
+					return React.createElement("div", { className: "sp-gate-block", key: gateId },
+						React.createElement("div", { className: "sp-gate-row" },
+							React.createElement("span", { className: "sp-gate-label" }, jobGateLabel(t, gateId)),
+							React.createElement("span", { className: "sp-gate-status sp-gate-status-" + String(gate.status || "pending") }, jobGateText(t, gate.status)),
+							React.createElement("span", { className: "sp-job-meta" }, (gate.checks || []).length + " checks"),
+							React.createElement("span", { className: "sp-job-meta" }, (gate.blockers || []).length + " blockers"),
+							actions,
+						),
+						note,
+						editor,
+					);
+				});
+
+				var workorders = (job.workorders || []).map(function (wo) {
+					var actions = [];
+					if (wo.status === "queued") actions.push(jobBtn(t("jobClaim"), function () { startWorkOrder(wo); }, busy !== ""));
+					if (wo.status === "running") {
+						actions.push(jobBtn(t("jobComplete"), function () { call("workorders.complete", { jobId: job.id, workOrderId: wo.id }); }, busy !== ""));
+						actions.push(jobBtn(t("jobFail"), function () { call("workorders.fail", { jobId: job.id, workOrderId: wo.id, reason: "user" }); }, busy !== ""));
+					}
+					return React.createElement("div", { className: "sp-wo-row", key: wo.id },
+						React.createElement("span", { className: "sp-gate-label" }, String(wo.title || "")),
+						React.createElement("span", { className: "sp-gate-status" }, t("jobWorkorder" + String(wo.status || "queued").charAt(0).toUpperCase() + String(wo.status || "queued").slice(1))),
+						React.createElement("span", { className: "sp-job-meta" }, String(wo.role || "")),
+						actions,
+					);
+				});
+				if (workorders.length === 0) workorders.push(React.createElement("div", { className: "sp-job-meta", key: "empty" }, t("jobNoWorkorders")));
+
+				var contractRows = [];
+				if (contract && Array.isArray(contract.levels)) {
+					contract.levels.forEach(function (level, i) {
+						contractRows.push(React.createElement("div", { className: "sp-job-artifact-row", key: "c" + i },
+							React.createElement("span", { className: "sp-gate-label" }, String(level.level || level.role || "")),
+							React.createElement("span", { className: "sp-job-meta" }, String(level.font || "")),
+							React.createElement("span", { className: "sp-job-meta" }, level.sizePt !== undefined ? level.sizePt + "pt" : ""),
+							React.createElement("span", { className: "sp-gate-status" }, level.enforced ? "strict" : "advisory"),
+						));
+					});
+				}
+				var jobMaterials = (job.materials || []).map(function (mat) {
+					return React.createElement("div", { className: "sp-job-artifact-row", key: mat.id },
+						React.createElement("span", { className: "sp-gate-label" }, String(mat.name || "")),
+						React.createElement("span", { className: "sp-gate-status" }, String(mat.status || "")),
+						React.createElement("span", { className: "sp-job-meta" }, String(mat.size || 0) + " B"),
+					);
+				});
+				var artifacts = (job.artifacts || []).map(function (art) {
+					return React.createElement("div", { className: "sp-job-artifact-row", key: art.id },
+						React.createElement("span", { className: "sp-gate-label" }, String(art.kind || "").toUpperCase()),
+						React.createElement("span", { className: "sp-gate-status" }, String(art.status || "")),
+						React.createElement("span", { className: "sp-job-meta" }, t("jobArtifactRevision", { n: art.revision })),
+						React.createElement("span", { className: "sp-job-meta" }, String(art.path || "")),
+					);
+				});
+				if (artifacts.length === 0) artifacts.push(React.createElement("div", { className: "sp-job-meta", key: "empty" }, t("jobNoArtifacts")));
+
+				var blockers = [];
+				["G0", "G1", "G2", "G3", "G4", "G5"].forEach(function (gateId) {
+					var gate = job.gates[gateId] || {};
+					(gate.blockers || []).forEach(function (item) { blockers.push(item); });
+				});
+
+				var next = job.nextAction || { kind: "none" };
+				var nextText = t("jobNoNext");
+				if (next.kind === "gate") nextText = t("jobNextGate") + " " + (next.gateId || "");
+				else if (next.kind === "workorder") {
+					var found = null;
+					(job.workorders || []).forEach(function (wo) { if (wo.id === next.workOrderId) found = wo; });
+					nextText = t("jobNextWork") + (found ? "：" + found.title : "");
+				} else if (next.kind === "blocked") nextText = t("jobStatusBlocked");
+				else if (job.status === "delivered") nextText = t("jobDeliveredHint");
+
+				return React.createElement("div", { className: "sp-jobs sp-view-job" },
+					React.createElement("div", { className: "sp-job-head" },
+						jobBtn(t("jobBack"), onBack, false),
+						React.createElement("span", { className: "sp-job-title" }, String(job.title || "")),
+						React.createElement("span", { className: "sp-gate-status" }, jobStatusText(t, job.status)),
+						React.createElement("span", { className: "sp-job-meta" }, jobStageText(t, job.stage)),
+						job.model ? React.createElement("span", { className: "sp-job-meta sp-job-model" }, String(job.model.label || (job.model.provider + " · " + job.model.model))) : null,
+						jobBtn(t("jobRefresh"), refresh, busy !== ""),
+					),
+					React.createElement("div", { className: "sp-stage-rail" }, rail),
+					React.createElement("div", { className: "sp-job-next" },
+						React.createElement("span", { className: "sp-job-next-text" }, nextText),
+						busy !== "" ? React.createElement("span", { className: "sp-job-meta" }, busy) : null,
+					),
+					React.createElement("div", { className: "sp-job-section-title" }, t("jobWorkorders")),
+					React.createElement("div", { className: "sp-wo-list" }, workorders),
+					React.createElement("div", { className: "sp-job-section-title" }, t("jobArtifacts")),
+					React.createElement("div", { className: "sp-job-artifact-list" }, artifacts),
+					React.createElement("input", {
+						type: "file", accept: ".pptx,.html", style: { display: "none" }, ref: fileRef,
+						onChange: uploadCorrected,
+					}),
+					jobBtn(t("jobUploadCorrected"), function () { if (fileRef.current) fileRef.current.click(); }, busy !== ""),
+					React.createElement("div", { className: "sp-job-section-title" }, t("jobContract")),
+					builtinTemplate
+						? React.createElement("div", { className: "sp-job-artifact-row" },
+							React.createElement("span", { className: "sp-gate-label" }, String(templateName || templateId || "")),
+							React.createElement("span", { className: "sp-gate-status" }, t("jobTemplateBuiltinBadge")),
+							React.createElement("span", { className: "sp-job-meta" }, t("jobTemplateBuiltinHint")),
+						)
+						: contractRows.length > 0
+							? React.createElement("div", { className: "sp-job-artifact-list" }, contractRows)
+							: templateId
+								? React.createElement("div", { className: "sp-job-meta" }, t("jobTemplateUnavailable") + "：" + String(templateName || templateId))
+								: React.createElement("div", { className: "sp-job-meta" }, t("jobContractEmpty")),
+					React.createElement("div", { className: "sp-job-section-title" }, t("jobGates")),
+					React.createElement("div", { className: "sp-gate-list" }, gateRows),
+					blockers.length > 0 ? React.createElement("div", null,
+						React.createElement("div", { className: "sp-job-section-title" }, t("jobBlockers")),
+						React.createElement("div", { className: "sp-job-artifact-list" }, blockers.slice(0, 20).map(function (item, i) {
+							var data = item && typeof item === "object" ? item : { detail: String(item) };
+							return React.createElement("div", { className: "sp-job-artifact-row", key: "b" + i },
+								React.createElement("span", { className: "sp-job-meta" }, t("jobBlockerPage") + " " + String(data.page ?? "")),
+								React.createElement("span", { className: "sp-gate-label" }, String(data.shape || data.check || "")),
+								React.createElement("span", { className: "sp-job-meta" }, String(data.role || "")),
+								React.createElement("span", { className: "sp-job-meta" }, t("jobBlockerExpected") + " " + String(data.expected ?? "")),
+								React.createElement("span", { className: "sp-gate-status sp-gate-status-rejected" }, t("jobBlockerActual") + " " + String(data.actual ?? "")),
+							);
+						})),
+					) : null,
+					React.createElement("div", { className: "sp-msg-ok", style: { display: msg ? "block" : "none" } }, msg),
+					React.createElement("div", { className: "sp-msg-err", style: { display: err ? "block" : "none" } }, err),
+				);
+			}
+			return Detail;
+		}
+
 		function makePanelsView(t, bridges) {
 			var b = bridges || {};
 			// 数据面优先用 apply 注入的 bridges.api（与模块级 api 同实现；冒烟注 stub）
 			var apiFn = typeof b.api === "function" ? b.api : api;
 
 			function Panels(props) {
-				var viewState = React.useState(SP_VIEW_NEW);
+				var viewState = React.useState(SP_VIEW_JOBS);
 				var view = viewState[0], setView = viewState[1];
 				// 任务列表状态由「最近任务」视图与创建流程共用（创建成功后要立刻出现在列表里）
 				var tasksState = React.useState(null);
@@ -1463,6 +2354,8 @@ window.__ModuleLoader__.load({
 				// 任务详情态（Plan 2b Task 6）：活跃记录 / 打开失败文案 / 强制子视图 / 防重入
 				var activeState = React.useState(null);
 				var active = activeState[0], setActive = activeState[1];
+				var activeJobState = React.useState(null);
+				var activeJob = activeJobState[0], setActiveJob = activeJobState[1];
 				var activeErrState = React.useState("");
 				var activeErr = activeErrState[0], setActiveErr = activeErrState[1];
 				var forcedState = React.useState(null);
@@ -1552,11 +2445,66 @@ window.__ModuleLoader__.load({
 					setActiveErr("");
 				}
 
-				/** 离开详情回最近列表：清活跃态 + 刷新列表，保证轮询中变终态的任务回到列表时是最新状态。 */
+				/** 离开详情回工作区列表：清活跃态 + 刷新列表。 */
 				function backToRecent() {
+					goWorkspace();
+				}
+				function goWorkspace() {
 					leaveTaskView();
-					setView(SP_VIEW_RECENT);
+					setActiveJob(null);
+					setView(SP_VIEW_JOBS);
 					refreshTasks();
+				}
+				function goNew() {
+					leaveTaskView();
+					setActiveJob(null);
+					setView(SP_VIEW_NEW);
+				}
+				function openLegacy(task) {
+					setActiveJob(null);
+					openTask(task);
+				}
+				function deleteLegacy(task) {
+					var name = String(task && task.title || "");
+					var confirmed = true;
+					try {
+						if (typeof window !== "undefined" && typeof window.confirm === "function") {
+							confirmed = window.confirm(String(t("historyDeleteConfirm")).replace("{name}", name));
+						}
+					} catch (error) { confirmed = true; }
+					if (!confirmed) return Promise.resolve(false);
+					return apiFn("tasks.delete", { id: task.id }).then(function () {
+						return true;
+					}).catch(function (error) {
+						setLoadErr(t("historyDeleteFailed") + "：" + String((error && error.message) || error));
+						throw error;
+					});
+				}
+				/** 表单创建 → Job → 立项 G0（用户点「开始制作」即确认 Brief）。 */
+				function startJob(input) {
+					var payload = input || {};
+					return apiFn("jobs.create", {
+						title: payload.title,
+						brief: payload.brief,
+						workspace: payload.workspace,
+						model: payload.model,
+					}).then(function (job) {
+						var materials = Array.isArray(payload.materials) ? payload.materials : [];
+						var uploads = materials.filter(function (item) { return item && item.file; }).map(function (item) {
+							var url = "/super-ppts/jobs/material-upload?jobId=" + encodeURIComponent(job.id)
+								+ "&name=" + encodeURIComponent(String(item.name || "material"));
+							return fetch(url, {
+								method: "POST",
+								headers: { "content-type": "application/octet-stream" },
+								body: item.file,
+							}).then(function (response) { return response.json(); }).catch(function () { return null; });
+						});
+						return Promise.all(uploads).then(function () {
+							return apiFn("gates.approve", { jobId: job.id, gateId: "G0" }).then(function (next) {
+								return { phase: "started", task: next, message: "" };
+							});
+						});
+					});
 				}
 
 				/** 轮询 tick（**被动刷新**）：只换 active/同步列表；落点视图真的变了才清 forcedSub（同视图刷新保留「返回修改大纲」覆盖）。 */
@@ -1576,28 +2524,36 @@ window.__ModuleLoader__.load({
 					return startTaskPolling(active.id, onPollTick, { api: apiFn });
 				}, [view, active && active.id, active && active.status]);
 
-				var tabs = React.createElement("div", { className: "sp-tabs", role: "tablist" },
-					React.createElement("button", {
-						type: "button",
-						className: "sp-tab" + (view === SP_VIEW_NEW ? " sp-tab-active" : ""),
-						onClick: function () { leaveTaskView(); setView(SP_VIEW_NEW); },
-					}, t("newTask")),
-					React.createElement("button", {
-						type: "button",
-						className: "sp-tab" + (view === SP_VIEW_RECENT ? " sp-tab-active" : ""),
-						onClick: function () { leaveTaskView(); setView(SP_VIEW_RECENT); },
-					}, t("recent")),
+				// 单一工作区头：不再有三个平级 tab；新建是主按钮，详情/表单用返回。
+				var workspaceHead = React.createElement("div", { className: "sp-panels-head sp-workspace-head" },
+					React.createElement("div", { className: "sp-workspace-heading" },
+						React.createElement("h2", { className: "sp-panels-title" }, view === SP_VIEW_NEW ? t("jobNewTitle") : t("panelTitle")),
+						React.createElement("p", { className: "sp-workspace-sub" }, view === SP_VIEW_NEW ? t("jobsIntro") : t("workspaceSub")),
+					),
+					React.createElement("div", { className: "sp-workspace-actions" },
+						view === SP_VIEW_NEW || view === SP_VIEW_TASK ? React.createElement("button", { type: "button", className: "sp-btn", onClick: goWorkspace }, t("backToWorkspace")) : null,
+						view === SP_VIEW_JOBS && activeJob === null ? React.createElement("button", { type: "button", className: "sp-btn sp-btn-primary", onClick: goNew }, t("newProduction")) : null,
+					),
 				);
-				// 任务详情态（SP_VIEW_TASK）两个 tab 都不带 sp-tab-active——既有条款，勿破坏。
 
 				var viewProps = { useWorkspaces: props && props.useWorkspaces };
 				var body;
-				if (view === SP_VIEW_RECENT) {
-					body = React.createElement(makeRecentView(t, {
-						tasks: tasks, loadErr: loadErr, refresh: refreshTasks,
-						onOpen: openTask,
-						onNewTask: function () { setView(SP_VIEW_NEW); },
-					}), viewProps);
+				if (view === SP_VIEW_JOBS) {
+					body = activeJob !== null
+						? React.createElement(makeJobDetailView(t, {
+							api: apiFn,
+							sendToSession: b.sendToSession,
+							job: activeJob,
+							onUpdated: function (next) { setActiveJob(next); },
+							onBack: function () { setActiveJob(null); },
+						}), viewProps)
+						: React.createElement(makeJobsView(t, {
+							api: apiFn,
+							onOpen: function (job) { setActiveJob(job); },
+							onOpenLegacy: openLegacy,
+							onDeleteLegacy: deleteLegacy,
+							onNew: goNew,
+						}), viewProps);
 				} else if (view === SP_VIEW_TASK) {
 					if (activeErr && !active) {
 						// 打开失败：错误横幅 + 返回最近（不静默弹回列表，用户要看清失败原因）
@@ -1644,11 +2600,12 @@ window.__ModuleLoader__.load({
 					} else {
 						body = null; // view=task 但既无 active 也无错误（openTask 在途的瞬时态）
 					}
-				} else {
+				} else if (view === SP_VIEW_NEW) {
+					var jobBridges = Object.assign({}, b, { createTask: startJob });
 					body = React.createElement(makeNewTaskView(t, {
-						onCreated: function () { refreshTasks(); setView(SP_VIEW_RECENT); },
+						onCreated: function (job) { setActiveJob(job); setView(SP_VIEW_JOBS); refreshTasks(); },
 						tasks: tasks,
-						bridges: b,
+						bridges: jobBridges,
 					}), viewProps);
 				}
 
@@ -1699,10 +2656,7 @@ window.__ModuleLoader__.load({
 
 				return React.createElement("div", { className: "sp-panels", ref: rootRef },
 					warn,
-					React.createElement("div", { className: "sp-panels-head" },
-						React.createElement("h2", { className: "sp-panels-title" }, t("panelTitle")),
-						tabs,
-					),
+					workspaceHead,
 					hint,
 					body,
 				);
@@ -1951,6 +2905,34 @@ window.__ModuleLoader__.load({
 		 * 绑定 ctx 的 createTaskAndStart，单参调用形状与 { task, phase } 返回语义不变）
 		 * + uploadMaterial（素材原始流式上传）。
 		 */
+		/** 引擎模型目录 → 扁平选项（provider::model）；目录不可用返回空数组（选择器隐藏）。 */
+		function buildModelOptions(catalog) {
+			var groups = catalog && Array.isArray(catalog.groups) ? catalog.groups : [];
+			var out = [];
+			for (var g = 0; g < groups.length; g += 1) {
+				var group = groups[g] || {};
+				var provider = typeof group.id === "string" ? group.id : "";
+				var providerName = typeof group.name === "string" && group.name ? group.name : provider;
+				var models = Array.isArray(group.models) ? group.models : [];
+				for (var m = 0; m < models.length; m += 1) {
+					var model = models[m] || {};
+					var id = typeof model.id === "string" ? model.id : "";
+					if (provider === "" || id === "") continue;
+					out.push({
+						value: provider + "::" + id,
+						provider: provider,
+						model: id,
+						label: providerName + " · " + (typeof model.name === "string" && model.name ? model.name : id),
+					});
+				}
+			}
+			return out;
+		}
+
+		function modelChoiceValue(choice) {
+			return choice && choice.provider && choice.model ? choice.provider + "::" + choice.model : "";
+		}
+
 		function makeNewTaskView(t, options) {
 			var opts = options || {};
 			var bridges = opts.bridges || {};
@@ -1983,6 +2965,11 @@ window.__ModuleLoader__.load({
 				var tplOpen = tplOpenState[0], setTplOpen = tplOpenState[1];
 				var tplDataState = React.useState(null);
 				var tplData = tplDataState[0], setTplData = tplDataState[1];
+				// ── 模型（引擎 modelDirectories 目录；不可用则隐藏选择器）──
+				var modelDataState = React.useState(opts.modelCatalogData || null);
+				var modelData = modelDataState[0], setModelData = modelDataState[1];
+				var modelChoiceState = React.useState(opts.modelChoice || null);
+				var modelChoice = modelChoiceState[0], setModelChoice = modelChoiceState[1];
 				// ── 素材（Task 5：本地登记 + 待上传队列；真实上传在任务落盘后由 Task 6 编排） ──
 				var matState = React.useState([]);
 				var materials = matState[0], setMaterials = matState[1];
@@ -2017,6 +3004,10 @@ window.__ModuleLoader__.load({
 					}).catch(function () { setTplData(null); });
 				}, []);
 				React.useEffect(function () { loadTemplates(); }, [loadTemplates]);
+				React.useEffect(function () {
+					if (typeof bridges.modelCatalog !== "function") return;
+					bridges.modelCatalog().then(function (value) { setModelData(value); }).catch(function () { setModelData(null); });
+				}, []);
 				React.useEffect(function () {
 					if (formatTouched.current) return;
 					var prefs = tplData && tplData.prefs;
@@ -2069,6 +3060,7 @@ window.__ModuleLoader__.load({
 						brief: currentBrief(),
 						workspace: selectedWorkspace(),
 						materials: materials,
+						model: modelChoice,
 					})).then(function (result) {
 						// result: { task, phase: "started" | "waiting-launch", message }
 						if (result && result.phase === "started") {
@@ -2306,6 +3298,29 @@ window.__ModuleLoader__.load({
 						: null,
 				);
 
+				var modelOptions = buildModelOptions(modelData);
+				var modelValue = modelChoiceValue(modelChoice);
+				var modelField = modelOptions.length > 0
+					? React.createElement("div", { className: "sp-field" },
+						React.createElement("label", null, t("modelLabel")),
+						React.createElement("select", {
+							className: "sp-select sp-model-select", value: modelValue,
+							onChange: function (event) {
+								var value = String((event && event.target && event.target.value) || "");
+								var found = null;
+								for (var i = 0; i < modelOptions.length; i += 1) {
+									if (modelOptions[i].value === value) { found = modelOptions[i]; break; }
+								}
+								setModelChoice(found === null ? null : { provider: found.provider, model: found.model, label: found.label });
+							},
+						},
+							React.createElement("option", { value: "" }, t("modelDefault")),
+							modelOptions.map(function (option) {
+								return React.createElement("option", { key: option.value, value: option.value }, option.label);
+							}),
+						),
+					)
+					: null;
 				var startButton = React.createElement("button", {
 					type: "button",
 					className: "sp-btn sp-btn-primary sp-start",
@@ -2313,28 +3328,34 @@ window.__ModuleLoader__.load({
 					onClick: onStart,
 				}, t("startTask"));
 
-				return React.createElement("div", { className: "sp-view-new-task" },
-					React.createElement("h3", { className: "sp-new-title" }, t("newTaskTitle")),
-					React.createElement("p", { className: "sp-hint" }, t("newTaskIntro")),
-					React.createElement("div", { className: "sp-field" },
-						React.createElement("label", null, t("topicLabel")),
-						React.createElement("textarea", {
-							className: "sp-textarea sp-topic-input", rows: 3,
-							placeholder: t("topicPlaceholder"), value: topicDraft,
-							onChange: function (event) { setTopicDraft(event.target.value); },
-						}),
+				return React.createElement("div", { className: "sp-view-new-task sp-create" },
+					React.createElement("div", { className: "sp-create-main" },
+						React.createElement("div", { className: "sp-field" },
+							React.createElement("label", null, t("topicLabel")),
+							React.createElement("textarea", {
+								className: "sp-textarea sp-topic-input", rows: 4,
+								placeholder: t("topicPlaceholder"), value: topicDraft,
+								onChange: function (event) { setTopicDraft(event.target.value); },
+							}),
+						),
+						React.createElement("div", { className: "sp-quick-row" }, quickChips),
+						React.createElement("div", { className: "sp-formats" }, formatCards),
+						React.createElement("div", { className: "sp-create-grid" }, wsField, tplRow, modelField),
+						tplPicker,
+						advancedToggle,
+						advancedBody,
+						materialsBlock,
 					),
-					React.createElement("div", { className: "sp-quick-row" }, quickChips),
-					React.createElement("div", { className: "sp-formats" }, formatCards),
-					wsField,
-					tplRow,
-					tplPicker,
-					advancedToggle,
-					advancedBody,
-					summary,
-					materialsBlock,
-					React.createElement("div", { className: "sp-actions" }, startButton),
-					msg ? React.createElement("p", { className: "sp-state" }, msg) : null,
+					React.createElement("aside", { className: "sp-create-side" },
+						React.createElement("div", { className: "sp-create-card" },
+							summary,
+							modelChoice
+								? React.createElement("p", { className: "sp-create-model" }, t("modelLabel") + "：" + String(modelChoice.label || (modelChoice.provider + " · " + modelChoice.model)))
+								: null,
+							startButton,
+							msg ? React.createElement("p", { className: "sp-state" }, msg) : null,
+						),
+					),
 				);
 			}
 			return NewTaskView;
@@ -2868,24 +3889,63 @@ window.__ModuleLoader__.load({
 					? String(t("progressStageLine")).replace("{i}", String(Number(stage.index))).replace("{n}", String(Number(stage.total) || 0)).replace("{label}", stageLabel)
 					: t("waitingStage");
 
+				var completedSteps = 0;
+				steps.forEach(function (step) { if (step.state === "done") completedSteps += 1; });
+				var stageIndex = stage && Number(stage.index) > 0 ? Number(stage.index) : 0;
+				var percentBase = stage && Number(stage.total) > 0 ? Number(stage.total) : steps.length;
+				var percent = percentBase > 0 ? Math.min(100, Math.max(0, Math.round((stageIndex / percentBase) * 100))) : 0;
+				var formatLabel = task && task.format ? String(task.format).toUpperCase() : "";
 				var head = React.createElement("div", { className: "sp-progress-head" },
 					React.createElement("button", { type: "button", className: "sp-back", onClick: function () { onBack(); } }, t("backToRecent")),
-					React.createElement("span", { className: "sp-task-title" }, String((task && task.title) || "")),
-					React.createElement("span", { className: "sp-task-status" }, statusText(status)),
+					React.createElement("div", { className: "sp-progress-title-block" },
+						React.createElement("div", { className: "sp-progress-title-row" },
+							React.createElement("span", { className: "sp-task-title" }, String((task && task.title) || "")),
+							React.createElement("span", { className: "sp-task-status sp-progress-status-" + status }, statusText(status)),
+						),
+						React.createElement("div", { className: "sp-progress-meta" },
+							formatLabel ? React.createElement("span", null, formatLabel) : null,
+							stageLabel ? React.createElement("span", null, stageLabel) : null,
+						),
+					),
 				);
-				var children = [
-					head,
-					React.createElement("div", { className: "sp-progress-line" }, line),
+				var hero = React.createElement("div", { className: "sp-progress-hero" },
+					React.createElement("div", { className: "sp-progress-hero-top" },
+						React.createElement("div", null,
+							React.createElement("div", { className: "sp-progress-kicker" }, t("progressCurrentStage")),
+							React.createElement("div", { className: "sp-progress-line" }, line),
+						),
+						React.createElement("span", { className: "sp-progress-percent" }, String(percent) + "%"),
+					),
+					React.createElement("div", { className: "sp-progress-bar" }, React.createElement("span", { style: { width: String(percent) + "%" } })),
+					stage && stage.detail ? React.createElement("div", { className: "sp-progress-detail" }, String(stage.detail)) : null,
+				);
+				var stepsSection = React.createElement("div", { className: "sp-progress-section" },
+					React.createElement("div", { className: "sp-progress-section-head" },
+						React.createElement("span", { className: "sp-progress-section-title" }, t("progressStages")),
+						React.createElement("span", null, String(completedSteps) + " / " + String(steps.length)),
+					),
 					React.createElement("div", { className: "sp-steps" }, steps.map(function (step, i) {
 						return React.createElement("div", { className: "sp-step sp-step-" + step.state, key: step.key },
 							React.createElement("span", { className: "sp-step-idx" }, String(i + 1)),
 							React.createElement("span", null, t(step.key)));
 					})),
-					stage && stage.detail ? React.createElement("div", { className: "sp-progress-detail" }, String(stage.detail)) : null,
+				);
+				var eventsSection = React.createElement("div", { className: "sp-progress-section" },
+					React.createElement("div", { className: "sp-progress-section-head" },
+						React.createElement("span", { className: "sp-progress-section-title" }, t("progressActivity")),
+						React.createElement("span", null, t("progressLatest")),
+					),
 					React.createElement("div", { className: "sp-progress-events" }, events.map(function (event, i) {
-						return React.createElement("div", { className: "sp-event", key: String(i) }, formatDate(event && event.at) + " · " + String((event && event.text) || ""));
+						return React.createElement("div", { className: "sp-event", key: String(i) },
+							React.createElement("span", { className: "sp-ev-dot" }),
+							React.createElement("div", { className: "sp-ev-body" },
+								React.createElement("div", { className: "sp-ev-text" }, String((event && event.text) || "")),
+								React.createElement("div", { className: "sp-ev-time" }, formatDate(event && event.at)),
+							),
+						);
 					})),
-				];
+				);
+				var children = [head, hero, stepsSection, eventsSection];
 				if (status === "waiting-launch") {
 					children.push(React.createElement("div", { className: "sp-launch-recovery" },
 						React.createElement("span", null, t("launchRecovery")),
@@ -2913,14 +3973,11 @@ window.__ModuleLoader__.load({
 						React.createElement("button", { type: "button", className: "sp-fail-back-outline", disabled: busy !== "", onClick: function () { onBackToOutline(); } }, t("failBackOutline")),
 					));
 				}
-				if (cancelable) {
-					children.push(React.createElement("button", { type: "button", className: "sp-cancel", disabled: busy !== "", onClick: function () { return requestCancel(); } }, t("cancelTask")));
-				}
-				if (status === "cancelled") {
-					children.push(React.createElement("div", { className: "sp-terminal-note" }, t("terminalNote")));
-				}
-				children.push(React.createElement("button", { type: "button", className: "sp-open-session", onClick: function () { openSession(); } }, t("openSession")));
-				children.push(React.createElement("div", { className: "sp-msg-ok", style: { display: notice ? "block" : "none" } }, notice));
+				var actions = [];
+				if (cancelable) actions.push(React.createElement("button", { type: "button", className: "sp-cancel", disabled: busy !== "", onClick: function () { return requestCancel(); } }, t("cancelTask")));
+				actions.push(React.createElement("button", { type: "button", className: "sp-open-session", onClick: function () { openSession(); } }, t("openSession")));
+				children.push(React.createElement("div", { className: "sp-progress-actions" }, actions));
+				if (status === "cancelled") children.push(React.createElement("div", { className: "sp-terminal-note" }, t("terminalNote")));
 				children.push(React.createElement("div", { className: "sp-msg-err", style: { display: error ? "block" : "none" } }, error));
 				return React.createElement("div", { className: "sp-view-progress" }, children);
 			}
@@ -3856,6 +4913,44 @@ window.__ModuleLoader__.load({
 			var t = ctx.locale && typeof ctx.locale.bind === "function"
 				? ctx.locale.bind(NS)
 				: function (key, params) { return fill(zh[key] || en[key] || key, params); };
+			// 可选模型目录（client-ui-model-selection 提供）；旧宿主/DSH 缺失时选择器隐藏。
+			var modelService = null;
+			var modelServicePromise = null;
+			var modelServiceResolve = null;
+			try {
+				modelServicePromise = new Promise(function (resolve) { modelServiceResolve = resolve; });
+			} catch (promiseError) { modelServicePromise = null; modelServiceResolve = null; }
+			function adoptModelService(service) {
+				if (modelService === null && service && typeof service.directoryFor === "function") {
+					modelService = service;
+					if (typeof modelServiceResolve === "function") modelServiceResolve(service);
+				}
+			}
+			try { adoptModelService(typeof ctx.get === "function" ? ctx.get("modelDirectories") : null); } catch (modelError) { /* 无服务 */ }
+			// 可选注入：宿主有 modelDirectories 时补上；缺失不阻塞插件（旧宿主/DSH 仍可用）。
+			if (modelService === null && typeof ctx.inject === "function") {
+				try {
+					ctx.inject(["modelDirectories"], function (scope) {
+						adoptModelService(scope && scope.modelDirectories ? scope.modelDirectories : null);
+					});
+				} catch (injectError) { /* 服务不可用：选择器隐藏 */ }
+			}
+			function readModelCatalog() {
+				try {
+					if (!modelService || !modelService.catalog) return null;
+					return Promise.resolve(modelService.catalog.load()).then(function () {
+						var snapshot = modelService.catalog.store.getSnapshot();
+						return snapshot && snapshot.status === "ready" ? snapshot.value : null;
+					}).catch(function () { return null; });
+				} catch (catalogError) { return null; }
+			}
+			function modelCatalogList() {
+				if (modelService !== null) return Promise.resolve(readModelCatalog());
+				if (modelServicePromise !== null && typeof modelServicePromise.then === "function") {
+					return modelServicePromise.then(function () { return readModelCatalog(); });
+				}
+				return Promise.resolve(null);
+			}
 
 			// 设置页导航图标：宿主壳层对外部分区只给通用齿轮，标记本插件行
 			// 后由 CSS 换成幕布字形。防御式：无 effect 服务时跳过，不影响其余功能。
@@ -3920,6 +5015,7 @@ window.__ModuleLoader__.load({
 						key: PANEL_ID,
 					}, makePanelsView(t, {
 						api: api,
+						modelCatalog: modelCatalogList,
 						// Task 6：视图层调用形状仍是 bridges.createTask(input)（单参），
 						// 注入的是绑定 apply ctx 的完整编排 createTaskAndStart——
 						// 落盘 → 素材上传 → 会话桥 v4 提交 → 状态推进，phase 可为 "started"。
@@ -3927,7 +5023,18 @@ window.__ModuleLoader__.load({
 						uploadMaterial: uploadMaterial,
 						// Plan 2b Task 6：会话消息桥——三个详情视图（大纲修改/继续生成/
 						// 补充信息/继续修改/重新生成）的指令统一经 sendToChatV4(ctx, …) 投递。
-						sendToSession: function (text, workspaceId) { return sendToChatV4(ctx, text, workspaceId); },
+						sendToSession: function (text, workspaceId, model) {
+							var ready = Promise.resolve();
+							if (model && modelService === null && modelServicePromise !== null) {
+								ready = Promise.race([
+									modelServicePromise,
+									new Promise(function (resolve) { setTimeout(resolve, 800); }),
+								]);
+							}
+							return ready.then(function () {
+								return sendToChatV4(ctx, text, workspaceId, model, modelService);
+							});
+						},
 						// Plan 2b Task 6：打开 Agent 会话（进度视图 sp-open-session）——
 						// 先跳任务工作区的会话落点（可达性防御），再切回对话视图。
 						openSession: function (workspaceId) {
@@ -3949,9 +5056,14 @@ window.__ModuleLoader__.load({
 		// 测试钩子：冒烟脚本无 DOM，靠直接渲染子组件做结构断言（仅测试使用，无运行时副作用）
 		exports.__testHooks = {
 			MakePanelsView: makePanelsView,
+			MakeJobsView: makeJobsView,
+			MakeJobDetailView: makeJobDetailView,
+			makeJobsView: makeJobsView,
+			makeJobDetailView: makeJobDetailView,
 			viewForStatus: viewForStatus,
 			statusGroupOf: statusGroupOf,
 			SP_VIEW_NEW: SP_VIEW_NEW,
+			SP_VIEW_JOBS: SP_VIEW_JOBS,
 			SP_VIEW_TASK: SP_VIEW_TASK,
 			isPollingStatus: isPollingStatus,
 			startTaskPolling: startTaskPolling,

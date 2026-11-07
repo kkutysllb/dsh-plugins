@@ -35,14 +35,14 @@ import { join } from 'node:path';
 import { packageRoot } from './paths.js';
 import { DSH_HOME } from './templates.js';
 import { registerPptsRoutes } from './routes.js';
-import { pptsCheckTool, pptsRenderTool, pptsTaskTool, pptsTemplatesTool } from './tools.js';
+import { pptsCheckTool, pptsContractTool, pptsJobTool, pptsRenderTool, pptsTaskTool, pptsTemplatesTool } from './tools.js';
 export { packageRoot };
 /** Stable Cordis plugin name. */
 export const name = 'dsh-super-ppts';
 /** apply 内访问的 ctx 服务（漏声明即抛 without inject）。 */
 export const inject = ['systemPrompt', 'tools', 'webServer'];
 const SECTION_ORDER = 206;
-export const SUPER_PPTS_GUIDANCE = `本机已安装 dsh-super-ppts 插件（演示文稿超级插件）。三交付线：1) PPTX 可编辑交付——设计流程编排（需求确认→页面结构→视觉方向锁定→生成→结构机检→PPTX→PDF→PNG 渲染验收→返工），引擎为 pptx-designer Python 库（用 ppts_check 工具自检环境）；2) HTML 在线演示交付——8 种形态（翻页演示 slide-deck、流程图 flowchart、协议可视化 protocol-viz、架构图动画 arch-diagram、卡片剧场 card-theater、学霸笔记 scholar-notes、视频分镜 video-shots、手机 UI 演示 phone-ui），单文件 HTML 直接浏览器打开；3) 参考图重建交付——用户给截图/参考图要求「复刻/还原为可编辑 PPT」时，按技能线 super-ppts-rebuild 的元素盘点→原生重建→逐元素对账流程执行。用户提到「做PPT / 演示文稿 / 幻灯片 / 汇报 / 演示动画 / 翻页 HTML / 复刻这张图」时：先确认交付线（可编辑 PPTX / HTML 演示 / 参考图重建），再按插件包根 skills/ 对应技能线的工作流执行（包根见本通告所属插件的安装位置，不要猜测路径）。模板能力：内置模板（source=builtin，随插件版本提供）与用户上传模板（设置页「演示文稿」维护，source=user）都经 ppts_templates 查询；凡用户要求「按模板 X 制作 / 用我的模板」，或 Brief 涉及模板：先调 ppts_templates 拿模板信息与偏好，再按技能线 VI Build 模板化路径生成（先跑技能线的 template_thumbnails 逐页看版式再选）；action=history 返回生成画像（常用形态/模板/风格、大纲返工率），Brief 确认时可作默认值提案——历史偏好让位于用户当下要求。任务状态桥：若用户消息或 Brief 中出现「任务 ID：<id>」（由侧边栏「演示文稿」工作台创建的任务），必须用 ppts_task 上报进度——action=stage 上报阶段，action=outline 提交页面大纲（{title,purpose,bullets,pageType}[]）后**立即停止**，等待用户在工作台确认大纲；收到「大纲已确认」消息后再继续生成，并用 ppts_task get 核对 confirmedOutlineVersion；完成后用 action=artifact 登记产物路径（PPTX 与 PDF 副本各登记一条），产物登记后用 done 动作将任务标记为 completed；缺信息用 needs-input，失败用 fail。`;
+export const SUPER_PPTS_GUIDANCE = `本机已安装 dsh-super-ppts 插件（演示文稿超级插件）。三交付线：1) PPTX 可编辑交付——设计流程编排（需求确认→页面结构→视觉方向锁定→生成→结构机检→PPTX→PDF→PNG 渲染验收→返工），引擎为 pptx-designer Python 库（用 ppts_check 工具自检环境）；2) HTML 在线演示交付——8 种形态（翻页演示 slide-deck、流程图 flowchart、协议可视化 protocol-viz、架构图动画 arch-diagram、卡片剧场 card-theater、学霸笔记 scholar-notes、视频分镜 video-shots、手机 UI 演示 phone-ui），单文件 HTML 直接浏览器打开；3) 参考图重建交付——用户给截图/参考图要求「复刻/还原为可编辑 PPT」时，按技能线 super-ppts-rebuild 的元素盘点→原生重建→逐元素对账流程执行。用户提到「做PPT / 演示文稿 / 幻灯片 / 汇报 / 演示动画 / 翻页 HTML / 复刻这张图」时：先确认交付线（可编辑 PPTX / HTML 演示 / 参考图重建），再按插件包根 skills/ 对应技能线的工作流执行（包根见本通告所属插件的安装位置，不要猜测路径）。模板能力：内置模板（source=builtin，随插件版本提供）与用户上传模板（设置页「演示文稿」维护，source=user）都经 ppts_templates 查询；模板任务在生成前必须先用 ppts_contract（action=ensure/get）读取模板排版契约，按 levelRules 的 role/字体/字号生成，并给每个文本 shape 打 sp:<role> 标签；契约 missing/ambiguous 时停下让用户补规范，不得按默认排版继续；凡用户要求「按模板 X 制作 / 用我的模板」，或 Brief 涉及模板：先调 ppts_templates 拿模板信息与偏好，再按技能线 VI Build 模板化路径生成（先跑技能线的 template_thumbnails 逐页看版式再选）；action=history 返回生成画像（常用形态/模板/风格、大纲返工率），Brief 确认时可作默认值提案——历史偏好让位于用户当下要求。流水线任务：若消息以「【流水线工单】」开头，用 ppts_job 认领/完成工单（action=claim/complete/fail，产物用 artifact 登记），机器闸门由宿主脚本判定；不要自行宣称已通过。任务状态桥：若用户消息或 Brief 中出现「任务 ID：<id>」（由侧边栏「演示文稿」工作台创建的任务），必须用 ppts_task 上报进度——action=stage 上报阶段，action=outline 提交页面大纲（{title,purpose,bullets,pageType}[]）后**立即停止**，等待用户在工作台确认大纲；收到「大纲已确认」消息后再继续生成，并用 ppts_task get 核对 confirmedOutlineVersion；完成后用 action=artifact 登记产物路径（PPTX 与 PDF 副本各登记一条），产物登记后用 done 申请完成（completed）；模板任务宿主会先跑结构/排版/模板一致性三道门，返回 ok:false + code=qc-blocked 时按 blockers 修生成脚本后重试，不得绕过；缺信息用 needs-input，失败用 fail。`;
 /**
  * 旧预设候选位（去重）：历史版本写死 ~/.dsh/.agent-presets/super-ppts；
  * 同一段历史代码在宿主 home 部署下实际落位 <宿主 home>/.agent-presets/super-ppts。
@@ -83,6 +83,8 @@ export function apply(ctx, config = {}) {
         disposers.push(ctx.tools.register(pptsCheckTool));
         disposers.push(ctx.tools.register(pptsRenderTool));
         disposers.push(ctx.tools.register(pptsTemplatesTool));
+        disposers.push(ctx.tools.register(pptsContractTool));
+        disposers.push(ctx.tools.register(pptsJobTool));
         disposers.push(ctx.tools.register(pptsTaskTool));
     }
     // 设置页通道：模板上传 + JSON 操作面（存储 ~/.dsh/super-ppts/）。

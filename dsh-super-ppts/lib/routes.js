@@ -1,7 +1,11 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, renameSync, statSync } from 'node:fs';
+import { basename, dirname, join } from 'node:path';
 import { packageRoot } from './paths.js';
 import { BUILTIN_TEMPLATES } from './builtin-templates.js';
+import { contractFile, ensureContract } from './contracts.js';
+import { findUserTemplate } from './tools.js';
+import { runJobQc } from './job-qc.js';
+import { JobStoreError, addJobArtifact, addJobMaterial, approveGate, cancelWorkOrder, claimWorkOrder, completeWorkOrder, createJob, createWorkOrder, failWorkOrder, jobDir, listJobs, listWorkOrders, loadJob, recordGateChecks, rejectGate, requireJob, } from './jobs.js';
 import { TemplateStoreError, addTemplate, deleteTemplate, loadRegistry, renameTemplate, setDefaultTemplate, thumbFileFor, updatePrefs, writeUploadTemp, } from './templates.js';
 import { TASK_STATUSES, TaskStoreError, confirmOutline, createTask, deleteTask, listTasks, loadTask, removeMaterial, saveOutline, setMaterialStatus, updateTask, writeMaterial, } from './tasks.js';
 /** wire 层可预期失败。 */
@@ -157,6 +161,11 @@ function writeError(res, error) {
         writeJson(res, status, { ok: false, error: { code: error.code, message: error.message } });
         return;
     }
+    if (error instanceof JobStoreError) {
+        const status = error.code === 'not-found' ? 404 : error.code === 'conflict' ? 409 : error.code === 'fs-error' ? 500 : 400;
+        writeJson(res, status, { ok: false, error: { code: error.code, message: error.message } });
+        return;
+    }
     // 未知异常不回传 message（可能含绝对路径等内部细节）：详情只进 host 日志
     console.error('[dsh-super-ppts] internal error:', error);
     writeJson(res, 500, { ok: false, error: { code: 'internal', message: 'internal error' } });
@@ -298,6 +307,78 @@ export function buildPptsApiHandlers() {
             }
             return setMaterialStatus(requireString(payload, 'id'), requireString(payload, 'materialId'), status, optionalString(payload, 'error'));
         },
+        /* ── Job 流水线：jobs / workorders / gates / artifacts ── */
+        'jobs.list': () => ({ jobs: listJobs() }),
+        'jobs.get': (payload) => {
+            const id = requireString(payload, 'id');
+            const job = loadJob(id);
+            if (job === null)
+                throw new PptsRouteError('not-found', `Job 不存在：${id}`, 404);
+            return job;
+        },
+        'jobs.create': (payload) => {
+            const record = payload;
+            const brief = record?.brief;
+            if (brief === null || typeof brief !== 'object')
+                throw new PptsRouteError('bad-request', 'missing or invalid "brief"');
+            const workspace = record?.workspace;
+            if (workspace !== undefined && (workspace === null || typeof workspace !== 'object')) {
+                throw new PptsRouteError('bad-request', 'invalid "workspace"');
+            }
+            const model = record?.model;
+            if (model !== undefined && (model === null || typeof model !== 'object')) {
+                throw new PptsRouteError('bad-request', 'invalid "model"');
+            }
+            return createJob({
+                title: requireString(payload, 'title'),
+                brief: brief,
+                workspace: (workspace ?? {}),
+                model: model,
+                sessionId: optionalString(payload, 'sessionId'),
+            });
+        },
+        'workorders.list': (payload) => ({ workorders: listWorkOrders(requireString(payload, 'jobId')) }),
+        'workorders.create': (payload) => {
+            const record = payload;
+            return createWorkOrder(requireString(payload, 'jobId'), {
+                role: requireString(record, 'role'),
+                stage: requireString(record, 'stage'),
+                title: requireString(record, 'title'),
+                prompt: requireString(record, 'prompt'),
+                acceptance: Array.isArray(record?.acceptance) ? record.acceptance.map(String) : [],
+                dependsOn: Array.isArray(record?.dependsOn) ? record.dependsOn.map(String) : [],
+            });
+        },
+        'workorders.claim': (payload) => claimWorkOrder(requireString(payload, 'jobId'), requireString(payload, 'workOrderId'), optionalString(payload, 'sessionId')),
+        'workorders.complete': (payload) => {
+            const record = payload;
+            return completeWorkOrder(requireString(payload, 'jobId'), requireString(payload, 'workOrderId'), record?.result);
+        },
+        'workorders.fail': (payload) => failWorkOrder(requireString(payload, 'jobId'), requireString(payload, 'workOrderId'), requireString(payload, 'reason')),
+        'workorders.cancel': (payload) => cancelWorkOrder(requireString(payload, 'jobId'), requireString(payload, 'workOrderId')),
+        'gates.record': (payload) => {
+            const record = payload;
+            if (!Array.isArray(record?.checks))
+                throw new PptsRouteError('bad-request', 'missing "checks"');
+            return recordGateChecks(requireString(payload, 'jobId'), requireString(payload, 'gateId'), record.checks, Array.isArray(record?.blockers) ? record.blockers : []);
+        },
+        'gates.approve': (payload) => approveGate(requireString(payload, 'jobId'), requireString(payload, 'gateId'), optionalString(payload, 'actor') ?? 'user', optionalString(payload, 'note')),
+        'gates.reject': (payload) => rejectGate(requireString(payload, 'jobId'), requireString(payload, 'gateId'), optionalString(payload, 'note')),
+        'artifacts.list': (payload) => ({ artifacts: requireJob(requireString(payload, 'jobId')).artifacts }),
+        'artifacts.add': (payload) => addJobArtifact(requireString(payload, 'jobId'), {
+            kind: requireString(payload, 'kind'),
+            path: requireString(payload, 'path'),
+            producedBy: optionalString(payload, 'producedBy') ?? 'builder',
+        }),
+        'qc.run': (payload) => runJobQc(requireString(payload, 'jobId')),
+        'contracts.get': async (payload) => {
+            const key = requireString(payload, 'id');
+            const record = findUserTemplate(key);
+            if (record === null)
+                throw new PptsRouteError('not-found', `模板不存在：${key}`, 404);
+            const contract = await ensureContract(record);
+            return { contract, contractPath: contractFile(record.id) };
+        },
     };
 }
 /** 注册 /super-ppts 路由（api + upload）；返回组合 disposer 由 effect 回收。 */
@@ -366,13 +447,88 @@ export function registerPptsRoutes(ctx, options) {
                 const name = url.searchParams.get('name') ?? '';
                 const description = url.searchParams.get('description') ?? '';
                 const tmp = await writeUploadTemp(req, options.uploadLimitBytes);
-                writeOk(res, await addTemplate(name, description, tmp));
+                const record = await addTemplate(name, description, tmp);
+                writeOk(res, record);
+                // 上传成功后异步物化模板契约（best-effort；不阻断上传响应）
+                void ensureContract(record).catch(() => { });
             }
             catch (error) {
                 writeError(res, error);
             }
         },
     }), 'dsh-super-ppts: /super-ppts/upload route'));
+    // 人工纠正版上传：POST /super-ppts/jobs/artifact-upload?jobId=&kind=pptx|html
+    // 只收原始流 + Origin 围栏 + 大小上限；落 Job 目录新 revision，由 artifacts.add 同一语义登记。
+    disposers.push(ctx.effect(() => ctx.webServer.register({
+        kind: 'exact',
+        path: '/super-ppts/jobs/artifact-upload',
+        handler: async (req, res) => {
+            if (!fenceRequest(req, trustedHosts)) {
+                writeForbidden(res);
+                return;
+            }
+            if (req.method !== 'POST') {
+                writeJson(res, 405, { ok: false, error: { code: 'method-error', message: 'method not allowed' } });
+                return;
+            }
+            if (!originAllowed(req, trustedHosts)) {
+                writeForbidden(res);
+                return;
+            }
+            try {
+                const url = new URL(req.url ?? '/', 'http://dsh.internal');
+                const jobId = url.searchParams.get('jobId') ?? '';
+                const kind = url.searchParams.get('kind') ?? '';
+                if (kind !== 'pptx' && kind !== 'html')
+                    throw new PptsRouteError('bad-request', 'kind 只支持 pptx / html');
+                const job = requireJob(jobId);
+                const ext = kind === 'pptx' ? 'pptx' : 'html';
+                const revision = job.artifacts.filter(item => item.kind === kind).length + 1;
+                const dest = join(jobDir(job.id), 'artifacts', `${kind}-r${String(revision)}.${ext}`);
+                const tmp = await writeUploadTemp(req, options.uploadLimitBytes);
+                mkdirSync(dirname(dest), { recursive: true });
+                renameSync(tmp, dest);
+                const next = addJobArtifact(job.id, { kind, path: dest, producedBy: 'user' });
+                writeOk(res, next);
+            }
+            catch (error) {
+                writeError(res, error);
+            }
+        },
+    }), 'dsh-super-ppts: /super-ppts/jobs/artifact-upload route'));
+    // 流水线素材上传：POST /super-ppts/jobs/material-upload?jobId=&name=
+    disposers.push(ctx.effect(() => ctx.webServer.register({
+        kind: 'exact',
+        path: '/super-ppts/jobs/material-upload',
+        handler: async (req, res) => {
+            if (!fenceRequest(req, trustedHosts)) {
+                writeForbidden(res);
+                return;
+            }
+            if (req.method !== 'POST') {
+                writeJson(res, 405, { ok: false, error: { code: 'method-error', message: 'method not allowed' } });
+                return;
+            }
+            if (!originAllowed(req, trustedHosts)) {
+                writeForbidden(res);
+                return;
+            }
+            try {
+                const url = new URL(req.url ?? '/', 'http://dsh.internal');
+                const job = requireJob(url.searchParams.get('jobId') ?? '');
+                const rawName = url.searchParams.get('name') ?? 'material';
+                const name = (basename(rawName).trim().slice(0, 120) || 'material');
+                const dest = join(jobDir(job.id), 'materials', String(Date.now()) + '-' + name);
+                const tmp = await writeUploadTemp(req, options.uploadLimitBytes);
+                mkdirSync(dirname(dest), { recursive: true });
+                renameSync(tmp, dest);
+                writeOk(res, addJobMaterial(job.id, { name, size: statSync(dest).size, path: dest, status: 'ready' }));
+            }
+            catch (error) {
+                writeError(res, error);
+            }
+        },
+    }), 'dsh-super-ppts: /super-ppts/jobs/material-upload route'));
     // 模板缩略图：GET /super-ppts/templates/thumb/<id>（上传时生成的 <id>.thumb.*）。
     // 同款信任围栏；id 白名单（newTemplateId 形态 [a-z0-9]+）防路径穿越；
     // 图片不可变（id 不复用）→ 私有长缓存。

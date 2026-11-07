@@ -1,14 +1,11 @@
 import { packageRoot } from './paths.js';
-import { type PptsPrefs } from './templates.js';
+import { type PptsPrefs, type TemplateRecord } from './templates.js';
 import { type BuiltinTemplate } from './builtin-templates.js';
-import { type OutlinePage, type TaskHistoryInsights, type TaskStatus } from './tasks.js';
+import { type QcRunDeps } from './qc.js';
+import { type TemplateContract } from './contracts.js';
+import { type TaskRecord, type OutlinePage, type TaskHistoryInsights, type TaskStatus } from './tasks.js';
 export { packageRoot };
-interface PythonCandidate {
-    cmd: string;
-    args: readonly string[];
-}
-/** 依次探测候选 Python（py -3 → python3 → python），返回第一个可执行者。 */
-export declare function findPython(): Promise<PythonCandidate | null>;
+export { findPython } from './python.js';
 export interface PptsCheckResult {
     ok: boolean;
     message: string;
@@ -63,7 +60,15 @@ interface TemplateToolEntry {
     isDefault: boolean;
     /** 逐条硬性约束（模板描述 + 全局风格备注分句）；空数组 = 未声明任何约束。 */
     constraints: string[];
+    /** 模板排版契约状态；none = 尚未解析。 */
+    contract: {
+        status: TemplateContract['status'] | 'none';
+        path: string | null;
+        hash: string | null;
+    };
 }
+/** 按 id 或名称查用户模板（大小写不敏感；供 detail / ppts_contract 共用）。 */
+export declare function findUserTemplate(key: string): TemplateRecord | null;
 /** 模板库查询：list 返回全部模板 + 生成偏好 + 内置模板；detail 按 id/名称取单条；history 返回生成画像。 */
 export declare function runTemplates(params?: PptsTemplatesParams): {
     ok: true;
@@ -81,6 +86,14 @@ export declare function runTemplates(params?: PptsTemplatesParams): {
     message: string;
 };
 export declare const pptsTemplatesTool: DshToolDefinition;
+export interface PptsContractParams {
+    /** get=读取（无缓存时物化）；ensure=强制物化；status=只看状态。 */
+    action?: 'get' | 'ensure' | 'status';
+    /** 模板 id 或名称（精确，不区分大小写）。 */
+    id: string;
+}
+/** 模板契约的 agent 侧读取面：生成前拿结构化层级规则，而不是只看模板名。 */
+export declare const pptsContractTool: DshToolDefinition;
 export interface PptsTaskParams {
     action: 'stage' | 'outline' | 'artifact' | 'material' | 'needs-input' | 'fail' | 'done' | 'get';
     /** 任务 id（由工作台创建任务时写入 Brief 的「任务 ID」）。 */
@@ -116,7 +129,47 @@ export interface PptsTaskResult {
     /** action=material：被更新的素材 id 与其新状态（回执，便于 Agent 核对）。 */
     materialId?: string;
     materialStatus?: 'ready' | 'error';
+    /** done 门失败时的稳定错误码。 */
+    code?: string;
+    /** done 门失败时的结构化阻断项（page/shape/role/check/expected/actual）。 */
+    blockers?: unknown[];
+    /** 本次门生成的报告路径。 */
+    reports?: string[];
 }
 /** 任务状态桥：Agent 上报阶段/大纲/产物/补充/失败，或读取当前确认状态。 */
 export declare function runTask(params: PptsTaskParams): PptsTaskResult;
+export interface TemplateGateDeps extends QcRunDeps {
+    findTemplate?: (id: string) => TemplateRecord | null;
+    ensureContract?: (record: TemplateRecord) => Promise<TemplateContract>;
+    /** 证据目录；缺省 <taskDir>/qc。 */
+    qcDir?: string;
+}
+export type TemplateGateResult = {
+    ok: true;
+    skipped: boolean;
+    reports: string[];
+} | {
+    ok: false;
+    code: 'contract-missing' | 'no-artifact' | 'invalid-artifact' | 'qc-error' | 'qc-blocked';
+    message: string;
+    blockers: unknown[];
+    reports: string[];
+};
+/**
+ * 对模板任务跑结构 → 排版 → 模板一致性三道机器门。
+ * 未使用用户模板 / builtin 模板 → skipped；其余状态一律显式失败，不静默放行。
+ */
+export declare function runTemplateGate(task: TaskRecord, deps?: TemplateGateDeps): Promise<TemplateGateResult>;
+/** action=done 的工具层入口：先过门，再 completed。 */
+export declare function runTaskDone(params: PptsTaskParams, deps?: TemplateGateDeps): Promise<PptsTaskResult>;
+export interface PptsJobParams {
+    action: 'get' | 'claim' | 'complete' | 'fail' | 'artifact';
+    jobId: string;
+    workOrderId?: string;
+    summary?: string;
+    reason?: string;
+    kind?: 'pptx' | 'pdf' | 'html' | 'png' | 'report' | 'script';
+    path?: string;
+}
+export declare const pptsJobTool: DshToolDefinition;
 export declare const pptsTaskTool: DshToolDefinition;

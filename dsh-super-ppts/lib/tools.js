@@ -15,38 +15,20 @@
  * 工程红线：所有外部进程一律 execFile 参数数组（禁 shell 字符串拼接）、带
  * timeout、固定 cwd 到插件包根。
  */
-import { execFile } from 'node:child_process';
 import { existsSync, statSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { extname, resolve, sep } from 'node:path';
 import { packageRoot } from './paths.js';
 import { TemplateStoreError, loadRegistry, } from './templates.js';
 import { BUILTIN_TEMPLATES } from './builtin-templates.js';
-import { TaskStoreError, addArtifact, appendEvent, requireTask, saveOutline, setMaterialStatus, setStatus, summarizeHistory, updateTask, } from './tasks.js';
+import { findPython, runOne } from './python.js';
+import { runPptxQc } from './qc.js';
+import { addJobArtifact, claimWorkOrder, completeWorkOrder, failWorkOrder, requireJob } from './jobs.js';
+import { contractFile, ensureContract, readContract } from './contracts.js';
+import { TaskStoreError, addArtifact, appendEvent, requireTask, saveOutline, taskDir, setMaterialStatus, setStatus, summarizeHistory, updateTask, } from './tasks.js';
 export { packageRoot };
 const COMPILER_SCRIPT = resolve(packageRoot, 'compiler', 'build_pptx.py');
 const RENDER_SCRIPT = resolve(packageRoot, 'skills', 'ppts-pptx', 'scripts', 'render_pptx.py');
-const PYTHON_CANDIDATES = [
-    { cmd: 'python3', args: [] },
-    { cmd: 'python', args: [] },
-    { cmd: 'py', args: ['-3'] },
-];
-function runOne(cmd, args, timeoutMs) {
-    return new Promise((resolvePromise) => {
-        // maxBuffer 显式放宽（默认 1MB）：--check 报告/渲染输出超长时不至于误判失败
-        execFile(cmd, [...args], { timeout: timeoutMs, cwd: packageRoot, maxBuffer: 10 * 1024 * 1024 }, (error, stdout, stderr) => {
-            resolvePromise({ ok: !error, stdout: String(stdout ?? ''), stderr: String(stderr ?? error?.message ?? '') });
-        });
-    });
-}
-/** 依次探测候选 Python（py -3 → python3 → python），返回第一个可执行者。 */
-export async function findPython() {
-    for (const candidate of PYTHON_CANDIDATES) {
-        const probe = await runOne(candidate.cmd, [...candidate.args, '--version'], 10_000);
-        if (probe.ok && /python/i.test(probe.stdout + probe.stderr))
-            return candidate;
-    }
-    return null;
-}
+export { findPython } from './python.js';
 /** 环境自检：委托 compiler/build_pptx.py --check 输出统一报告。 */
 export async function runCheck() {
     const python = await findPython();
@@ -180,6 +162,27 @@ function constraintsOf(description, styleNotes) {
     }
     return items;
 }
+function contractSummaryOf(record) {
+    const contract = readContract(record.id);
+    if (contract === null)
+        return { status: 'none', path: null, hash: null };
+    let path = null;
+    try {
+        path = contractFile(record.id);
+    }
+    catch {
+        path = null;
+    }
+    return { status: contract.status, path, hash: contract.sourceHash };
+}
+/** 按 id 或名称查用户模板（大小写不敏感；供 detail / ppts_contract 共用）。 */
+export function findUserTemplate(key) {
+    const wanted = String(key ?? '').trim();
+    if (wanted === '')
+        return null;
+    const lowered = wanted.toLowerCase();
+    return loadRegistry().templates.find(item => item.id === wanted || item.name.toLowerCase() === lowered) ?? null;
+}
 function toToolEntry(record, defaultId, styleNotes) {
     return {
         id: record.id,
@@ -190,6 +193,7 @@ function toToolEntry(record, defaultId, styleNotes) {
         uploadedAt: record.uploadedAt,
         isDefault: record.id === defaultId,
         constraints: constraintsOf(record.description, styleNotes),
+        contract: contractSummaryOf(record),
     };
 }
 /** 模板库查询：list 返回全部模板 + 生成偏好 + 内置模板；detail 按 id/名称取单条；history 返回生成画像。 */
@@ -261,6 +265,7 @@ export const pptsTemplatesTool = {
         + 'constraints 为空表示用户未声明约束，此时才回落到技能线默认排版。'
         + '另外模板 .pptx 内部可能以文字写明分层字号规范（如「标题 24px / 正文 16px」）——'
         + '先用 template_spec.py 读出这些文字规则，不要只看缩略图。'
+        + '每个模板条目还带 contract 摘要（status/path/hash）：status=parsed 才可用；生成前用 ppts_contract 读取层级规则。'
         + '返回中的 builtinTemplates 为插件内置模板（source=builtin，随插件版本提供，不可删除）；'
         + 'templates 为用户上传模板（source=user 口径，见各自 isDefault）。',
     parameters: {
@@ -291,8 +296,89 @@ export const pptsTemplatesTool = {
         },
         render: jsonRender,
     },
-    timeoutMs: 10_000,
-    execute: async (args) => runTemplates(args),
+    timeoutMs: 180_000,
+    execute: async (args) => {
+        if (args.action === 'detail' && typeof args.id === 'string') {
+            const record = findUserTemplate(args.id);
+            if (record !== null) {
+                try {
+                    await ensureContract(record);
+                }
+                catch { /* 解析失败由 contract 摘要暴露，不阻断 detail */ }
+            }
+        }
+        return runTemplates(args);
+    },
+};
+/** 模板契约的 agent 侧读取面：生成前拿结构化层级规则，而不是只看模板名。 */
+export const pptsContractTool = {
+    name: 'ppts_contract',
+    description: '读取/物化用户模板的排版契约（template_contract）。模板任务在生成前必须先调用：' +
+        'action=ensure 让宿主用 template_spec.py 解析模板、归一化为 levelRules（role/字体/字号/行距/颜色），' +
+        'action=get 返回已物化契约，action=status 只返回状态。' +
+        '契约 status 必须是 parsed 才能继续；missing/ambiguous 时用 needs-input 让用户补规范或裁决，' +
+        '不得按自己的默认排版继续。返回的 levels[].role 就是生成脚本要写到 shape.name 的 sp:<role> 标签。',
+    parameters: {
+        type: 'object',
+        properties: {
+            action: { type: 'string', enum: ['get', 'ensure', 'status'], description: 'get=读取（必要时物化）；ensure=强制物化；status=只看状态' },
+            id: { type: 'string', description: '模板 id 或名称（精确，不区分大小写）' },
+        },
+        required: ['id'],
+        additionalProperties: false,
+    },
+    output: {
+        schema: {
+            type: 'object',
+            properties: {
+                ok: { type: 'boolean' },
+                message: { type: 'string' },
+                contract: { type: 'object', description: '模板契约（levels/constraints/observed/status 等）' },
+                contractPath: { type: 'string' },
+                contractStatus: { type: 'string' },
+                levels: { type: 'array', items: { type: 'object' } },
+                constraints: { type: 'array', items: { type: 'object' } },
+            },
+            required: ['ok', 'message'],
+        },
+        render: jsonRender,
+    },
+    timeoutMs: 180_000,
+    execute: async (args) => {
+        const key = String(args.id ?? '').trim();
+        if (key === '')
+            return { ok: false, message: 'action 需要 id（模板 id 或名称）' };
+        const record = findUserTemplate(key);
+        if (record === null)
+            return { ok: false, message: `模板不存在：${key}（用 ppts_templates action=list 查看）` };
+        const action = args.action ?? 'get';
+        if (action === 'status') {
+            const cached = readContract(record.id);
+            return {
+                ok: true,
+                message: cached === null ? '契约尚未物化' : `契约状态：${cached.status}`,
+                contract: cached,
+                contractStatus: cached?.status ?? 'none',
+                contractPath: cached === null ? undefined : contractFile(record.id),
+            };
+        }
+        let contract = readContract(record.id);
+        if (action === 'ensure' || contract === null) {
+            contract = await ensureContract(record);
+        }
+        const ok = contract.status === 'parsed';
+        return {
+            ok,
+            message: ok
+                ? `模板契约已就绪（${contract.levels.length} 个层级，hash ${contract.sourceHash.slice(0, 19)}…）`
+                : `模板契约不可用（${contract.status}）：${contract.error ?? '请让用户补充模板规范'}`,
+            contract,
+            contractPath: contractFile(record.id),
+            contractStatus: contract.status,
+            levels: contract.levels,
+            constraints: contract.constraints,
+        };
+    },
 };
 /** 阶段键 → 任务状态（面板据此渲染阶段时间线）。completed 刻意不在表内——
  *  它不是「进行中的阶段」，只能由 action=done 显式到达。 */
@@ -397,8 +483,18 @@ export function runTask(params) {
                 return { ok: true, message: `已记录失败：${reason}（可重试当前阶段）`, taskId, status: failed.status };
             }
             case 'done': {
-                // done=任务完成标记：completed 的唯一入口（STAGE_STATUS 刻意不含
-                // completed——阶段上报只表达进行中；收口必须由 Agent 显式发起）
+                // 模板任务：直接调用 runTask 不能绕过一致性门（工具层走 runTaskDone）。
+                const templateId = task.brief.templateId;
+                if (typeof templateId === 'string' && templateId !== '' && task.brief.templateSource !== 'builtin') {
+                    return {
+                        ok: false,
+                        code: 'qc-required',
+                        message: '模板任务必须通过模板一致性门后完成：请经 ppts_task 工具调用 action=done（宿主会先跑结构/排版/一致性检查）。',
+                        taskId,
+                        status: task.status,
+                    };
+                }
+                // 非模板 / builtin：保持既有行为（completed 的唯一入口）。
                 const saved = setStatus(taskId, 'completed');
                 return {
                     ok: true,
@@ -435,6 +531,158 @@ export function runTask(params) {
         return { ok: false, message: `任务状态桥失败：${message}` };
     }
 }
+/**
+ * 对模板任务跑结构 → 排版 → 模板一致性三道机器门。
+ * 未使用用户模板 / builtin 模板 → skipped；其余状态一律显式失败，不静默放行。
+ */
+export async function runTemplateGate(task, deps = {}) {
+    const templateId = task.brief.templateId;
+    if (typeof templateId !== 'string' || templateId === '' || task.brief.templateSource === 'builtin') {
+        return { ok: true, skipped: true, reports: [] };
+    }
+    const record = (deps.findTemplate ?? findUserTemplate)(templateId);
+    if (record === null) {
+        return { ok: false, code: 'contract-missing', message: `模板不存在或已删除：${templateId}；请重新选择模板或改用「不使用模板」`, blockers: [], reports: [] };
+    }
+    const contract = await (deps.ensureContract ?? ensureContract)(record);
+    if (contract.status !== 'parsed') {
+        return {
+            ok: false,
+            code: 'contract-missing',
+            message: `模板契约不可用（${contract.status}）：${contract.error ?? '请补充模板规范后重试'}`,
+            blockers: [], reports: [],
+        };
+    }
+    const artifact = [...task.artifacts].reverse().find(item => item.type === 'pptx' && item.status === 'ready');
+    if (artifact === undefined) {
+        return { ok: false, code: 'no-artifact', message: '任务还没有已登记的 pptx 产物；请先用 action=artifact 登记 PPTX 路径', blockers: [], reports: [] };
+    }
+    const artifactPath = resolve(artifact.path);
+    const workspace = String(task.workspace?.path ?? '').trim();
+    if (!existsSync(artifactPath) || !statSync(artifactPath).isFile() || extname(artifactPath).toLowerCase() !== '.pptx') {
+        return { ok: false, code: 'invalid-artifact', message: `产物不是可读的 .pptx 文件：${artifactPath}`, blockers: [], reports: [] };
+    }
+    if (workspace !== '') {
+        const root = resolve(workspace);
+        if (artifactPath !== root && !artifactPath.startsWith(root + sep)) {
+            return { ok: false, code: 'invalid-artifact', message: `产物路径不在任务工作区内：${artifactPath}`, blockers: [], reports: [] };
+        }
+    }
+    const qc = await runPptxQc({
+        deckPath: artifactPath,
+        contract,
+        qcDir: deps.qcDir ?? resolve(taskDir(task.id), 'qc'),
+        deps: { python: deps.python, runCheck: deps.runCheck },
+    });
+    if (qc.error !== undefined) {
+        return { ok: false, code: 'qc-error', message: qc.error, blockers: [], reports: qc.reports };
+    }
+    const summary = qc.ok ? '模板一致性门通过' : `模板一致性门未通过：${qc.blockers.length} 项`;
+    appendEvent(task.id, 'qc', summary);
+    if (!qc.ok) {
+        return {
+            ok: false,
+            code: 'qc-blocked',
+            message: summary + '。请按 blockers 修正生成脚本（或打 sp:<role> 标签）后重新登记产物并重试。',
+            blockers: qc.blockers,
+            reports: qc.reports,
+        };
+    }
+    return { ok: true, skipped: false, reports: qc.reports };
+}
+/** action=done 的工具层入口：先过门，再 completed。 */
+export async function runTaskDone(params, deps = {}) {
+    const taskId = String(params?.taskId ?? '').trim();
+    if (taskId === '')
+        return { ok: false, message: '缺少 taskId（取工作台 Brief 中的「任务 ID」）' };
+    try {
+        const task = requireTask(taskId);
+        if (task.status === 'completed') {
+            return { ok: true, message: '任务已是 completed', taskId, status: task.status };
+        }
+        const gate = await runTemplateGate(task, deps);
+        if (!gate.ok) {
+            return { ok: false, code: gate.code, message: gate.message, taskId, status: task.status, blockers: gate.blockers, reports: gate.reports };
+        }
+        const saved = setStatus(taskId, 'completed');
+        return {
+            ok: true,
+            message: gate.skipped ? '任务已完成（未使用用户模板，跳过模板一致性门）' : '任务已完成：模板一致性门通过',
+            taskId,
+            status: saved.status,
+            outlineVersion: saved.outlineVersion,
+            reports: gate.reports,
+        };
+    }
+    catch (error) {
+        const message = error instanceof TaskStoreError ? error.message : String(error);
+        return { ok: false, message: `任务完成门失败：${message}` };
+    }
+}
+export const pptsJobTool = {
+    name: 'ppts_job',
+    description: 'Job 流水线工单桥（侧边栏「流水线」创建的任务）。收到以「【流水线工单】」开头的消息时使用：' +
+        'action=claim 认领工单，action=complete 完成后回执（summary），action=fail 记录失败，' +
+        'action=artifact 登记产物（kind/path），action=get 读取 Job 状态与 nextAction。' +
+        '机器闸门由宿主脚本判定；不要自行宣称已通过。',
+    parameters: {
+        type: 'object',
+        properties: {
+            action: { type: 'string', enum: ['get', 'claim', 'complete', 'fail', 'artifact'], description: '操作' },
+            jobId: { type: 'string', description: 'Job id（工单消息内）' },
+            workOrderId: { type: 'string', description: '工单 id（claim/complete/fail 必填）' },
+            summary: { type: 'string', description: 'complete：交付摘要' },
+            reason: { type: 'string', description: 'fail：失败原因' },
+            kind: { type: 'string', enum: ['pptx', 'pdf', 'html', 'png', 'report', 'script'], description: 'artifact：工件类型' },
+            path: { type: 'string', description: 'artifact：绝对路径' },
+        },
+        required: ['action', 'jobId'],
+        additionalProperties: false,
+    },
+    output: {
+        schema: {
+            type: 'object',
+            properties: {
+                ok: { type: 'boolean' },
+                message: { type: 'string' },
+                job: { type: 'object' },
+            },
+            required: ['ok', 'message'],
+        },
+        render: jsonRender,
+    },
+    timeoutMs: 30_000,
+    execute: async (args) => {
+        const jobId = String(args.jobId ?? '').trim();
+        if (jobId === '')
+            return { ok: false, message: '缺少 jobId' };
+        try {
+            if (args.action === 'get')
+                return { ok: true, message: 'Job 状态已读取', job: requireJob(jobId) };
+            const workOrderId = String(args.workOrderId ?? '').trim();
+            if (args.action === 'artifact') {
+                const kind = args.kind;
+                const path = String(args.path ?? '').trim();
+                if (kind === undefined || path === '')
+                    return { ok: false, message: 'artifact 需要 kind 与 path' };
+                const job = addJobArtifact(jobId, { kind, path, producedBy: 'builder' });
+                return { ok: true, message: '产物已登记', job };
+            }
+            if (workOrderId === '')
+                return { ok: false, message: args.action + ' 需要 workOrderId' };
+            if (args.action === 'claim')
+                return { ok: true, message: '工单已认领', job: claimWorkOrder(jobId, workOrderId) };
+            if (args.action === 'complete')
+                return { ok: true, message: '工单已完成', job: completeWorkOrder(jobId, workOrderId, { summary: String(args.summary ?? '') }) };
+            if (args.action === 'fail')
+                return { ok: true, message: '工单失败已记录', job: failWorkOrder(jobId, workOrderId, String(args.reason ?? '')) };
+            return { ok: false, message: '未知 action：' + String(args.action) };
+        }
+        catch (error) {
+            return { ok: false, message: 'Job 工单操作失败：' + String(error?.message ?? error) };
+        }
+    },
+};
 export const pptsTaskTool = {
     name: 'ppts_task',
     description: '演示任务状态桥（工作台创建的任务专用）。当 Brief 中带有「任务 ID：<id>」时必须使用本工具：' +
@@ -445,7 +693,7 @@ export const pptsTaskTool = {
         'action=artifact 登记产物路径；action=needs-input 请求用户补充信息；action=fail 记录失败原因与可恢复动作；' +
         'action=material 回报素材读取结果（materialId + materialStatus）——读成功报 ready，' +
         '读失败报 error 并用 detail 附原因，用户即可在工作台重试或删除该素材；' +
-        'action=done 标记任务完成（completed）——所有产物登记完毕后必须调用一次，它是结果视图与轮询停止的唯一入口。',
+        'action=done 申请完成任务（completed）——所有产物登记完毕后必须调用一次；模板任务会先跑结构/排版/模板一致性三道机器门，未通过返回 ok:false + code=qc-blocked + blockers，任务保持未完成，按 blockers 修正后重试。',
     parameters: {
         type: 'object',
         properties: {
@@ -483,11 +731,14 @@ export const pptsTaskTool = {
                 pageCount: { type: 'number' },
                 materialId: { type: 'string', description: 'action=material：被更新的素材 id' },
                 materialStatus: { type: 'string', description: 'action=material：素材新状态（ready / error）' },
+                code: { type: 'string', description: 'action=done 门失败码：contract-missing / no-artifact / invalid-artifact / qc-error / qc-blocked' },
+                blockers: { type: 'array', items: { type: 'object' }, description: 'action=done 门失败的结构化阻断项（page/shape/role/check/expected/actual）' },
+                reports: { type: 'array', items: { type: 'string' }, description: '本次门生成的报告路径（契约副本 / 结构 / 排版 / 一致性）' },
             },
             required: ['ok', 'message'],
         },
         render: jsonRender,
     },
-    timeoutMs: 10_000,
-    execute: async (args) => runTask(args),
+    timeoutMs: 300_000,
+    execute: async (args) => (args.action === 'done' ? runTaskDone(args) : runTask(args)),
 };

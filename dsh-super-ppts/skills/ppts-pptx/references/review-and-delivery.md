@@ -5,12 +5,14 @@
 
 ## 三层验收（机检层 → 视觉门 → 缺陷门）
 
-**机检层**（渲染前，两个脚本——都不依赖 LibreOffice，降级路径也可用）：
+**机检层**（渲染前，三个脚本——都不依赖 LibreOffice，降级路径也可用）：
 
 ```bash
 python3 <包根>/skills/ppts-pptx/scripts/validate_pptx.py deck.pptx
 python3 <包根>/skills/ppts-pptx/scripts/check_typography.py deck.pptx \
   --min-size-pt 10 --font 微软雅黑 --max-colors 4      # 或 --spec template-spec.json
+python3 <包根>/skills/ppts-pptx/scripts/check_template_conformance.py deck.pptx \
+  --contract <ppts_contract 产出的契约.json>             # 模板任务必做
 ```
 
 - **结构**（validate_pptx.py）：容器完整性（zip CRC）、必要部件、rels 引用闭包
@@ -20,7 +22,12 @@ python3 <包根>/skills/ppts-pptx/scripts/check_typography.py deck.pptx \
   `constraints`（模板描述 + 全局风格备注），以及 `template_spec.py` 从**模板页文字**
   里读出的 `levelRules`。缺这一步时「最小10号字 / 字体微软雅黑 / 颜色最多4色」
   无人校验——实机曾出现 8pt 小字与宋体/Arial 混排却全绿交付；
+- **模板一致性**（check_template_conformance.py）：按 shape 标签 `sp:<role>` 逐层级核对
+  字体/字号/行距/颜色；未打标签 = UNVERIFIED。它补上 check_typography 不做层级归属、
+  不查上界的洞（标题 28pt 与标题/正文颠倒都可能被旧门放过）；
 - **FAIL 必须先修才能进视觉门**；WARN（空页、缺元数据、规范外字号）记录并判断。
+- 任务流里 `ppts_task action=done` 会由宿主再跑这三道门；`qc-blocked` 的 blockers
+  必须逐条修生成脚本，不能绕过。
 
 **视觉门**（对照锁定方向，在渲染 PNG 上）：
 
