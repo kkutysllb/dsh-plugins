@@ -3,10 +3,10 @@
 # 不包含桌面壳、welcome、托盘、红绿灯等产品专属补丁。
 - insert:
     - id: ksrw-core
-      name: '@ksrw/core'
+      name: 'ksrw-core'
 
     - id: ksrw-desk
-      name: '@ksrw/desk'
+      name: 'ksrw-desk'
 
     # 不要在这里补 @qilin-agent/client-ui-sidebar-tasks：
     # 宿主（KCoder 1.1.5 / 引擎 3.1.9）已经自带该右栏 tab。再从插件 patch 插入一次会让

@@ -1,3 +1,3 @@
 name: 开题
-description: 开题工位：按 roles.json 生成；工具矩阵由 @ksrw/tools 按 allowed 裁剪。
+description: 开题工位：按 roles.json 生成；工具矩阵由 ksrw-tools 按 allowed 裁剪。
 order: 12

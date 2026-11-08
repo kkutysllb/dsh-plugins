@@ -45,7 +45,7 @@
     allowParallelInProgress: true
 
 - id: ksrw-tools
-  name: '@ksrw/tools'
+  name: 'ksrw-tools'
   config:
     role: ksrw-lead
     tools: [context, gate, handoff, propose, archive]

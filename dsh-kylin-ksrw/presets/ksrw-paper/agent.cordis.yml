@@ -46,7 +46,7 @@
     allowParallelInProgress: true
 
 - id: ksrw-tools
-  name: '@ksrw/tools'
+  name: 'ksrw-tools'
   config:
     role: ksrw-paper
     tools: [context, compile, propose, evidence, handoff, reading, format, figure, paper-workshop, archive]
