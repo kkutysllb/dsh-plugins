@@ -31,15 +31,14 @@
     }
   },
   "dependencies": {
-    "@ksrw/kernel": "0.2.0",
-    "@ksrw/core": "0.2.0",
-    "@ksrw/tools": "0.2.0",
-    "@ksrw/desk": "0.2.0",
-    "@ksrw/web": "0.2.0",
+    "@ksrw/kernel": "workspace:*",
+    "@ksrw/core": "workspace:*",
+    "@ksrw/tools": "workspace:*",
+    "@ksrw/desk": "workspace:*",
+    "@ksrw/web": "workspace:*",
     "@qilin-agent/client-ui-sidebar-tasks": "^3.1.11"
   },
   "scripts": {
-    "sync:presets": "node scripts/sync-presets.mjs",
-    "postinstall": "node scripts/sync-presets.mjs"
+    "sync:presets": "node scripts/sync-presets.mjs"
   }
 }
