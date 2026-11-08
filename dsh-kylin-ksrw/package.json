@@ -1,6 +1,6 @@
 {
-  "name": "dsh-kylin-ksrw-plugin",
-  "version": "0.1.0",
+  "name": "dsh-kylin-ksrw",
+  "version": "0.1.1",
   "description": "KSRW 科研工作台插件 bundle：七工位流程、领域工具、科研驾驶舱，挂载在 QiLin/dsh agent 引擎上",
   "license": "MIT",
   "type": "module",
@@ -31,10 +31,10 @@
     }
   },
   "dependencies": {
-    "ksrw-kernel": "^0.1.0",
-    "ksrw-core": "^0.1.0",
-    "ksrw-tools": "^0.1.0",
-    "ksrw-desk": "^0.1.0",
+    "ksrw-kernel": "^0.1.1",
+    "ksrw-core": "^0.1.1",
+    "ksrw-tools": "^0.1.1",
+    "ksrw-desk": "^0.1.1",
     "@qilin-agent/client-ui-sidebar-tasks": "^3.1.11"
   },
   "scripts": {
