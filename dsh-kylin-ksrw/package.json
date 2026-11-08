@@ -31,11 +31,11 @@
     }
   },
   "dependencies": {
-    "@ksrw/kernel": "workspace:*",
-    "@ksrw/core": "workspace:*",
-    "@ksrw/tools": "workspace:*",
-    "@ksrw/desk": "workspace:*",
-    "@ksrw/web": "workspace:*",
+    "@ksrw/kernel": "^0.1.0",
+    "@ksrw/core": "^0.1.0",
+    "@ksrw/tools": "^0.1.0",
+    "@ksrw/desk": "^0.1.0",
+    "@ksrw/web": "^0.1.0",
     "@qilin-agent/client-ui-sidebar-tasks": "^3.1.11"
   },
   "scripts": {
