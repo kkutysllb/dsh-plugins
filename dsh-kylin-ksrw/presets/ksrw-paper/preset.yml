@@ -1,0 +1,3 @@
+name: 论文
+description: 论文工位：按 roles.json 生成；工具矩阵由 @ksrw/tools 按 allowed 裁剪。
+order: 15

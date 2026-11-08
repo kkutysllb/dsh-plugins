@@ -1,0 +1,45 @@
+{
+  "name": "dsh-kylin-ksrw",
+  "version": "0.2.0",
+  "description": "KSRW 科研工作台插件 bundle：七工位流程、领域工具、科研驾驶舱，挂载在 QiLin/dsh agent 引擎上",
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "presets",
+    "scripts",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.19"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "qilin": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "@ksrw/kernel": "0.2.0",
+    "@ksrw/core": "0.2.0",
+    "@ksrw/tools": "0.2.0",
+    "@ksrw/desk": "0.2.0",
+    "@ksrw/web": "0.2.0",
+    "@qilin-agent/client-ui-sidebar-tasks": "^3.1.11"
+  },
+  "scripts": {
+    "sync:presets": "node scripts/sync-presets.mjs",
+    "postinstall": "node scripts/sync-presets.mjs"
+  }
+}

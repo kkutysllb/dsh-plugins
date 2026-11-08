@@ -1,0 +1,13 @@
+# dsh-kylin-ksrw plugin bundle patch
+# 安装后由引擎加载：host 领域 API/工具 + client 科研驾驶舱 + 右栏任务 tab。
+# 不包含桌面壳、welcome、托盘、红绿灯等产品专属补丁。
+- insert:
+    - id: ksrw-core
+      name: '@ksrw/core'
+
+    - id: ksrw-desk
+      name: '@ksrw/desk'
+
+    # 引擎内置右栏「任务与子代理」tab（不在默认 bundle 依赖图，运行时需补包）。
+    - id: ui-sidebar-tasks
+      name: '@qilin-agent/client-ui-sidebar-tasks'

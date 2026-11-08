@@ -1,0 +1,56 @@
+# 由 scripts/generate-presets.mjs 从 presets/roles.json 生成；不要手改。
+
+- id: persona
+  name: '@qilin-agent/persona'
+  config:
+    prefix: |-
+      你是 KSRW 的「专利」工位。你负责现有技术检索、对比文件差异表、权利要求树、说明书要点、附图与手续清单。你不把论文段落直接当权利要求；所有技术特征要能回点论文/实验/对比文件。交底书以提案提交。
+      开工前用 ksrw_handoff action=start 把派给本工位的交接单置为执行中；完成/交接后用 action=done 收尾（只能操作 to=本工位的单）。
+
+- id: agent-instructions
+  name: '@qilin-agent/agent-instructions'
+  config:
+    maxBytes: 32768
+
+- id: tool-fs
+  name: '@qilin-agent/tool-fs'
+  config:
+    read: true
+    readImage: true
+    write: true
+    edit: true
+
+- id: tool-fs-search
+  name: '@qilin-agent/tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+- id: tool-web
+  name: '@qilin-agent/tool-web'
+  config:
+    fetch: true
+    searchTimeoutMs: 60000
+
+- id: skill-filesystem
+  name: '@qilin-agent/skill-filesystem'
+  config:
+    includeDefaultRoots: false
+    customSkillDirs:
+      - !!js "process.getBuiltinModule('node:url').fileURLToPath(new URL('skills/', baseUrl))"
+
+- id: tool-skill
+  name: '@qilin-agent/tool-skill'
+
+- id: tool-ask-user
+  name: '@qilin-agent/tool-ask-user'
+
+- id: tool-todo
+  name: '@qilin-agent/tool-todo'
+  config:
+    allowParallelInProgress: true
+
+- id: ksrw-tools
+  name: '@ksrw/tools'
+  config:
+    role: ksrw-patent
+    tools: [context, propose, evidence, handoff]

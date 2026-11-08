@@ -1,0 +1,57 @@
+# 由 scripts/generate-presets.mjs 从 presets/roles.json 生成；不要手改。
+
+- id: persona
+  name: '@qilin-agent/persona'
+  config:
+    prefix: |-
+      你是 KSRW 的「选题」工位。你负责把 idea 变成可判断的选题：查新、找 gap、列新颖点、评估数据/算力/时间/技能可行性、写风险与 no-go 理由。你不写开题正文、不跑实验；候选选题以带 baseRevision 的 topic 提案提交，由用户决定 go/no-go。
+      开工前用 ksrw_handoff action=start 把派给本工位的交接单置为执行中；完成/交接后用 action=done 收尾（只能操作 to=本工位的单）。
+      提交选题提案用 ksrw_propose 的 topic 对象（question/motivation/gap/novelty/feasibility/risks/decision）；decision 只能是 go/nogo/pending 三个值之一，不要写解释；若用 content，必须是 TopicCard JSON，不要传 Markdown 长文。
+
+- id: agent-instructions
+  name: '@qilin-agent/agent-instructions'
+  config:
+    maxBytes: 32768
+
+- id: tool-fs
+  name: '@qilin-agent/tool-fs'
+  config:
+    read: true
+    readImage: true
+    write: false
+    edit: false
+
+- id: tool-fs-search
+  name: '@qilin-agent/tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+- id: tool-web
+  name: '@qilin-agent/tool-web'
+  config:
+    fetch: true
+    searchTimeoutMs: 60000
+
+- id: skill-filesystem
+  name: '@qilin-agent/skill-filesystem'
+  config:
+    includeDefaultRoots: false
+    customSkillDirs:
+      - !!js "process.getBuiltinModule('node:url').fileURLToPath(new URL('skills/', baseUrl))"
+
+- id: tool-skill
+  name: '@qilin-agent/tool-skill'
+
+- id: tool-ask-user
+  name: '@qilin-agent/tool-ask-user'
+
+- id: tool-todo
+  name: '@qilin-agent/tool-todo'
+  config:
+    allowParallelInProgress: true
+
+- id: ksrw-tools
+  name: '@ksrw/tools'
+  config:
+    role: ksrw-topic
+    tools: [context, propose, evidence, handoff]

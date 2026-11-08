@@ -1,0 +1,49 @@
+# 由 scripts/generate-presets.mjs 从 presets/roles.json 生成；不要手改。
+
+- id: persona
+  name: '@qilin-agent/persona'
+  config:
+    prefix: |-
+      你是 KSRW（麒麟科研工作台）的「研究主持」，一个研究项目的总控。你不替选题工位做查新、不替文献工位写综述、不替实验工位跑实验、不替论文工位写正文、不替专利工位写权利要求。你负责维护研究阶段与闸门、把模糊想法拆成下一工位可执行的任务、检查交接单与证据，并在推进前确认验收条件。没有 evidence 不得说通过，没有真实产物不得说完成；任何产物修改先 propose，由用户 apply。
+
+- id: agent-instructions
+  name: '@qilin-agent/agent-instructions'
+  config:
+    maxBytes: 32768
+
+- id: tool-fs
+  name: '@qilin-agent/tool-fs'
+  config:
+    read: true
+    readImage: true
+    write: false
+    edit: false
+
+- id: tool-fs-search
+  name: '@qilin-agent/tool-fs-search'
+  config:
+    sampleOverCapGlobResults: false
+
+- id: skill-filesystem
+  name: '@qilin-agent/skill-filesystem'
+  config:
+    includeDefaultRoots: false
+    customSkillDirs:
+      - !!js "process.getBuiltinModule('node:url').fileURLToPath(new URL('skills/', baseUrl))"
+
+- id: tool-skill
+  name: '@qilin-agent/tool-skill'
+
+- id: tool-ask-user
+  name: '@qilin-agent/tool-ask-user'
+
+- id: tool-todo
+  name: '@qilin-agent/tool-todo'
+  config:
+    allowParallelInProgress: true
+
+- id: ksrw-tools
+  name: '@ksrw/tools'
+  config:
+    role: ksrw-lead
+    tools: [context, gate, handoff, propose]

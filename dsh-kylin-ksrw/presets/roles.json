@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "default": "ksrw-lead",
+  "roles": [
+    {
+      "id": "ksrw-lead",
+      "name": "研究主持",
+      "order": 10,
+      "stage": "all",
+      "skills": [
+        "project-protocol"
+      ],
+      "tools": [
+        "context",
+        "gate",
+        "handoff",
+        "read",
+        "propose"
+      ]
+    },
+    {
+      "id": "ksrw-topic",
+      "name": "选题",
+      "order": 11,
+      "stage": "topic",
+      "skills": [
+        "topic-protocol"
+      ],
+      "tools": [
+        "context",
+        "search",
+        "read",
+        "propose",
+        "evidence",
+        "handoff"
+      ]
+    },
+    {
+      "id": "ksrw-proposal",
+      "name": "开题",
+      "order": 12,
+      "stage": "proposal",
+      "skills": [
+        "proposal-protocol"
+      ],
+      "tools": [
+        "context",
+        "search",
+        "read",
+        "propose",
+        "evidence",
+        "handoff"
+      ]
+    },
+    {
+      "id": "ksrw-literature",
+      "name": "文献",
+      "order": 13,
+      "stage": "literature",
+      "skills": [
+        "literature-protocol"
+      ],
+      "tools": [
+        "context",
+        "search",
+        "read",
+        "propose",
+        "evidence",
+        "handoff"
+      ]
+    },
+    {
+      "id": "ksrw-experiment",
+      "name": "实验",
+      "order": 14,
+      "stage": "experiment",
+      "skills": [
+        "experiment-protocol"
+      ],
+      "tools": [
+        "context",
+        "lab",
+        "experiment",
+        "read",
+        "search",
+        "propose",
+        "evidence",
+        "handoff"
+      ]
+    },
+    {
+      "id": "ksrw-paper",
+      "name": "论文",
+      "order": 15,
+      "stage": "paper",
+      "skills": [
+        "paper-protocol"
+      ],
+      "tools": [
+        "context",
+        "read",
+        "write",
+        "compile",
+        "propose",
+        "evidence",
+        "handoff",
+        "reading",
+        "format",
+        "figure",
+        "paper-workshop"
+      ]
+    },
+    {
+      "id": "ksrw-patent",
+      "name": "专利",
+      "order": 16,
+      "stage": "patent",
+      "skills": [
+        "patent-protocol"
+      ],
+      "tools": [
+        "context",
+        "search",
+        "read",
+        "write",
+        "propose",
+        "evidence",
+        "handoff"
+      ]
+    },
+    {
+      "id": "ksrw-ailab",
+      "name": "AILab",
+      "order": 17,
+      "stage": "all",
+      "skills": [
+        "ailab-protocol"
+      ],
+      "tools": [
+        "knowledge",
+        "lab",
+        "search",
+        "read"
+      ]
+    }
+  ]
+}
