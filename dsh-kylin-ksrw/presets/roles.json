@@ -15,7 +15,8 @@
         "gate",
         "handoff",
         "read",
-        "propose"
+        "propose",
+        "archive"
       ]
     },
     {
@@ -32,7 +33,8 @@
         "read",
         "propose",
         "evidence",
-        "handoff"
+        "handoff",
+        "archive"
       ]
     },
     {
@@ -49,7 +51,8 @@
         "read",
         "propose",
         "evidence",
-        "handoff"
+        "handoff",
+        "archive"
       ]
     },
     {
@@ -66,7 +69,8 @@
         "read",
         "propose",
         "evidence",
-        "handoff"
+        "handoff",
+        "archive"
       ]
     },
     {
@@ -85,7 +89,8 @@
         "search",
         "propose",
         "evidence",
-        "handoff"
+        "handoff",
+        "archive"
       ]
     },
     {
@@ -107,7 +112,8 @@
         "reading",
         "format",
         "figure",
-        "paper-workshop"
+        "paper-workshop",
+        "archive"
       ]
     },
     {
@@ -125,22 +131,8 @@
         "write",
         "propose",
         "evidence",
-        "handoff"
-      ]
-    },
-    {
-      "id": "ksrw-ailab",
-      "name": "AILab",
-      "order": 17,
-      "stage": "all",
-      "skills": [
-        "ailab-protocol"
-      ],
-      "tools": [
-        "knowledge",
-        "lab",
-        "search",
-        "read"
+        "handoff",
+        "archive"
       ]
     }
   ]

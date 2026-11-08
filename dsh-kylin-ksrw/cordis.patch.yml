@@ -1,5 +1,5 @@
 # dsh-kylin-ksrw plugin bundle patch
-# 安装后由引擎加载：host 领域 API/工具 + client 科研驾驶舱 + 右栏任务 tab。
+# 安装后由引擎加载：host 领域 API/工具 + client 科研驾驶舱。
 # 不包含桌面壳、welcome、托盘、红绿灯等产品专属补丁。
 - insert:
     - id: ksrw-core
@@ -8,6 +8,8 @@
     - id: ksrw-desk
       name: '@ksrw/desk'
 
-    # 引擎内置右栏「任务与子代理」tab（不在默认 bundle 依赖图，运行时需补包）。
-    - id: ui-sidebar-tasks
-      name: '@qilin-agent/client-ui-sidebar-tasks'
+    # 不要在这里补 @qilin-agent/client-ui-sidebar-tasks：
+    # 宿主（KCoder 1.1.5 / 引擎 3.1.9）已经自带该右栏 tab。再从插件 patch 插入一次会让
+    # client 模块组合出现重复条目，紧随其后的客户端包（实测是
+    # @qilin-agent/experimental-client-ui-cot-translation）永远停在 loading，
+    # 整个 web boot 判定「1 entry did not activate」并让应用退出。
