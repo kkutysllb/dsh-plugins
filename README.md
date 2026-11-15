@@ -77,6 +77,11 @@ dsh plugin --profile web add ./dsh-plugins/dsh-git-panel
 或发布到 npm 后按包名安装（`dsh plugin --profile web add dsh-git-panel`）。
 安装后重启 dsh 生效。
 
+> 带运行时依赖的插件（如 `dsh-kylin-vibe` 依赖 zod/fflate/unpdf）请用 `file:` 前缀
+> 指路径：`dsh plugin --profile web add file:./dsh-plugins/dsh-kylin-vibe`。pnpm 会把裸目录
+> 当 `link:`，只建符号链接、不装依赖，运行时会 `Cannot find package 'zod'`；`file:` 才会
+> 按本地包安装依赖（已实测 0.1.6 可正常激活）。
+
 ## 开发约定
 
 - **铁律**：成员插件变更（新增 / 升级 / 删除）必须先同步本 README 再提交，
