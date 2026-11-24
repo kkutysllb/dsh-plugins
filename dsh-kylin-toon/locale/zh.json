@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "title": "KToon 创作台",
+    "description": "小说、短剧漫剧、互动游戏与视频解说的本地文件工作台；视频制作沿用镜头契约、序列质检与时间线装配。"
+  },
+  "tabs": {
+    "story": "小说",
+    "drama": "短剧漫剧",
+    "game": "互动游戏",
+    "video": "视频解说"
+  },
+  "launcher": "创作台",
+  "production": "制作",
+  "documents": "文稿",
+  "details": "制作详情"
+}

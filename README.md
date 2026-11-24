@@ -38,6 +38,8 @@ git config core.hooksPath hooks
 | [dsh-stats-panel](./dsh-stats-panel) | 会话统计图表面板：hover 输入框下方 StatsLine 缩略条 → 底部弹出自绘图表（轮/步、首 token 平均、解码速度、LLM/工具调用耗时、Token 用量、缓存命中率环），zh/en 双时长格式解析 |
 | [dsh-terminal](./dsh-terminal)（npm: @kkutysllb/dsh-terminal） | 嵌入式终端面板：node-pty 多标签 shell、按工作区分桶、xterm.js UI，dsh web 页底部 dock（替代已退役的 Electron 宿主终端）。v1.3.0：标签前置终端图标；header 右侧显示当前活动标签**真实使用**的 shell 短名（取服务端 `shellDisplayName`，即 `$SHELL` → passwd → bash 兜底链的实际落点，客户端不按平台猜）；修复「边框痕迹粗糙」——上缘拖条由 4px 实心填色改为常态隐形/悬停胶囊，面板加 1px 上分隔线 + 10px 上圆角 + 向上投影，分隔色走 `color-mix` 从既有 token 现算（旧版硬编码 `rgba(0,0,0,.10)` 在暗色下脏成灰线）；顺带修复依赖降级卡暗色主题下不调 `applyPalette` 而呈白板；顺带修复暗色主题下终端右缘一条 15px 白杠（`vendor/xterm.css` 的 `.xterm-viewport{overflow-y:scroll}` 恒定占位，而该 xterm.css 是裁剪版、不含滚动条配色 ⇒ 默认滚动条露出；现按亮暗主题给细滚动条，track 透明露终端底色）。v1.2.2：dsh 兼容门上界 `<0.2.0` → `<1.0.0`——上游 0.2.1-alpha.1 下 app-boot 闸门静默跳过整个 bundle（终端整块消失无报错）的修复 |
 
+| [dsh-kylin-toon](./dsh-kylin-toon)（npm: dsh-kylin-toon） | KToon 创作台 0.1.0：小说 / 短剧漫剧 / 互动游戏 / 视频解说四个本地文件工作台。小说含章节蓝图→草稿→审稿→定稿、章节预览/筛选、行内修改意见与划词修改；短剧含 `MOTION.md` 契约、分镜质检、版本快照、节奏配方、模板包、复刻计划，以及 Hyperframes HTML 工程与官方 Studio（反代中文界面、仅引擎 Browser 打开、移除桌面版入口）；互动游戏八阶段证据轨、PRODUCT_BRIEF 表单、概念三选一、构建快照、盲玩隔离与画布；视频解说原片/解说稿工作台。短剧新集默认 Hyperframes HTML→MP4，旧 `toon_assemble` 仅兼容旧媒体工程；依赖 `hyperframes@^0.9.81`（Apache-2.0）。 |
+
 ### 技能 / 内容生成
 
 | 插件 | 说明 |
@@ -77,7 +79,7 @@ dsh plugin --profile web add ./dsh-plugins/dsh-git-panel
 或发布到 npm 后按包名安装（`dsh plugin --profile web add dsh-git-panel`）。
 安装后重启 dsh 生效。
 
-> 带运行时依赖的插件（如 `dsh-kylin-vibe` 依赖 zod/fflate/unpdf）请用 `file:` 前缀
+> 带运行时依赖的插件（如 `dsh-kylin-vibe` 依赖 zod/fflate/unpdf，`dsh-kylin-toon` 依赖 hyperframes）请用 `file:` 前缀
 > 指路径：`dsh plugin --profile web add file:./dsh-plugins/dsh-kylin-vibe`。pnpm 会把裸目录
 > 当 `link:`，只建符号链接、不装依赖，运行时会 `Cannot find package 'zod'`；`file:` 才会
 > 按本地包安装依赖（已实测 0.1.6 可正常激活）。

@@ -1,0 +1,16 @@
+# dsh-kylin-toon bundle layer.
+#
+# 同一份 cordis.patch.yml 被 DSH 与麒麟（QiLin）两个通道加载：
+# package.json 的 dsh.bundle.patch 与 qilin.bundle.patch 都指向本文件。
+#
+# 插件不保存任何模型或媒体密钥：对话模型归宿主设置，媒体生成归用户另装的
+# 多媒体网关插件（例如 dsh-kylin-media 的 media_* 工具）。这里只放非敏感默认值。
+
+- insert:
+    - id: dsh-kylin-toon
+      name: 'dsh-kylin-toon'
+      config:
+        welcomeGuide: true
+        maxFileBytes: 2097152
+        maxWorkspaceFiles: 1500
+        trustedHosts: []

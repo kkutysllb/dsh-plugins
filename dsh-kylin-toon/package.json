@@ -1,0 +1,88 @@
+{
+  "name": "dsh-kylin-toon",
+  "version": "0.1.0",
+  "description": "KToon 创作台：为 DSH / 麒麟引擎提供小说、短剧漫剧、互动游戏与视频解说四个本地文件工作台；短剧渲染与编辑器采用 Hyperframes（HTML→MP4 + Studio），保留镜头契约、Motion、版本与质检。",
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "qilin",
+    "kylin",
+    "cordis",
+    "ktoon",
+    "short-drama",
+    "novel",
+    "game",
+    "video"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "./entry.js",
+  "exports": {
+    ".": "./entry.js",
+    "./client": "./client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "bundle": "./client.js",
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-store",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-tool"
+      ]
+    }
+  },
+  "qilin": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "bundle": "./client.js",
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-store",
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-tool"
+      ]
+    }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "entry.js",
+    "client.js",
+    "lib",
+    "skills",
+    "knowledge",
+    "locale",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "release"
+  ],
+  "icon": "./icon.svg",
+  "meta": {
+    "title": "KToon 创作台",
+    "description": "小说、短剧漫剧、互动游戏与视频解说的本地文件工作台；短剧用 Hyperframes 渲染与 Studio 编辑。"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "pack": "node build.mjs && npm pack"
+  },
+  "dependencies": {
+    "hyperframes": "^0.9.81"
+  }
+}

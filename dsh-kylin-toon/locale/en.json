@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "title": "KToon Studio",
+    "description": "Local-file workbenches for fiction, short drama, playable games and video recaps; video production keeps shot contracts, sequence QC and timeline assembly."
+  },
+  "tabs": {
+    "story": "Fiction",
+    "drama": "Short drama",
+    "game": "Game",
+    "video": "Video recap"
+  },
+  "launcher": "Studio",
+  "production": "Production",
+  "documents": "Documents",
+  "details": "Production details"
+}
