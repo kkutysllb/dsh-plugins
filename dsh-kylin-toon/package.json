@@ -1,6 +1,6 @@
 {
   "name": "dsh-kylin-toon",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "KToon 创作台：为 DSH / 麒麟引擎提供小说、短剧漫剧、互动游戏与视频解说四个本地文件工作台；短剧渲染与编辑器采用 Hyperframes（HTML→MP4 + Studio），保留镜头契约、Motion、版本与质检。",
   "keywords": [
     "deepseek-harness",

@@ -226,6 +226,8 @@ export function projectEpisode(episode, documents) {
     episode: episode.id,
     directory: episode.directory,
     documents: DRAMA_FILES.filter((kind) => byKind.has(kind)),
+    additionalDocuments: episode.additionalDocuments ?? [],
+    assets: episode.assets ?? [],
     scenes: sectionsOf(script, /^#{2,4}\s*(?:场次?\s*[：:]?\s*)?(.+?)\s*$/),
     characters: sectionsOf(visual, /^#{2,4}\s*(?:角色|人物)\s*[：:]?\s*(.+?)\s*$/),
     shots: shots.map((shot) => ({

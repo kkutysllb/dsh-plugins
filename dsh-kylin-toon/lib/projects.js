@@ -159,18 +159,25 @@ async function discoverDrama(root, files) {
     for (const entry of entries) {
       if (!entry.isDirectory() || isSkippedName(entry.name)) continue;
       const directory = DRAMA_DIRECTORY + '/' + entry.name;
-      const documents = files
-        .filter((file) => file.path.startsWith(directory + '/') && file.kind === 'text' && file.path.split('/').length === 3 && DRAMA_FILES.includes(file.path.split('/')[2]))
+      const directText = files.filter((file) => file.path.startsWith(directory + '/') && file.kind === 'text' && file.path.split('/').length === 3);
+      const documents = directText
+        .filter((file) => DRAMA_FILES.includes(file.path.split('/')[2]))
         .map((file) => ({ path: file.path, kind: file.path.split('/')[2] }))
         .sort((a, b) => DRAMA_FILES.indexOf(a.kind) - DRAMA_FILES.indexOf(b.kind));
+      const additionalDocuments = directText
+        .filter((file) => !DRAMA_FILES.includes(file.path.split('/')[2]))
+        .map((file) => file.path);
       const media = files.filter((file) => file.path.startsWith(directory + '/') && file.kind === 'media');
       const outputs = files.filter((file) => file.path.startsWith(directory + '/制作成果/') && file.kind === 'media');
+      const assets = files.filter((file) => file.kind === 'media' && new RegExp('^' + DRAMA_DIRECTORY + '/(基准帧|定妆|assets)/').test(file.path)).map((file) => file.path);
       episodes.push({
         id: entry.name,
         directory,
         documents,
+        additionalDocuments,
         media: media.map((file) => file.path),
-        outputs: outputs.map((file) => file.path)
+        outputs: outputs.map((file) => file.path),
+        assets
       });
     }
   }
